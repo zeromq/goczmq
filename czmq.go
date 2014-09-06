@@ -12,11 +12,8 @@ package czmq
 int Zsock_connect(zsock_t *self, const char *format) {return zsock_connect(self, format, NULL);}
 
 int Zsock_bind(zsock_t *self, const char *format) {return zsock_bind(self, format, NULL);}
-
-void *my_memcpy(void *dest, const void *src, size_t n) {
-	return memcpy(dest, src, n);
-}
 */
+
 import "C"
 
 import (
@@ -86,11 +83,6 @@ func (z *Zsock) Bind(endpoint string) error {
 	} else {
 		return nil
 	}
-}
-
-type Zmsg struct {
-	tag    uint32
-	frames []string
 }
 
 func (z *Zsock) SendBytes(data []byte, flags Flag) error {
