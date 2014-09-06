@@ -95,9 +95,14 @@ func (z *Zsock) SendBytes(data []byte, flags Flag) error {
 
 func (z *Zsock) RecvBytes() ([]byte, error) {
 	frame := C.zframe_recv(unsafe.Pointer(z.zsock_t))
-	size := C.zframe_size(frame)
-	data := C.zframe_data(frame)
-	return C.GoBytes(unsafe.Pointer(data), C.int(size)), nil
+	if frame == nil {
+		return []byte{0}, errors.New("failed")
+	}
+	dataSize := C.zframe_size(frame)
+	dataPtr := C.zframe_data(frame)
+	b := C.GoBytes(unsafe.Pointer(dataPtr), C.int(dataSize))
+	C.zframe_destroy(&frame)
+	return b, nil
 }
 
 func (z *Zsock) Destroy() {
