@@ -6,45 +6,50 @@ import "C"
 import (
 	"errors"
 	"fmt"
-	"strconv"
 	"strings"
 )
 
+type picturePage struct {
+	intVal  int
+	strVal  string
+	byteVal []byte
+}
 type picture struct {
 	picture string
-	pages   []string
+	pages   []*picturePage
 }
 
 func newPicture(parts ...interface{}) (*picture, error) {
 	numParts := len(parts)
 
 	p := &picture{
-		pages: make([]string, numParts),
+		pages: make([]*picturePage, numParts),
 	}
 
-	picturePages := make([]string, numParts)
+	pictureType := make([]string, numParts)
 
 	for i, val := range parts {
 		switch v := val.(type) {
 		case int:
-			picturePages[i] = "i"
-			p.pages[i] = strconv.Itoa(val.(int))
+			pictureType[i] = "i"
+			p.pages[i] = &picturePage{intVal: val.(int)}
 		case string:
-			picturePages[i] = "s"
-			p.pages[i] = val.(string)
+			pictureType[i] = "s"
+			p.pages[i] = &picturePage{strVal: val.(string)}
 		case []byte:
 			if len(v) > 0 {
-				picturePages[i] = "b"
+				pictureType[i] = "b"
 			} else {
-				picturePages[i] = "n"
+				pictureType[i] = "n"
 			}
-			p.pages[i] = string(val.([]byte))
+			p.pages[i] = &picturePage{byteVal: make([]byte, len(val.([]byte)))}
+			p.pages[i].byteVal = val.([]byte)
 		default:
 			return nil, errors.New(fmt.Sprintf("unsupported type at index %d", i))
 		}
 	}
 
-	p.picture = strings.Join(picturePages, "")
+	p.picture = strings.Join(pictureType, "")
 
 	return p, nil
 }

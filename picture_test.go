@@ -11,23 +11,23 @@ func TestNewPicture(t *testing.T) {
 	}
 
 	if picture.picture != "sbni" {
-		t.Errorf("picture.picture should be 'sbni', is %s", picture.picture)
+		t.Error("picture.picture should be 'sbni', is %s", picture.picture)
 	}
 
-	if picture.pages[0] != "the" {
-		t.Errorf("picture.pages[0] should be 'the', is %s", picture.pages[0])
+	if picture.pages[0].strVal != "the" {
+		t.Error("picture.pages[0] should be 'the'")
 	}
 
-	if picture.pages[1] != "answer" {
-		t.Errorf("picture.pages[1] should be 'answer', is %s", picture.pages[1])
+	if string(picture.pages[1].byteVal) != "answer" {
+		t.Error("picture.pages[1] should be 'answer'")
 	}
 
-	if picture.pages[2] != "" {
-		t.Errorf("picture.pages[2] should be '', is %s", picture.pages[2])
+	if string(picture.pages[2].byteVal) != "" {
+		t.Error("picture.pages[2] should be ''")
 	}
 
-	if picture.pages[3] != "42" {
-		t.Errorf("picture.pages[3] should be '42', is %s", picture.pages[3])
+	if picture.pages[3].intVal != 42 {
+		t.Error("picture.pages[3] should be '42'")
 	}
 }
 
