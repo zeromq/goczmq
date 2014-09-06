@@ -1,5 +1,5 @@
 // A Go interface to CZMQ
-package czmq
+package goczmq
 
 /*
 #cgo !windows pkg-config: libczmq
@@ -10,10 +10,8 @@ package czmq
 #include <string.h>
 
 int Zsock_connect(zsock_t *self, const char *format) {return zsock_connect(self, format, NULL);}
-
 int Zsock_bind(zsock_t *self, const char *format) {return zsock_bind(self, format, NULL);}
 */
-
 import "C"
 
 import (

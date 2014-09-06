@@ -1,4 +1,4 @@
-package czmq
+package goczmq
 
 import (
 	"testing"
