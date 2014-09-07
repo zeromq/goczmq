@@ -5,7 +5,7 @@ import (
 )
 
 func TestSndhwm(t *testing.T) {
-	sock := NewZsock(PUSH)
+	sock := NewZsock(DEALER)
 	expected := 5000
 	sock.SetSndhwm(expected)
 	val := sock.Sndhwm()
@@ -15,7 +15,7 @@ func TestSndhwm(t *testing.T) {
 }
 
 func TestRcvhwm(t *testing.T) {
-	sock := NewZsock(PUSH)
+	sock := NewZsock(DEALER)
 	expected := 5000
 	sock.SetRcvhwm(expected)
 	val := sock.Rcvhwm()
@@ -23,4 +23,14 @@ func TestRcvhwm(t *testing.T) {
 		t.Errorf("Recvhwm returned %d should be '%d'", val, expected)
 	}
 
+}
+
+func TestIdentity(t *testing.T) {
+	sock := NewZsock(DEALER)
+	expected := "myidentity"
+	sock.SetIdentity(expected)
+	val := sock.Identity()
+	if val != expected {
+		t.Errorf("TestIdentity returned %s should be %s", val, expected)
+	}
 }
