@@ -35,6 +35,8 @@ func (z *Zsock) SetTos(val int) {
 	C.zsock_set_tos(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // Tos returns the current value of the socket's tos option
 func (z *Zsock) Tos() int {
 	val := C.zsock_tos(unsafe.Pointer(z.zsock_t))
@@ -46,41 +48,50 @@ func (z *Zsock) SetRouterHandover(val int) {
 	C.zsock_set_router_handover(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
 // SetRouterMandatory sets the router_mandatory option for the socket
 func (z *Zsock) SetRouterMandatory(val int) {
 	C.zsock_set_router_mandatory(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
 
 // SetProbeRouter sets the probe_router option for the socket
 func (z *Zsock) SetProbeRouter(val int) {
 	C.zsock_set_probe_router(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
 // SetReqRelaxed sets the req_relaxed option for the socket
 func (z *Zsock) SetReqRelaxed(val int) {
 	C.zsock_set_req_relaxed(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
 
 // SetReqCorrelate sets the req_correlate option for the socket
 func (z *Zsock) SetReqCorrelate(val int) {
 	C.zsock_set_req_correlate(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
 // SetConflate sets the conflate option for the socket
 func (z *Zsock) SetConflate(val int) {
 	C.zsock_set_conflate(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
 
 // SetZapDomain sets the zap_domain option for the socket
 func (z *Zsock) SetZapDomain(val string) {
 	C.zsock_set_zap_domain(unsafe.Pointer(z.zsock_t), C.CString(val))
 }
 
+
+
 // ZapDomain returns the current value of the socket's zap_domain option
 func (z *Zsock) ZapDomain() string {
 	val := C.zsock_zap_domain(unsafe.Pointer(z.zsock_t))
 	return C.GoString(val)
 }
+
 
 // Mechanism returns the current value of the socket's mechanism option
 func (z *Zsock) Mechanism() int {
@@ -93,6 +104,8 @@ func (z *Zsock) SetPlainServer(val int) {
 	C.zsock_set_plain_server(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // PlainServer returns the current value of the socket's plain_server option
 func (z *Zsock) PlainServer() int {
 	val := C.zsock_plain_server(unsafe.Pointer(z.zsock_t))
@@ -103,6 +116,8 @@ func (z *Zsock) PlainServer() int {
 func (z *Zsock) SetPlainUsername(val string) {
 	C.zsock_set_plain_username(unsafe.Pointer(z.zsock_t), C.CString(val))
 }
+
+
 
 // PlainUsername returns the current value of the socket's plain_username option
 func (z *Zsock) PlainUsername() string {
@@ -115,6 +130,8 @@ func (z *Zsock) SetPlainPassword(val string) {
 	C.zsock_set_plain_password(unsafe.Pointer(z.zsock_t), C.CString(val))
 }
 
+
+
 // PlainPassword returns the current value of the socket's plain_password option
 func (z *Zsock) PlainPassword() string {
 	val := C.zsock_plain_password(unsafe.Pointer(z.zsock_t))
@@ -126,6 +143,8 @@ func (z *Zsock) SetCurveServer(val int) {
 	C.zsock_set_curve_server(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // CurveServer returns the current value of the socket's curve_server option
 func (z *Zsock) CurveServer() int {
 	val := C.zsock_curve_server(unsafe.Pointer(z.zsock_t))
@@ -134,17 +153,22 @@ func (z *Zsock) CurveServer() int {
 
 // SetCurvePublickey sets the curve_publickey option for the socket
 
+
 // CurvePublickey returns the current value of the socket's curve_publickey option
 // SetCurveSecretkey sets the curve_secretkey option for the socket
 
+
 // CurveSecretkey returns the current value of the socket's curve_secretkey option
 // SetCurveServerkey sets the curve_serverkey option for the socket
+
 
 // CurveServerkey returns the current value of the socket's curve_serverkey option
 // SetGssapiServer sets the gssapi_server option for the socket
 func (z *Zsock) SetGssapiServer(val int) {
 	C.zsock_set_gssapi_server(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
+
 
 // GssapiServer returns the current value of the socket's gssapi_server option
 func (z *Zsock) GssapiServer() int {
@@ -157,6 +181,8 @@ func (z *Zsock) SetGssapiPlaintext(val int) {
 	C.zsock_set_gssapi_plaintext(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // GssapiPlaintext returns the current value of the socket's gssapi_plaintext option
 func (z *Zsock) GssapiPlaintext() int {
 	val := C.zsock_gssapi_plaintext(unsafe.Pointer(z.zsock_t))
@@ -167,6 +193,8 @@ func (z *Zsock) GssapiPlaintext() int {
 func (z *Zsock) SetGssapiPrincipal(val string) {
 	C.zsock_set_gssapi_principal(unsafe.Pointer(z.zsock_t), C.CString(val))
 }
+
+
 
 // GssapiPrincipal returns the current value of the socket's gssapi_principal option
 func (z *Zsock) GssapiPrincipal() string {
@@ -179,6 +207,8 @@ func (z *Zsock) SetGssapiServicePrincipal(val string) {
 	C.zsock_set_gssapi_service_principal(unsafe.Pointer(z.zsock_t), C.CString(val))
 }
 
+
+
 // GssapiServicePrincipal returns the current value of the socket's gssapi_service_principal option
 func (z *Zsock) GssapiServicePrincipal() string {
 	val := C.zsock_gssapi_service_principal(unsafe.Pointer(z.zsock_t))
@@ -189,6 +219,8 @@ func (z *Zsock) GssapiServicePrincipal() string {
 func (z *Zsock) SetIpv6(val int) {
 	C.zsock_set_ipv6(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
+
 
 // Ipv6 returns the current value of the socket's ipv6 option
 func (z *Zsock) Ipv6() int {
@@ -201,6 +233,8 @@ func (z *Zsock) SetImmediate(val int) {
 	C.zsock_set_immediate(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // Immediate returns the current value of the socket's immediate option
 func (z *Zsock) Immediate() int {
 	val := C.zsock_immediate(unsafe.Pointer(z.zsock_t))
@@ -212,10 +246,13 @@ func (z *Zsock) SetRouterRaw(val int) {
 	C.zsock_set_router_raw(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
 // SetIpv4only sets the ipv4only option for the socket
 func (z *Zsock) SetIpv4only(val int) {
 	C.zsock_set_ipv4only(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
+
 
 // Ipv4only returns the current value of the socket's ipv4only option
 func (z *Zsock) Ipv4only() int {
@@ -228,6 +265,8 @@ func (z *Zsock) SetDelayAttachOnConnect(val int) {
 	C.zsock_set_delay_attach_on_connect(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // Type returns the current value of the socket's type option
 func (z *Zsock) Type() int {
 	val := C.zsock_type(unsafe.Pointer(z.zsock_t))
@@ -238,6 +277,8 @@ func (z *Zsock) Type() int {
 func (z *Zsock) SetSndhwm(val int) {
 	C.zsock_set_sndhwm(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
+
 
 // Sndhwm returns the current value of the socket's sndhwm option
 func (z *Zsock) Sndhwm() int {
@@ -250,6 +291,8 @@ func (z *Zsock) SetRcvhwm(val int) {
 	C.zsock_set_rcvhwm(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // Rcvhwm returns the current value of the socket's rcvhwm option
 func (z *Zsock) Rcvhwm() int {
 	val := C.zsock_rcvhwm(unsafe.Pointer(z.zsock_t))
@@ -258,21 +301,26 @@ func (z *Zsock) Rcvhwm() int {
 
 // SetAffinity sets the affinity option for the socket
 
+
 // Affinity returns the current value of the socket's affinity option
 // SetSubscribe sets the subscribe option for the socket
 func (z *Zsock) SetSubscribe(val string) {
 	C.zsock_set_subscribe(unsafe.Pointer(z.zsock_t), C.CString(val))
 }
 
+
 // SetUnsubscribe sets the unsubscribe option for the socket
 func (z *Zsock) SetUnsubscribe(val string) {
 	C.zsock_set_unsubscribe(unsafe.Pointer(z.zsock_t), C.CString(val))
 }
 
+
 // SetIdentity sets the identity option for the socket
 func (z *Zsock) SetIdentity(val string) {
 	C.zsock_set_identity(unsafe.Pointer(z.zsock_t), C.CString(val))
 }
+
+
 
 // Identity returns the current value of the socket's identity option
 func (z *Zsock) Identity() string {
@@ -285,6 +333,8 @@ func (z *Zsock) SetRate(val int) {
 	C.zsock_set_rate(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // Rate returns the current value of the socket's rate option
 func (z *Zsock) Rate() int {
 	val := C.zsock_rate(unsafe.Pointer(z.zsock_t))
@@ -295,6 +345,8 @@ func (z *Zsock) Rate() int {
 func (z *Zsock) SetRecoveryIvl(val int) {
 	C.zsock_set_recovery_ivl(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
+
 
 // RecoveryIvl returns the current value of the socket's recovery_ivl option
 func (z *Zsock) RecoveryIvl() int {
@@ -307,6 +359,8 @@ func (z *Zsock) SetSndbuf(val int) {
 	C.zsock_set_sndbuf(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // Sndbuf returns the current value of the socket's sndbuf option
 func (z *Zsock) Sndbuf() int {
 	val := C.zsock_sndbuf(unsafe.Pointer(z.zsock_t))
@@ -317,6 +371,8 @@ func (z *Zsock) Sndbuf() int {
 func (z *Zsock) SetRcvbuf(val int) {
 	C.zsock_set_rcvbuf(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
+
 
 // Rcvbuf returns the current value of the socket's rcvbuf option
 func (z *Zsock) Rcvbuf() int {
@@ -329,6 +385,8 @@ func (z *Zsock) SetLinger(val int) {
 	C.zsock_set_linger(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // Linger returns the current value of the socket's linger option
 func (z *Zsock) Linger() int {
 	val := C.zsock_linger(unsafe.Pointer(z.zsock_t))
@@ -339,6 +397,8 @@ func (z *Zsock) Linger() int {
 func (z *Zsock) SetReconnectIvl(val int) {
 	C.zsock_set_reconnect_ivl(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
+
 
 // ReconnectIvl returns the current value of the socket's reconnect_ivl option
 func (z *Zsock) ReconnectIvl() int {
@@ -351,6 +411,8 @@ func (z *Zsock) SetReconnectIvlMax(val int) {
 	C.zsock_set_reconnect_ivl_max(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // ReconnectIvlMax returns the current value of the socket's reconnect_ivl_max option
 func (z *Zsock) ReconnectIvlMax() int {
 	val := C.zsock_reconnect_ivl_max(unsafe.Pointer(z.zsock_t))
@@ -362,6 +424,8 @@ func (z *Zsock) SetBacklog(val int) {
 	C.zsock_set_backlog(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // Backlog returns the current value of the socket's backlog option
 func (z *Zsock) Backlog() int {
 	val := C.zsock_backlog(unsafe.Pointer(z.zsock_t))
@@ -370,11 +434,14 @@ func (z *Zsock) Backlog() int {
 
 // SetMaxmsgsize sets the maxmsgsize option for the socket
 
+
 // Maxmsgsize returns the current value of the socket's maxmsgsize option
 // SetMulticastHops sets the multicast_hops option for the socket
 func (z *Zsock) SetMulticastHops(val int) {
 	C.zsock_set_multicast_hops(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
+
 
 // MulticastHops returns the current value of the socket's multicast_hops option
 func (z *Zsock) MulticastHops() int {
@@ -387,6 +454,8 @@ func (z *Zsock) SetRcvtimeo(val int) {
 	C.zsock_set_rcvtimeo(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // Rcvtimeo returns the current value of the socket's rcvtimeo option
 func (z *Zsock) Rcvtimeo() int {
 	val := C.zsock_rcvtimeo(unsafe.Pointer(z.zsock_t))
@@ -397,6 +466,8 @@ func (z *Zsock) Rcvtimeo() int {
 func (z *Zsock) SetSndtimeo(val int) {
 	C.zsock_set_sndtimeo(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
+
 
 // Sndtimeo returns the current value of the socket's sndtimeo option
 func (z *Zsock) Sndtimeo() int {
@@ -409,10 +480,13 @@ func (z *Zsock) SetXpubVerbose(val int) {
 	C.zsock_set_xpub_verbose(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
 // SetTcpKeepalive sets the tcp_keepalive option for the socket
 func (z *Zsock) SetTcpKeepalive(val int) {
 	C.zsock_set_tcp_keepalive(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
+
 
 // TcpKeepalive returns the current value of the socket's tcp_keepalive option
 func (z *Zsock) TcpKeepalive() int {
@@ -425,6 +499,8 @@ func (z *Zsock) SetTcpKeepaliveIdle(val int) {
 	C.zsock_set_tcp_keepalive_idle(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // TcpKeepaliveIdle returns the current value of the socket's tcp_keepalive_idle option
 func (z *Zsock) TcpKeepaliveIdle() int {
 	val := C.zsock_tcp_keepalive_idle(unsafe.Pointer(z.zsock_t))
@@ -435,6 +511,8 @@ func (z *Zsock) TcpKeepaliveIdle() int {
 func (z *Zsock) SetTcpKeepaliveCnt(val int) {
 	C.zsock_set_tcp_keepalive_cnt(unsafe.Pointer(z.zsock_t), C.int(val))
 }
+
+
 
 // TcpKeepaliveCnt returns the current value of the socket's tcp_keepalive_cnt option
 func (z *Zsock) TcpKeepaliveCnt() int {
@@ -447,6 +525,8 @@ func (z *Zsock) SetTcpKeepaliveIntvl(val int) {
 	C.zsock_set_tcp_keepalive_intvl(unsafe.Pointer(z.zsock_t), C.int(val))
 }
 
+
+
 // TcpKeepaliveIntvl returns the current value of the socket's tcp_keepalive_intvl option
 func (z *Zsock) TcpKeepaliveIntvl() int {
 	val := C.zsock_tcp_keepalive_intvl(unsafe.Pointer(z.zsock_t))
@@ -458,11 +538,14 @@ func (z *Zsock) SetTcpAcceptFilter(val string) {
 	C.zsock_set_tcp_accept_filter(unsafe.Pointer(z.zsock_t), C.CString(val))
 }
 
+
+
 // TcpAcceptFilter returns the current value of the socket's tcp_accept_filter option
 func (z *Zsock) TcpAcceptFilter() string {
 	val := C.zsock_tcp_accept_filter(unsafe.Pointer(z.zsock_t))
 	return C.GoString(val)
 }
+
 
 // Rcvmore returns the current value of the socket's rcvmore option
 func (z *Zsock) Rcvmore() int {
@@ -470,11 +553,13 @@ func (z *Zsock) Rcvmore() int {
 	return int(val)
 }
 
+
 // Fd returns the current value of the socket's fd option
 func (z *Zsock) Fd() int {
 	val := C.zsock_fd(unsafe.Pointer(z.zsock_t))
 	return int(val)
 }
+
 
 // Events returns the current value of the socket's events option
 func (z *Zsock) Events() int {
@@ -482,8 +567,10 @@ func (z *Zsock) Events() int {
 	return int(val)
 }
 
+
 // LastEndpoint returns the current value of the socket's last_endpoint option
 func (z *Zsock) LastEndpoint() string {
 	val := C.zsock_last_endpoint(unsafe.Pointer(z.zsock_t))
 	return C.GoString(val)
 }
+
