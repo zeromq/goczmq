@@ -36,6 +36,7 @@ import (
 )
 
 .for version
+.if major = "4"
 .for option
 .if mode = "rw" | mode = "w"
 // Set$(name:pascal) sets the $(name) option for the socket
@@ -72,6 +73,7 @@ func (z *Zsock) $(name:pascal)() $(gotype) {
 .endif
 .endif
 .endfor
+.endif
 .for source
 $(string.trim(.):)
 .endfor
