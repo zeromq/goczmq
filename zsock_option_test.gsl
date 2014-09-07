@@ -1,0 +1,60 @@
+.#  This is a code generator built using the iMatix GSL code generation
+.#  language. See https://github.com/imatix/gsl for details. This script 
+.#  is licensed under MIT/X11.
+.#
+.output "./zsock_option_test.go"
+package goczmq
+/*  =========================================================================
+    zsock_option - get/set 0MQ socket options
+
+            ****************************************************
+            *   GENERATED SOURCE CODE, DO NOT EDIT!!           *
+            ****************************************************
+
+    Copyright (c) the Contributors as noted in the AUTHORS file.
+    This file is part of goczmq, the high-level go binding for CZMQ:
+    http://github.com/zeromq/goczmq
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    =========================================================================
+*/
+
+import (
+	"testing"
+)
+.for version
+.if major = "4"
+.for option where defined(test)
+.if mode = "rw" 
+.if type = "int"
+func Test$(name:pascal)(t *testing.T) {
+	sock := NewZsock($(test:upper))
+	expected := $(test_value?'1':)
+	sock.Set$(name:pascal)(expected)
+	val := sock.$(name:pascal)()
+	if val != expected && val != 0 {
+		t.Errorf("$(name:pascal) returned %d, should be %d", val, expected)
+	}
+	sock.Destroy()
+}
+
+.endif
+.if type = "string"
+func Test$(name:pascal)(t *testing.T) {
+	sock := NewZsock($(test:upper))
+	expected := "$(test_value?'test':)"
+	sock.Set$(name:pascal)(expected)
+	val := sock.$(name:pascal)()
+	if val != expected && val != "" {
+		t.Errorf("$(name:pascal) returned %s should be %s", val, expected)
+	}
+        sock.Destroy()
+}
+
+.endif
+.endif
+.endfor
+.endif
+.endfor
