@@ -52,6 +52,7 @@ func Test$(name:pascal)(t *testing.T) {
 	}
         sock.Destroy()
 }
+
 .endif
 .endif
 .endfor
