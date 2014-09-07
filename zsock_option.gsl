@@ -1,0 +1,78 @@
+.#  This is a code generator built using the iMatix GSL code generation
+.#  language. See https://github.com/imatix/gsl for details. This script 
+.#  is licensed under MIT/X11.
+.#
+.output "./zsock_option.go"
+package goczmq
+
+/*  =========================================================================
+    zsock_option - get/set 0MQ socket options
+
+            ****************************************************
+            *   GENERATED SOURCE CODE, DO NOT EDIT!!           *
+            *   TO CHANGE THIS, EDIT sockopts.gsl              *
+            *   AND RUN gsl -q sockopts.xml                    *
+            ****************************************************
+
+    Copyright (c) the Contributors as noted in the AUTHORS file.
+    This file is part of goczmq, the high-level go binding for CZMQ:
+    http://github.com/zeromq/goczmq
+
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    =========================================================================
+*/
+
+/*
+#include "czmq.h"
+#include <stdlib.h>
+#include <string.h>
+*/
+import "C"
+
+import (
+	"unsafe"
+)
+
+.for version
+.for option
+.if mode = "rw" | mode = "w"
+// Set$(name:pascal) sets the $(name) option for the socket
+.if type = "int"
+func (z *Zsock) Set$(name:pascal)(val $(gotype)) {
+	C.zsock_set_$(name)(unsafe.Pointer(z.zsock_t), C.int(val))
+}
+
+.endif
+.if type = "string"
+func (z *Zsock) Set$(name:pascal)(val $(gotype)) {
+	C.zsock_set_$(name)(unsafe.Pointer(z.zsock_t), C.CString(val))
+}
+
+.endif
+
+.endif
+.if mode = "rw" | mode = "r"
+
+// $(name:pascal) returns the current value of the socket's $(name) option
+.if type = "int"
+func (z *Zsock) $(name:pascal)() $(gotype) {
+	val := C.zsock_$(name)(unsafe.Pointer(z.zsock_t))
+	return int(val)
+}
+
+.endif
+.if type = "string"
+func (z *Zsock) $(name:pascal)() $(gotype) {
+	val := C.zsock_$(name)(unsafe.Pointer(z.zsock_t))
+	return C.GoString(val)
+}
+
+.endif
+.endif
+.endfor
+.for source
+$(string.trim(.):)
+.endfor
+.endfor
