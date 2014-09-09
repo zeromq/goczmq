@@ -43,7 +43,7 @@ func Test$(name:pascal)(t *testing.T) {
 }
 
 .endif
-.if type = "string"
+.if type = "string" | type = "key"
 func Test$(name:pascal)(t *testing.T) {
 	sock := NewZsock($(test:upper))
 	testval := "$(test_value?'test':)"
@@ -67,7 +67,7 @@ func Test$(name:pascal)(t *testing.T) {
 }
 
 .endif
-.if type = "string"
+.if type = "string" | type = "key"
 func Test$(name:pascal)(t *testing.T) {
 	sock := NewZsock($(test:upper))
 	_ = sock.$(name:pascal)()

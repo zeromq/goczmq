@@ -132,6 +132,39 @@ func (z *Zsock) CurveServer() int {
 	return int(val)
 }
 
+// SetCurvePublickey sets the curve_publickey option for the socket
+func (z *Zsock) SetCurvePublickey(val string) {
+	C.zsock_set_curve_publickey(unsafe.Pointer(z.zsock_t), C.CString(val))
+}
+
+// CurvePublickey returns the current value of the socket's curve_publickey option
+func (z *Zsock) CurvePublickey() string {
+	val := C.zsock_curve_publickey(unsafe.Pointer(z.zsock_t))
+	return C.GoString(val)
+}
+
+// SetCurveSecretkey sets the curve_secretkey option for the socket
+func (z *Zsock) SetCurveSecretkey(val string) {
+	C.zsock_set_curve_secretkey(unsafe.Pointer(z.zsock_t), C.CString(val))
+}
+
+// CurveSecretkey returns the current value of the socket's curve_secretkey option
+func (z *Zsock) CurveSecretkey() string {
+	val := C.zsock_curve_secretkey(unsafe.Pointer(z.zsock_t))
+	return C.GoString(val)
+}
+
+// SetCurveServerkey sets the curve_serverkey option for the socket
+func (z *Zsock) SetCurveServerkey(val string) {
+	C.zsock_set_curve_serverkey(unsafe.Pointer(z.zsock_t), C.CString(val))
+}
+
+// CurveServerkey returns the current value of the socket's curve_serverkey option
+func (z *Zsock) CurveServerkey() string {
+	val := C.zsock_curve_serverkey(unsafe.Pointer(z.zsock_t))
+	return C.GoString(val)
+}
+
 // SetGssapiServer sets the gssapi_server option for the socket
 func (z *Zsock) SetGssapiServer(val int) {
 	C.zsock_set_gssapi_server(unsafe.Pointer(z.zsock_t), C.int(val))
@@ -494,4 +527,3 @@ func (z *Zsock) LastEndpoint() string {
 	val := C.zsock_last_endpoint(unsafe.Pointer(z.zsock_t))
 	return C.GoString(val)
 }
-

@@ -46,7 +46,7 @@ func (z *Zsock) Set$(name:pascal)(val $(gotype)) {
 }
 
 .endif
-.if type = "string"
+.if type = "string" | type = "key"
 // Set$(name:pascal) sets the $(name) option for the socket
 func (z *Zsock) Set$(name:pascal)(val $(gotype)) {
 	C.zsock_set_$(name)(unsafe.Pointer(z.zsock_t), C.CString(val))
@@ -63,7 +63,7 @@ func (z *Zsock) $(name:pascal)() $(gotype) {
 }
 
 .endif
-.if type = "string"
+.if type = "string" | type = "key"
 // $(name:pascal) returns the current value of the socket's $(name) option
 func (z *Zsock) $(name:pascal)() $(gotype) {
 	val := C.zsock_$(name)(unsafe.Pointer(z.zsock_t))
