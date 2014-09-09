@@ -132,15 +132,6 @@ func (z *Zsock) CurveServer() int {
 	return int(val)
 }
 
-// SetCurvePublickey sets the curve_publickey option for the socket
-
-// CurvePublickey returns the current value of the socket's curve_publickey option
-// SetCurveSecretkey sets the curve_secretkey option for the socket
-
-// CurveSecretkey returns the current value of the socket's curve_secretkey option
-// SetCurveServerkey sets the curve_serverkey option for the socket
-
-// CurveServerkey returns the current value of the socket's curve_serverkey option
 // SetGssapiServer sets the gssapi_server option for the socket
 func (z *Zsock) SetGssapiServer(val int) {
 	C.zsock_set_gssapi_server(unsafe.Pointer(z.zsock_t), C.int(val))
@@ -257,8 +248,16 @@ func (z *Zsock) Rcvhwm() int {
 }
 
 // SetAffinity sets the affinity option for the socket
+func (z *Zsock) SetAffinity(val int) {
+	C.zsock_set_affinity(unsafe.Pointer(z.zsock_t), C.int(val))
+}
 
 // Affinity returns the current value of the socket's affinity option
+func (z *Zsock) Affinity() int {
+	val := C.zsock_affinity(unsafe.Pointer(z.zsock_t))
+	return int(val)
+}
+
 // SetSubscribe sets the subscribe option for the socket
 func (z *Zsock) SetSubscribe(val string) {
 	C.zsock_set_subscribe(unsafe.Pointer(z.zsock_t), C.CString(val))
@@ -369,8 +368,16 @@ func (z *Zsock) Backlog() int {
 }
 
 // SetMaxmsgsize sets the maxmsgsize option for the socket
+func (z *Zsock) SetMaxmsgsize(val int) {
+	C.zsock_set_maxmsgsize(unsafe.Pointer(z.zsock_t), C.int(val))
+}
 
 // Maxmsgsize returns the current value of the socket's maxmsgsize option
+func (z *Zsock) Maxmsgsize() int {
+	val := C.zsock_maxmsgsize(unsafe.Pointer(z.zsock_t))
+	return int(val)
+}
+
 // SetMulticastHops sets the multicast_hops option for the socket
 func (z *Zsock) SetMulticastHops(val int) {
 	C.zsock_set_multicast_hops(unsafe.Pointer(z.zsock_t), C.int(val))
@@ -487,3 +494,4 @@ func (z *Zsock) LastEndpoint() string {
 	val := C.zsock_last_endpoint(unsafe.Pointer(z.zsock_t))
 	return C.GoString(val)
 }
+
