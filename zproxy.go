@@ -8,11 +8,12 @@ package goczmq
 #include "czmq.h"
 
 zactor_t *Zproxy_new () { zactor_t *proxy = zactor_new(zproxy, NULL); return proxy; }
-int send_proxy_command(void *dest, const char *command, const char *socktype, const char *endpoint) { return zstr_sendx(dest, command, socktype, endpoint, NULL); }
 */
 import "C"
 
-import "unsafe"
+import (
+	"unsafe"
+)
 
 type Zproxy struct {
 	zactor_t *C.struct__zactor_t
@@ -26,15 +27,67 @@ func NewZproxy() *Zproxy {
 
 func (z *Zproxy) SetFrontend(sockType Type, endpoint string) error {
 	typeString := getStringType(sockType)
-	C.send_proxy_command(unsafe.Pointer(z.zactor_t), C.CString("FRONTEND"), C.CString(typeString), C.CString(endpoint))
-	C.zsock_wait(unsafe.Pointer(z.zactor_t))
+
+	rc := C.zstr_sendm(unsafe.Pointer(z.zactor_t), C.CString("FRONTEND"))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_sendm(unsafe.Pointer(z.zactor_t), C.CString(typeString))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_send(unsafe.Pointer(z.zactor_t), C.CString(endpoint))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zsock_wait(unsafe.Pointer(z.zactor_t))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
 	return nil
 }
 
 func (z *Zproxy) SetBackend(sockType Type, endpoint string) error {
 	typeString := getStringType(sockType)
-	C.send_proxy_command(unsafe.Pointer(z.zactor_t), C.CString("BACKEND"), C.CString(typeString), C.CString(endpoint))
-	C.zsock_wait(unsafe.Pointer(z.zactor_t))
+
+	rc := C.zstr_sendm(unsafe.Pointer(z.zactor_t), C.CString("BACKEND"))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_sendm(unsafe.Pointer(z.zactor_t), C.CString(typeString))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_send(unsafe.Pointer(z.zactor_t), C.CString(endpoint))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zsock_wait(unsafe.Pointer(z.zactor_t))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	return nil
+}
+
+func (z *Zproxy) SetCapture(endpoint string) error {
+	rc := C.zstr_sendm(unsafe.Pointer(z.zactor_t), C.CString("CAPTURE"))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_send(unsafe.Pointer(z.zactor_t), C.CString(endpoint))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
 	return nil
 }
 

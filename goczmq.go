@@ -11,6 +11,10 @@ package goczmq
 */
 import "C"
 
+import (
+	"errors"
+)
+
 type Type int
 type Flag int
 
@@ -32,6 +36,10 @@ const (
 	MORE     = Flag(C.ZFRAME_MORE)
 	REUSE    = Flag(C.ZFRAME_REUSE)
 	DONTWAIT = Flag(C.ZFRAME_DONTWAIT)
+)
+
+var (
+	ErrActorCmd = errors.New("error sending actor command")
 )
 
 func getStringType(k Type) string {
