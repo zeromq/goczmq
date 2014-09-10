@@ -20,29 +20,6 @@ import (
 	"unsafe"
 )
 
-type Type int
-type Flag int
-
-const (
-	REQ    = Type(C.ZMQ_REQ)
-	REP    = Type(C.ZMQ_REP)
-	DEALER = Type(C.ZMQ_DEALER)
-	ROUTER = Type(C.ZMQ_ROUTER)
-	PUB    = Type(C.ZMQ_PUB)
-	SUB    = Type(C.ZMQ_SUB)
-	XPUB   = Type(C.ZMQ_XPUB)
-	XSUB   = Type(C.ZMQ_XSUB)
-	PUSH   = Type(C.ZMQ_PUSH)
-	PULL   = Type(C.ZMQ_PULL)
-	PAIR   = Type(C.ZMQ_PAIR)
-	STREAM = Type(C.ZMQ_STREAM)
-
-	ZMSG_TAG = 0x003cafe
-	MORE     = Flag(C.ZFRAME_MORE)
-	REUSE    = Flag(C.ZFRAME_REUSE)
-	DONTWAIT = Flag(C.ZFRAME_DONTWAIT)
-)
-
 type Zsock struct {
 	zsock_t *C.struct__zsock_t
 	file    string
