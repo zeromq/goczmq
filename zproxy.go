@@ -91,6 +91,33 @@ func (z *Zproxy) SetCapture(endpoint string) error {
 	return nil
 }
 
+func (z *Zproxy) Pause() error {
+	rc := C.zstr_send(unsafe.Pointer(z.zactor_t), C.CString("PAUSE"))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	return nil
+}
+
+func (z *Zproxy) Resume() error {
+	rc := C.zstr_send(unsafe.Pointer(z.zactor_t), C.CString("RESUME"))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	return nil
+}
+
+func (z *Zproxy) Verbose() error {
+	rc := C.zstr_send(unsafe.Pointer(z.zactor_t), C.CString("VERBOSE"))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	return nil
+}
+
 func (z *Zproxy) Destroy() {
 	C.zactor_destroy(&z.zactor_t)
 }

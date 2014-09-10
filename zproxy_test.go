@@ -5,45 +5,101 @@ import (
 )
 
 func TestZproxy(t *testing.T) {
+	// Create and configure our proxy
 	proxy := NewZproxy()
-	proxy.SetFrontend(PULL, "inproc://proxy_front")
-	proxy.SetBackend(PUSH, "inproc://proxy_back")
-	proxy.SetCapture("inproc://proxy_capture")
 
-	send := NewZsock(PUSH)
-	err := send.Connect("inproc://proxy_front")
+	err := proxy.Verbose()
+	if err != nil {
+		t.Errorf("VERBOSE error: %s", err)
+	}
+
+	err = proxy.SetFrontend(PULL, "inproc://frontend")
+	if err != nil {
+		t.Errorf("FRONTEND error: %s", err)
+	}
+
+	err = proxy.SetBackend(PUSH, "inproc://backend")
+	if err != nil {
+		t.Errorf("BACKEND error: %s", err)
+	}
+
+	err = proxy.SetCapture("inproc://capture")
+	if err != nil {
+		t.Errorf("CAPTURE error: %s", err)
+	}
+
+	// connect application sockets to proxy
+	faucet := NewZsock(PUSH)
+	err = faucet.Connect("inproc://frontend")
 	if err != nil {
 		t.Error(err)
 	}
 
-	recv := NewZsock(PULL)
-	err = recv.Connect("inproc://proxy_back")
+	sink := NewZsock(PULL)
+	err = sink.Connect("inproc://backend")
 	if err != nil {
 		t.Error(err)
 	}
 
-	cap := NewZsock(PULL)
-	err = cap.Bind("inproc://proxy_capture")
+	tap := NewZsock(PULL)
+	err = tap.Bind("inproc://capture")
 	if err != nil {
 		t.Error(err)
 	}
 
-	send.SendBytes([]byte("hello proxy"), 0)
+	// send some messages and check they arrived
+	faucet.SendBytes([]byte("Hello"), 0)
+	faucet.SendBytes([]byte("World"), 0)
 
-	b, err := cap.RecvBytes()
+	// check the tap
+	b, err := tap.RecvBytes()
 	if err != nil {
 		t.Error(err)
 	}
-	if string(b) != "hello proxy" {
-		t.Error("message is wrong")
+
+	if string(b) != "Hello" {
+		t.Errorf("tap expected %s, received %s", "Hello", string(b))
 	}
 
-	b, err = recv.RecvBytes()
+	b, err = tap.RecvBytes()
 	if err != nil {
 		t.Error(err)
 	}
-	if string(b) != "hello proxy" {
-		t.Error("message is wrong")
+
+	if string(b) != "World" {
+		t.Errorf("tap expected %s, received %s", "World", string(b))
 	}
+
+	// check the sink
+	b, err = sink.RecvBytes()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if string(b) != "Hello" {
+		t.Errorf("sink expected %s, received %s", "Hello", string(b))
+	}
+
+	b, err = sink.RecvBytes()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if string(b) != "World" {
+		t.Errorf("sink expected %s, received %s", "World", string(b))
+	}
+
+	// Test pause/resume functionality
+	// FIXME: improve this test once we can receive with a nowait
+	err = proxy.Pause()
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = proxy.Resume()
+	if err != nil {
+		t.Error(err)
+	}
+
 	proxy.Destroy()
 }
