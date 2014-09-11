@@ -9,7 +9,11 @@ func TestZsock(t *testing.T) {
 	pushSock := NewZsock(PUSH)
 	pullSock := NewZsock(PULL)
 
-	err := pullSock.Bind("inproc://test")
+	port, err := pullSock.Bind("inproc://test")
+	if port != 0 {
+		t.Errorf("port for Bind should be 0, is %d", port)
+	}
+
 	if err != nil {
 		t.Error("repSock.Bind failed")
 	}
