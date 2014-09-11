@@ -8,6 +8,31 @@ Development is currently using CZMQ head compiled against ZeroMQ 4.0.4 Stable.
 
   go get github.com/zeromq/goczmq
 
+## Status
+
+This library is alpha.  Not all features are complete.  API changes will happen.
+
+Currently implemented:
+
+* ZSock
+* ZProxy
+
+## Goals
+
+Initial: Support "main" CZMQ classes that add useful abstractions on top of libzmq:
+
+* ZAuth
+* ZBeacon
+* ZGossip
+* ZLoop
+* ZMonitor
+* ZPoller
+* Zproxy
+* ZSock
+
+Secondary: Provide additional abstractions for "Go-isms" such as providing Zsocks as channel
+accessable "services" within a go process.
+
 ## See Also
 
 Peter Kleiweg's excellent zmq4 library for libzmq: http://github.com/pebbe/zmq4
