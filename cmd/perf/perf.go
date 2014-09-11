@@ -15,7 +15,7 @@ func main() {
 	pullSock := czmq.NewZsock(czmq.PULL)
 	defer pullSock.Destroy()
 
-	err := pullSock.Bind("inproc://test")
+	_, err := pullSock.Bind("inproc://test")
 	if err != nil {
 		panic(err)
 	}
