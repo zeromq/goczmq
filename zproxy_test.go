@@ -42,7 +42,7 @@ func TestZproxy(t *testing.T) {
 	}
 
 	tap := NewZsock(PULL)
-	err = tap.Bind("inproc://capture")
+	_, err = tap.Bind("inproc://capture")
 	if err != nil {
 		t.Error(err)
 	}

@@ -1,4 +1,4 @@
-// A Go interface to CZMQ
+// A Go Interface to CZMQ
 package goczmq
 
 /*

@@ -1,4 +1,3 @@
-// A Go interface to CZMQ
 package goczmq
 
 import "C"
