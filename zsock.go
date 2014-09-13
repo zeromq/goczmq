@@ -81,6 +81,14 @@ func (z *Zsock) SendBytes(data []byte, flags Flag) error {
 	}
 }
 
+// SendString sends a string via the socket.  For the flags
+// value, use 0 for a single message, or SNDMORE if it is
+// a multi-part message
+func (z *Zsock) SendString(data string, flags Flag) error {
+	err := z.SendBytes([]byte(data), flags)
+	return err
+}
+
 // RecvBytes reads a frame from the socket and returns it
 // as a byte array,  Returns an error if the call fails.
 func (z *Zsock) RecvBytes() ([]byte, error) {
@@ -93,6 +101,17 @@ func (z *Zsock) RecvBytes() ([]byte, error) {
 	b := C.GoBytes(unsafe.Pointer(dataPtr), C.int(dataSize))
 	C.zframe_destroy(&frame)
 	return b, nil
+}
+
+// RecvString reads a frame from the socket and returns it
+// as a string,  Returns an error if the call fails.
+func (z *Zsock) RecvString() (string, error) {
+	b, err := z.RecvBytes()
+	if err != nil {
+		return "", err
+	} else {
+		return string(b), err
+	}
 }
 
 // Destroy destroys the underlying zsock_t.
