@@ -39,7 +39,7 @@ func main() {
 
 	startTime := time.Now()
 	for i := 0; i < *messageCount; i++ {
-		msg, err := pullSock.RecvBytes()
+		msg, _, err := pullSock.RecvBytes()
 		if err != nil {
 			panic(err)
 		}
