@@ -87,20 +87,24 @@ func (z *Zsock) SendMessage(parts ...interface{}) error {
 			f = MORE
 		}
 
-		var err error
 		switch val.(type) {
 		case int:
-			err = z.SendString(fmt.Sprintf("%d", val.(int)), f)
+			err := z.SendString(fmt.Sprintf("%d", val.(int)), f)
 			if err != nil {
 				return err
 			}
 		case string:
-			err = z.SendString(val.(string), f)
+			err := z.SendString(val.(string), f)
 			if err != nil {
 				return err
 			}
 		case []byte:
-			z.SendBytes(val.([]byte), f)
+			var err error
+			if len(val.([]byte)) == 0 {
+				err = z.SendBytes([]byte{0}, f)
+			} else {
+				err = z.SendBytes(val.([]byte), f)
+			}
 			if err != nil {
 				return err
 			}

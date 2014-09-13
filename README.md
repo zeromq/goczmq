@@ -27,7 +27,7 @@ Initial: Support "main" CZMQ classes that add useful abstractions on top of libz
 * ZLoop
 * ZMonitor
 * ZPoller
-* Zproxy
+* ZProxy
 * ZSock
 
 Secondary: Provide additional abstractions for "Go-isms" such as providing Zsocks as channel
