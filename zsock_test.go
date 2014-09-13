@@ -75,7 +75,7 @@ func TestMessage(t *testing.T) {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	err = pushSock.SendMessage("The", "Answer", []byte("Is"), 42)
+	err = pushSock.SendMessage([]byte("The"), "Answer", []byte("Is"), 42, []byte(""))
 	if err != nil {
 		t.Errorf("pushSock.SendMessages failed: %s", err)
 	}
@@ -85,7 +85,7 @@ func TestMessage(t *testing.T) {
 		t.Errorf("pullSock.RecvMessage failed: %s", err)
 	}
 
-	if len(multiMsg) != 4 {
+	if len(multiMsg) != 5 {
 		t.Errorf("pullSock.recvMessage expected 4 message frames, got %d", len(multiMsg))
 	}
 
@@ -103,5 +103,9 @@ func TestMessage(t *testing.T) {
 
 	if string(multiMsg[3]) != "42" {
 		t.Errorf("expected '42', received '%s'", string(multiMsg[3]))
+	}
+
+	if string(multiMsg[4]) != string([]byte{0}) {
+		t.Errorf("expected null byte, received '%s'", string(multiMsg[4]))
 	}
 }
