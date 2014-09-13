@@ -13,27 +13,41 @@ func TestZsock(t *testing.T) {
 	if port != 0 {
 		t.Errorf("port for Bind should be 0, is %d", port)
 	}
-
 	if err != nil {
-		t.Error("repSock.Bind failed")
+		t.Errorf("repSock.Bind failed: %s", err)
 	}
+
 	err = pushSock.Connect("inproc://test")
 	if err != nil {
-		t.Error("reqSock.Connect failed")
+		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
 	err = pushSock.SendBytes([]byte("Hello"), 0)
 	if err != nil {
-		t.Error("pushSock.SendBytes failed")
+		t.Errorf("pushSock.SendBytes failed: %s", err)
 	}
 
-	msg, err := pullSock.RecvBytes()
+	bmsg, err := pullSock.RecvBytes()
 	if err != nil {
-		t.Error("pullSock.RecvBytes: %s", err)
+		t.Errorf("pullSock.RecvBytes failed: %s", err)
 	}
 
-	if string(msg) != "Hello" {
-		t.Error("expected 'Hello' received '%s'", string(msg))
+	if string(bmsg) != "Hello" {
+		t.Errorf("expected 'Hello' received '%s'", string(bmsg))
+	}
+
+	err = pushSock.SendString("World", 0)
+	if err != nil {
+		t.Errorf("pushSock.SendString failed: %s", err)
+	}
+
+	smsg, err := pullSock.RecvString()
+	if err != nil {
+		t.Errorf("pullSock.RecvString failed: %s", err)
+	}
+
+	if smsg != "World" {
+		t.Errorf("expected 'World' received '%s'", smsg)
 	}
 
 	pushSock.Destroy()
