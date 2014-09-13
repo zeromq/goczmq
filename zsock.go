@@ -63,9 +63,8 @@ func NewZsockPub(endpoints string) (*Zsock, error) {
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
 		return nil, ErrZsockAttach
-	} else {
-		return z, nil
 	}
+	return z, nil
 }
 
 // NewZsockSub creates a Sub socket.  Ent enpoint is empty, or starts with
@@ -91,9 +90,8 @@ func NewZsockSub(endpoints string, subscribe string) (*Zsock, error) {
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
 		return nil, ErrZsockAttach
-	} else {
-		return z, nil
 	}
+	return z, nil
 }
 
 // Connect connects a socket to an endpoint
@@ -102,9 +100,8 @@ func (z *Zsock) Connect(endpoint string) error {
 	rc := C.Zsock_connect(z.zsock_t, C.CString(endpoint))
 	if rc == C.int(-1) {
 		return errors.New("failed")
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // Bind binds a socket to an endpoint.  On success returns
@@ -114,9 +111,8 @@ func (z *Zsock) Bind(endpoint string) (int, error) {
 	port := C.Zsock_bind(z.zsock_t, C.CString(endpoint))
 	if port == C.int(-1) {
 		return -1, errors.New("failed")
-	} else {
-		return int(port), nil
 	}
+	return int(port), nil
 }
 
 // SendMessage is a variadic function that currently accepts ints,
@@ -159,7 +155,7 @@ func (z *Zsock) SendMessage(parts ...interface{}) error {
 				return err
 			}
 		default:
-			return errors.New(fmt.Sprintf("unsupported type at index %d", i))
+			return fmt.Errorf("unsupported type at index %d", i)
 		}
 	}
 	return nil
@@ -168,7 +164,7 @@ func (z *Zsock) SendMessage(parts ...interface{}) error {
 // RecvMessage receives a full message from the socket
 // and returns it as an array of byte arrays.
 func (z *Zsock) RecvMessage() ([][]byte, error) {
-	msg := make([][]byte, 0)
+	var msg [][]byte
 	for {
 		frame, flag, err := z.RecvBytes()
 		if err != nil {
@@ -190,9 +186,8 @@ func (z *Zsock) SendBytes(data []byte, flags Flag) error {
 	rc := C.zframe_send(&frame, unsafe.Pointer(z.zsock_t), C.int(flags))
 	if rc == C.int(-1) {
 		return errors.New("failed")
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // SendString sends a string via the socket.  For the flags
@@ -224,9 +219,8 @@ func (z *Zsock) RecvString() (string, error) {
 	b, _, err := z.RecvBytes()
 	if err != nil {
 		return "", err
-	} else {
-		return string(b), err
 	}
+	return string(b), err
 }
 
 // Destroy destroys the underlying zsock_t.
