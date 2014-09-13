@@ -1,4 +1,5 @@
 package goczmq
+
 /*  =========================================================================
     zsock_option - get/set 0MQ socket options
 
@@ -19,6 +20,7 @@ package goczmq
 import (
 	"testing"
 )
+
 func TestTos(t *testing.T) {
 	sock := NewZsock(DEALER)
 	testval := 1
@@ -80,7 +82,7 @@ func TestZapDomain(t *testing.T) {
 	if val != testval && val != "" {
 		t.Errorf("ZapDomain returned %s should be %s", val, testval)
 	}
-        sock.Destroy()
+	sock.Destroy()
 }
 
 func TestPlainServer(t *testing.T) {
@@ -102,7 +104,7 @@ func TestPlainUsername(t *testing.T) {
 	if val != testval && val != "" {
 		t.Errorf("PlainUsername returned %s should be %s", val, testval)
 	}
-        sock.Destroy()
+	sock.Destroy()
 }
 
 func TestPlainPassword(t *testing.T) {
@@ -113,7 +115,7 @@ func TestPlainPassword(t *testing.T) {
 	if val != testval && val != "" {
 		t.Errorf("PlainPassword returned %s should be %s", val, testval)
 	}
-        sock.Destroy()
+	sock.Destroy()
 }
 
 func TestIpv6(t *testing.T) {
@@ -200,14 +202,14 @@ func TestSubscribe(t *testing.T) {
 	sock := NewZsock(SUB)
 	testval := "test"
 	sock.SetSubscribe(testval)
-        sock.Destroy()
+	sock.Destroy()
 }
 
 func TestUnsubscribe(t *testing.T) {
 	sock := NewZsock(SUB)
 	testval := "test"
 	sock.SetUnsubscribe(testval)
-        sock.Destroy()
+	sock.Destroy()
 }
 
 func TestIdentity(t *testing.T) {
@@ -218,7 +220,7 @@ func TestIdentity(t *testing.T) {
 	if val != testval && val != "" {
 		t.Errorf("Identity returned %s should be %s", val, testval)
 	}
-        sock.Destroy()
+	sock.Destroy()
 }
 
 func TestRate(t *testing.T) {
@@ -412,6 +414,5 @@ func TestTcpAcceptFilter(t *testing.T) {
 	if val != testval && val != "" {
 		t.Errorf("TcpAcceptFilter returned %s should be %s", val, testval)
 	}
-        sock.Destroy()
+	sock.Destroy()
 }
-
