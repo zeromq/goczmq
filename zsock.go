@@ -111,6 +111,8 @@ func (z *Zsock) SendMessage(parts ...interface{}) error {
 	return nil
 }
 
+// RecvMessage receives a full message from the socket
+// and returns it as an array of byte arrays.
 func (z *Zsock) RecvMessage() ([][]byte, error) {
 	msg := make([][]byte, 0)
 	for {

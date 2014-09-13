@@ -89,6 +89,49 @@ type Type int
 ```
 
 
+#### type Zbeacon
+
+```go
+type Zbeacon struct {
+}
+```
+
+
+#### func  NewZbeacon
+
+```go
+func NewZbeacon() *Zbeacon
+```
+NewZbeacon creates a new Zbeacon instance.
+
+#### func (*Zbeacon) Configure
+
+```go
+func (z *Zbeacon) Configure(port int) (string, error)
+```
+Configure accepts a port number and configures the beacon, returning an address
+
+#### func (*Zbeacon) Destroy
+
+```go
+func (z *Zbeacon) Destroy()
+```
+Destroy destroys the beacon.
+
+#### func (*Zbeacon) Publish
+
+```go
+func (z *Zbeacon) Publish(announcement string, interval int) error
+```
+Publish publishes an announcement at an interval
+
+#### func (*Zbeacon) Verbose
+
+```go
+func (z *Zbeacon) Verbose() error
+```
+Verbose sets the beacon to log information to stdout.
+
 #### type Zproxy
 
 ```go
@@ -429,10 +472,26 @@ RecoveryIvl returns the current value of the socket's recovery_ivl option
 #### func (*Zsock) RecvBytes
 
 ```go
-func (z *Zsock) RecvBytes() ([]byte, error)
+func (z *Zsock) RecvBytes() ([]byte, Flag, error)
 ```
 RecvBytes reads a frame from the socket and returns it as a byte array, Returns
 an error if the call fails.
+
+#### func (*Zsock) RecvMessage
+
+```go
+func (z *Zsock) RecvMessage() ([][]byte, error)
+```
+RecvMessage receives a full message from the socket and returns it as an array
+of byte arrays.
+
+#### func (*Zsock) RecvString
+
+```go
+func (z *Zsock) RecvString() (string, error)
+```
+RecvString reads a frame from the socket and returns it as a string, Returns an
+error if the call fails.
 
 #### func (*Zsock) SendBytes
 
@@ -440,6 +499,26 @@ an error if the call fails.
 func (z *Zsock) SendBytes(data []byte, flags Flag) error
 ```
 SendBytes sends a byte array via the socket. For the flags value, use 0 for a
+single message, or SNDMORE if it is a multi-part message
+
+#### func (*Zsock) SendMessage
+
+```go
+func (z *Zsock) SendMessage(parts ...interface{}) error
+```
+SendMessage is a variadic function that currently accepts ints, strings, and
+bytes, and sends them as an atomic multi frame message over zeromq as a series
+of byte arrays. In the case of numeric data, the resulting byte array is a
+textual representation of the number (e.g., 100 turns to "100"). This may be
+changed to network byte ordered representation in the near future - I have not
+decided yet!
+
+#### func (*Zsock) SendString
+
+```go
+func (z *Zsock) SendString(data string, flags Flag) error
+```
+SendString sends a string via the socket. For the flags value, use 0 for a
 single message, or SNDMORE if it is a multi-part message
 
 #### func (*Zsock) SetAffinity
