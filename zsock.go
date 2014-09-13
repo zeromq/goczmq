@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"runtime"
+	"strings"
 	"unsafe"
 )
 
@@ -33,7 +34,6 @@ type Zsock struct {
 // intelligently.
 func NewZsock(t Type) *Zsock {
 	var z *Zsock
-
 	_, file, line, ok := runtime.Caller(1)
 
 	if ok {
@@ -42,8 +42,58 @@ func NewZsock(t Type) *Zsock {
 		z = &Zsock{file: "", line: 0, zType: t}
 	}
 
-	z.zsock_t = C.zsock_new_(C.int(t), C.CString(z.file), C.size_t(z.line))
+	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
 	return z
+}
+
+// NewZsockPub creates a Pub socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it binds.
+func NewZsockPub(endpoints string) (*Zsock, error) {
+	var z *Zsock
+	_, file, line, ok := runtime.Caller(1)
+
+	if ok {
+		z = &Zsock{file: file, line: line, zType: PUB}
+	} else {
+		z = &Zsock{file: "", line: 0, zType: PUB}
+	}
+
+	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	} else {
+		return z, nil
+	}
+}
+
+// NewZsockSub creates a Sub socket.  Ent enpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it connects.
+// The second argument is a comma delimited list of topics to subscribe to.
+func NewZsockSub(endpoints string, subscribe string) (*Zsock, error) {
+	var z *Zsock
+	_, file, line, ok := runtime.Caller(1)
+
+	if ok {
+		z = &Zsock{file: file, line: line, zType: SUB}
+	} else {
+		z = &Zsock{file: "", line: 0, zType: SUB}
+	}
+
+	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
+	subscriptions := strings.Split(subscribe, ",")
+	for _, s := range subscriptions {
+		z.SetSubscribe(s)
+	}
+
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	} else {
+		return z, nil
+	}
 }
 
 // Connect connects a socket to an endpoint

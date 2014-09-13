@@ -109,3 +109,36 @@ func TestMessage(t *testing.T) {
 		t.Errorf("expected null byte, received '%s'", string(multiMsg[4]))
 	}
 }
+
+func TestPubSub(t *testing.T) {
+	_, err := NewZsockPub("bogus://bogus")
+	if err == nil {
+		t.Error("NewZsockPub should have returned error and did not")
+	}
+
+	_, err = NewZsockSub("bogus://bogus", "")
+	if err == nil {
+		t.Error("NewZsockPub should have returned error and did not")
+	}
+
+	pub, err := NewZsockPub("inproc://pub1,inproc://pub2")
+	if err != nil {
+		t.Errorf("NewZsockPub failed: %s", err)
+	}
+
+	sub, err := NewZsockSub("inproc://pub1,inproc://pub2", "")
+
+	err = pub.SendMessage("test pub sub")
+	if err != nil {
+		t.Errorf("SendMessage failed: %s", err)
+	}
+
+	msg, err := sub.RecvMessage()
+	if err != nil {
+		t.Errorf("RecvMessage failed: %s", err)
+	}
+
+	if string(msg[0]) != "test pub sub" {
+		t.Errorf("Expected 'test pub sub', received %s", msg)
+	}
+}
