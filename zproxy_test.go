@@ -52,18 +52,26 @@ func TestZproxy(t *testing.T) {
 	faucet.SendBytes([]byte("World"), 0)
 
 	// check the tap
-	b, err := tap.RecvBytes()
+	b, f, err := tap.RecvBytes()
 	if err != nil {
 		t.Error(err)
+	}
+
+	if f == MORE {
+		t.Error("MORE set and should not be")
 	}
 
 	if string(b) != "Hello" {
 		t.Errorf("tap expected %s, received %s", "Hello", string(b))
 	}
 
-	b, err = tap.RecvBytes()
+	b, f, err = tap.RecvBytes()
 	if err != nil {
 		t.Error(err)
+	}
+
+	if f == MORE {
+		t.Error("MORE set and should not be")
 	}
 
 	if string(b) != "World" {
@@ -71,18 +79,26 @@ func TestZproxy(t *testing.T) {
 	}
 
 	// check the sink
-	b, err = sink.RecvBytes()
+	b, f, err = sink.RecvBytes()
 	if err != nil {
 		t.Error(err)
+	}
+
+	if f == MORE {
+		t.Error("MORE set and should not be")
 	}
 
 	if string(b) != "Hello" {
 		t.Errorf("sink expected %s, received %s", "Hello", string(b))
 	}
 
-	b, err = sink.RecvBytes()
+	b, f, err = sink.RecvBytes()
 	if err != nil {
 		t.Error(err)
+	}
+
+	if f == MORE {
+		t.Error("MORE set and should not be")
 	}
 
 	if string(b) != "World" {

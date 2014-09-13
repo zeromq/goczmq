@@ -15,6 +15,7 @@ import "C"
 
 import (
 	"errors"
+	"fmt"
 	"runtime"
 	"unsafe"
 )
@@ -68,6 +69,63 @@ func (z *Zsock) Bind(endpoint string) (int, error) {
 	}
 }
 
+// SendMessage is a variadic function that currently accepts ints,
+// strings, and bytes, and sends them as an atomic multi frame
+// message over zeromq as a series of byte arrays.  In the case
+// of numeric data, the resulting byte array is a textual representation
+// of the number (e.g., 100 turns to "100").  This may be changed to
+// network byte ordered representation in the near future - I have
+// not decided yet!
+func (z *Zsock) SendMessage(parts ...interface{}) error {
+	numParts := len(parts)
+	var f Flag
+
+	for i, val := range parts {
+		if i == numParts-1 {
+			f = 0
+		} else {
+			f = MORE
+		}
+
+		var err error
+		switch val.(type) {
+		case int:
+			err = z.SendString(fmt.Sprintf("%d", val.(int)), f)
+			if err != nil {
+				return err
+			}
+		case string:
+			err = z.SendString(val.(string), f)
+			if err != nil {
+				return err
+			}
+		case []byte:
+			z.SendBytes(val.([]byte), f)
+			if err != nil {
+				return err
+			}
+		default:
+			return errors.New(fmt.Sprintf("unsupported type at index %d", i))
+		}
+	}
+	return nil
+}
+
+func (z *Zsock) RecvMessage() ([][]byte, error) {
+	msg := make([][]byte, 0)
+	for {
+		frame, flag, err := z.RecvBytes()
+		if err != nil {
+			return msg, err
+		}
+		msg = append(msg, frame)
+		if flag != MORE {
+			break
+		}
+	}
+	return msg, nil
+}
+
 // SendBytes sends a byte array via the socket.  For the flags
 // value, use 0 for a single message, or SNDMORE if it is
 // a multi-part message
@@ -91,22 +149,23 @@ func (z *Zsock) SendString(data string, flags Flag) error {
 
 // RecvBytes reads a frame from the socket and returns it
 // as a byte array,  Returns an error if the call fails.
-func (z *Zsock) RecvBytes() ([]byte, error) {
+func (z *Zsock) RecvBytes() ([]byte, Flag, error) {
 	frame := C.zframe_recv(unsafe.Pointer(z.zsock_t))
 	if frame == nil {
-		return []byte{0}, errors.New("failed")
+		return []byte{0}, 0, errors.New("failed")
 	}
 	dataSize := C.zframe_size(frame)
 	dataPtr := C.zframe_data(frame)
 	b := C.GoBytes(unsafe.Pointer(dataPtr), C.int(dataSize))
+	more := C.zframe_more(frame)
 	C.zframe_destroy(&frame)
-	return b, nil
+	return b, Flag(more), nil
 }
 
 // RecvString reads a frame from the socket and returns it
 // as a string,  Returns an error if the call fails.
 func (z *Zsock) RecvString() (string, error) {
-	b, err := z.RecvBytes()
+	b, _, err := z.RecvBytes()
 	if err != nil {
 		return "", err
 	} else {
