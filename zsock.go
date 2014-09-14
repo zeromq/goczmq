@@ -82,7 +82,6 @@ func NewZsockSub(endpoints string, subscribe string) (*Zsock, error) {
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
 func NewZsockRep(endpoints string) (*Zsock, error) {
 	z := NewZsock(REP)
-	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
 		return nil, ErrZsockAttach
@@ -95,7 +94,6 @@ func NewZsockRep(endpoints string) (*Zsock, error) {
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
 func NewZsockReq(endpoints string) (*Zsock, error) {
 	z := NewZsock(REQ)
-	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
 		return nil, ErrZsockAttach
@@ -108,7 +106,6 @@ func NewZsockReq(endpoints string) (*Zsock, error) {
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
 func NewZsockPull(endpoints string) (*Zsock, error) {
 	z := NewZsock(PULL)
-	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
 		return nil, ErrZsockAttach
@@ -121,7 +118,30 @@ func NewZsockPull(endpoints string) (*Zsock, error) {
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
 func NewZsockPush(endpoints string) (*Zsock, error) {
 	z := NewZsock(PUSH)
-	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
+}
+
+// NewZsockRouter creates a ROUTER socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it binds.
+func NewZsockRouter(endpoints string) (*Zsock, error) {
+	z := NewZsock(ROUTER)
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
+}
+
+// NewZsockDealer creates a DEALER socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it connects.
+func NewZsockDealer(endpoints string) (*Zsock, error) {
+	z := NewZsock(DEALER)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
 		return nil, ErrZsockAttach

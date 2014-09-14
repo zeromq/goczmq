@@ -236,3 +236,64 @@ func TestPushPull(t *testing.T) {
 		t.Errorf("Expected 'World', received '%s", string(msg[0]))
 	}
 }
+
+func TestRouterDealer(t *testing.T) {
+	_, err := NewZsockDealer("bogus://bogus")
+	if err == nil {
+		t.Error("NewZsockDealer should have returned error and did not")
+	}
+
+	_, err = NewZsockRouter("bogus://bogus")
+	if err == nil {
+		t.Error("NewZsockRouter should have returned error and did not")
+	}
+
+	dealer, err := NewZsockDealer("inproc://router1,inproc://router2")
+	if err != nil {
+		t.Errorf("NewZsockDealer failed: %s", err)
+	}
+
+	router, err := NewZsockRouter("inproc://router1,inproc://router2")
+	if err != nil {
+		t.Errorf("NewZsockRouter failed: %s", err)
+	}
+
+	err = dealer.SendMessage("Hello")
+	if err != nil {
+		t.Errorf("SendMessage failed: %s", err)
+	}
+
+	msg, err := router.RecvMessage()
+	if err != nil {
+		t.Errorf("RecvMessage failed: %s", err)
+	}
+	if len(msg) != 2 {
+		t.Error("message should have 2 frames")
+	}
+
+	if string(msg[1]) != "Hello" {
+		t.Errorf("Expected 'Hello', received '%s", string(msg[0]))
+	}
+
+	msg[1] = []byte("World")
+
+	// FIXME: SendMessage should be fixed to flatten arrays
+	err = router.SendMessage(msg[0], msg[1])
+	if err != nil {
+		t.Errorf("SendMessage failed: %s", err)
+	}
+
+	msg, err = dealer.RecvMessage()
+	if err != nil {
+		t.Errorf("RecvMessage failed: %s", err)
+	}
+
+	if len(msg) != 1 {
+		t.Error("message should have 1 frames")
+	}
+
+	if string(msg[0]) != "World" {
+		t.Errorf("Expected 'World', received '%s", string(msg[0]))
+	}
+
+}
