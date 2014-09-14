@@ -1,0 +1,15 @@
+2014/09/14 16:04:02 message size: 1024
+2014/09/14 16:04:02 message count: 10000000
+2014/09/14 16:04:02 test time (seconds): 28.581422
+2014/09/14 16:04:02 mean throughput: 349877.620464 [msg/s]
+2014/09/14 16:04:02 mean throughput: 2866.197467 [Mb/s]
+2014/09/14 16:05:52 message size: 4096
+2014/09/14 16:05:52 message count: 10000000
+2014/09/14 16:05:52 test time (seconds): 79.045815
+2014/09/14 16:05:52 mean throughput: 126508.910639 [msg/s]
+2014/09/14 16:05:52 mean throughput: 4145.443984 [Mb/s]
+2014/09/14 16:09:33 message size: 16384
+2014/09/14 16:09:33 message count: 10000000
+2014/09/14 16:09:33 test time (seconds): 206.482501
+2014/09/14 16:09:33 mean throughput: 48430.254113 [msg/s]
+2014/09/14 16:09:33 mean throughput: 6347.850267 [Mb/s]
