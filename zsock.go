@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"runtime"
+	"strings"
 	"unsafe"
 )
 
@@ -33,7 +34,6 @@ type Zsock struct {
 // intelligently.
 func NewZsock(t Type) *Zsock {
 	var z *Zsock
-
 	_, file, line, ok := runtime.Caller(1)
 
 	if ok {
@@ -42,8 +42,98 @@ func NewZsock(t Type) *Zsock {
 		z = &Zsock{file: "", line: 0, zType: t}
 	}
 
-	z.zsock_t = C.zsock_new_(C.int(t), C.CString(z.file), C.size_t(z.line))
+	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
 	return z
+}
+
+// NewZsockPub creates a Pub socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it binds.
+func NewZsockPub(endpoints string) (*Zsock, error) {
+	var z *Zsock
+	_, file, line, ok := runtime.Caller(1)
+
+	if ok {
+		z = &Zsock{file: file, line: line, zType: PUB}
+	} else {
+		z = &Zsock{file: "", line: 0, zType: PUB}
+	}
+
+	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
+}
+
+// NewZsockSub creates a Sub socket.  Ent enpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it connects.
+// The second argument is a comma delimited list of topics to subscribe to.
+func NewZsockSub(endpoints string, subscribe string) (*Zsock, error) {
+	var z *Zsock
+	_, file, line, ok := runtime.Caller(1)
+
+	if ok {
+		z = &Zsock{file: file, line: line, zType: SUB}
+	} else {
+		z = &Zsock{file: "", line: 0, zType: SUB}
+	}
+
+	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
+	subscriptions := strings.Split(subscribe, ",")
+	for _, s := range subscriptions {
+		z.SetSubscribe(s)
+	}
+
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
+}
+
+// NewZsockRep creates a Rep socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it binds.
+func NewZsockRep(endpoints string) (*Zsock, error) {
+	var z *Zsock
+	_, file, line, ok := runtime.Caller(1)
+
+	if ok {
+		z = &Zsock{file: file, line: line, zType: REP}
+	} else {
+		z = &Zsock{file: "", line: 0, zType: REP}
+	}
+
+	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
+}
+
+// NewZsockReq creates a Req socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it connects.
+func NewZsockReq(endpoints string) (*Zsock, error) {
+	var z *Zsock
+	_, file, line, ok := runtime.Caller(1)
+
+	if ok {
+		z = &Zsock{file: file, line: line, zType: REQ}
+	} else {
+		z = &Zsock{file: "", line: 0, zType: REQ}
+	}
+
+	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
 }
 
 // Connect connects a socket to an endpoint
@@ -52,9 +142,8 @@ func (z *Zsock) Connect(endpoint string) error {
 	rc := C.Zsock_connect(z.zsock_t, C.CString(endpoint))
 	if rc == C.int(-1) {
 		return errors.New("failed")
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // Bind binds a socket to an endpoint.  On success returns
@@ -64,9 +153,8 @@ func (z *Zsock) Bind(endpoint string) (int, error) {
 	port := C.Zsock_bind(z.zsock_t, C.CString(endpoint))
 	if port == C.int(-1) {
 		return -1, errors.New("failed")
-	} else {
-		return int(port), nil
 	}
+	return int(port), nil
 }
 
 // SendMessage is a variadic function that currently accepts ints,
@@ -109,7 +197,7 @@ func (z *Zsock) SendMessage(parts ...interface{}) error {
 				return err
 			}
 		default:
-			return errors.New(fmt.Sprintf("unsupported type at index %d", i))
+			return fmt.Errorf("unsupported type at index %d", i)
 		}
 	}
 	return nil
@@ -118,7 +206,7 @@ func (z *Zsock) SendMessage(parts ...interface{}) error {
 // RecvMessage receives a full message from the socket
 // and returns it as an array of byte arrays.
 func (z *Zsock) RecvMessage() ([][]byte, error) {
-	msg := make([][]byte, 0)
+	var msg [][]byte
 	for {
 		frame, flag, err := z.RecvBytes()
 		if err != nil {
@@ -140,9 +228,8 @@ func (z *Zsock) SendBytes(data []byte, flags Flag) error {
 	rc := C.zframe_send(&frame, unsafe.Pointer(z.zsock_t), C.int(flags))
 	if rc == C.int(-1) {
 		return errors.New("failed")
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // SendString sends a string via the socket.  For the flags
@@ -174,9 +261,8 @@ func (z *Zsock) RecvString() (string, error) {
 	b, _, err := z.RecvBytes()
 	if err != nil {
 		return "", err
-	} else {
-		return string(b), err
 	}
+	return string(b), err
 }
 
 // Destroy destroys the underlying zsock_t.

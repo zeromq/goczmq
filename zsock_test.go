@@ -109,3 +109,90 @@ func TestMessage(t *testing.T) {
 		t.Errorf("expected null byte, received '%s'", string(multiMsg[4]))
 	}
 }
+
+func TestPubSub(t *testing.T) {
+	_, err := NewZsockPub("bogus://bogus")
+	if err == nil {
+		t.Error("NewZsockPub should have returned error and did not")
+	}
+
+	_, err = NewZsockSub("bogus://bogus", "")
+	if err == nil {
+		t.Error("NewZsockPub should have returned error and did not")
+	}
+
+	pub, err := NewZsockPub("inproc://pub1,inproc://pub2")
+	if err != nil {
+		t.Errorf("NewZsockPub failed: %s", err)
+	}
+
+	sub, err := NewZsockSub("inproc://pub1,inproc://pub2", "")
+	if err != nil {
+		t.Errorf("NewZsockSub failed: %s", err)
+	}
+
+	err = pub.SendMessage("test pub sub")
+	if err != nil {
+		t.Errorf("SendMessage failed: %s", err)
+	}
+
+	msg, err := sub.RecvMessage()
+	if err != nil {
+		t.Errorf("RecvMessage failed: %s", err)
+	}
+
+	if string(msg[0]) != "test pub sub" {
+		t.Errorf("Expected 'test pub sub', received %s", msg)
+	}
+}
+
+func TestReqRep(t *testing.T) {
+	_, err := NewZsockReq("bogus://bogus")
+	if err == nil {
+		t.Error("NewZsockPub should have returned error and did not")
+	}
+
+	_, err = NewZsockRep("bogus://bogus")
+	if err == nil {
+		t.Error("NewZsockPub should have returned error and did not")
+	}
+
+	rep, err := NewZsockRep("inproc://rep1,inproc://rep2")
+	if err != nil {
+		t.Errorf("NewZsockRep failed: %s", err)
+	}
+
+	req, err := NewZsockReq("inproc://rep1,inproc://rep2")
+	if err != nil {
+		t.Errorf("NewZsockReq failed: %s", err)
+	}
+
+	err = req.SendMessage("Hello")
+	if err != nil {
+		t.Errorf("SendMessage failed: %s", err)
+	}
+
+	reqmsg, err := rep.RecvMessage()
+	if err != nil {
+		t.Errorf("RecvMessage failed: %s", err)
+	}
+
+	if string(reqmsg[0]) != "Hello" {
+		t.Errorf("Expected 'Hello', received '%s", string(reqmsg[0]))
+	}
+
+	err = rep.SendMessage("World")
+	if err != nil {
+		t.Errorf("SendMessage failed: %s", err)
+	}
+
+	repmsg, err := req.RecvMessage()
+	if err != nil {
+		t.Errorf("RecvMessage failed: %s", err)
+	}
+
+	if string(repmsg[0]) != "World" {
+		t.Errorf("Expected 'World', received '%s", string(repmsg[0]))
+	}
+
+}

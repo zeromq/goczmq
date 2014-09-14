@@ -71,7 +71,8 @@ const (
 
 ```go
 var (
-	ErrActorCmd = errors.New("error sending actor command")
+	ErrActorCmd    = errors.New("error sending actor command")
+	ErrZsockAttach = errors.New("error attaching zsock")
 )
 ```
 
@@ -217,6 +218,25 @@ func NewZsock(t Type) *Zsock
 ```
 NewZsock creates a new socket. The caller source and line number are passed so
 CZMQ can report socket leaks intelligently.
+
+#### func  NewZsockPub
+
+```go
+func NewZsockPub(endpoints string) (*Zsock, error)
+```
+NewZsockPub creates a Pub socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it binds.
+
+#### func  NewZsockSub
+
+```go
+func NewZsockSub(endpoints string, subscribe string) (*Zsock, error)
+```
+NewZsockSub creates a Sub socket. Ent enpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it connects. The second argument is
+a comma delimited list of topics to subscribe to.
 
 #### func (*Zsock) Affinity
 
