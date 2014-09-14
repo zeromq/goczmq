@@ -46,10 +46,10 @@ func NewZsock(t Type) *Zsock {
 	return z
 }
 
-// NewZsockPub creates a PUB socket.  The endpoint is empty, or starts with
+// NewPUB creates a PUB socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewZsockPub(endpoints string) (*Zsock, error) {
+func NewPUB(endpoints string) (*Zsock, error) {
 	z := NewZsock(PUB)
 	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
@@ -59,11 +59,11 @@ func NewZsockPub(endpoints string) (*Zsock, error) {
 	return z, nil
 }
 
-// NewZsockSub creates a SUB socket.  Ent enpoint is empty, or starts with
+// NewSUB creates a SUB socket.  The enpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
 // The second argument is a comma delimited list of topics to subscribe to.
-func NewZsockSub(endpoints string, subscribe string) (*Zsock, error) {
+func NewSUB(endpoints string, subscribe string) (*Zsock, error) {
 	z := NewZsock(SUB)
 	subscriptions := strings.Split(subscribe, ",")
 	for _, s := range subscriptions {
@@ -77,10 +77,10 @@ func NewZsockSub(endpoints string, subscribe string) (*Zsock, error) {
 	return z, nil
 }
 
-// NewZsockRep creates a REP socket.  The endpoint is empty, or starts with
+// NewREP creates a REP socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewZsockRep(endpoints string) (*Zsock, error) {
+func NewREP(endpoints string) (*Zsock, error) {
 	z := NewZsock(REP)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
@@ -89,10 +89,10 @@ func NewZsockRep(endpoints string) (*Zsock, error) {
 	return z, nil
 }
 
-// NewZsockReq creates a REQ socket.  The endpoint is empty, or starts with
+// NewREQ creates a REQ socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewZsockReq(endpoints string) (*Zsock, error) {
+func NewREQ(endpoints string) (*Zsock, error) {
 	z := NewZsock(REQ)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
@@ -101,10 +101,10 @@ func NewZsockReq(endpoints string) (*Zsock, error) {
 	return z, nil
 }
 
-// NewZsockPull creates a PULL socket.  The endpoint is empty, or starts with
+// NewPULL creates a PULL socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewZsockPull(endpoints string) (*Zsock, error) {
+func NewPULL(endpoints string) (*Zsock, error) {
 	z := NewZsock(PULL)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
@@ -113,10 +113,10 @@ func NewZsockPull(endpoints string) (*Zsock, error) {
 	return z, nil
 }
 
-// NewZsockPush creates a PUSH socket.  The endpoint is empty, or starts with
+// NewPUSH creates a PUSH socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewZsockPush(endpoints string) (*Zsock, error) {
+func NewPUSH(endpoints string) (*Zsock, error) {
 	z := NewZsock(PUSH)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
@@ -125,10 +125,10 @@ func NewZsockPush(endpoints string) (*Zsock, error) {
 	return z, nil
 }
 
-// NewZsockRouter creates a ROUTER socket.  The endpoint is empty, or starts with
+// NewROUTER creates a ROUTER socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewZsockRouter(endpoints string) (*Zsock, error) {
+func NewROUTER(endpoints string) (*Zsock, error) {
 	z := NewZsock(ROUTER)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
@@ -137,11 +137,59 @@ func NewZsockRouter(endpoints string) (*Zsock, error) {
 	return z, nil
 }
 
-// NewZsockDealer creates a DEALER socket.  The endpoint is empty, or starts with
+// NewDEALER creates a DEALER socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewZsockDealer(endpoints string) (*Zsock, error) {
+func NewDEALER(endpoints string) (*Zsock, error) {
 	z := NewZsock(DEALER)
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
+}
+
+// NewXPUB creates an XPUB socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it binds.
+func NewXPUB(endpoints string) (*Zsock, error) {
+	z := NewZsock(XPUB)
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
+}
+
+// NewXSUB creates an XSUB socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it connects.
+func NewXSUB(endpoints string) (*Zsock, error) {
+	z := NewZsock(XSUB)
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
+}
+
+// NewPAIR creates a PAIR socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  If the endpoint does not start with '@' or
+// '>', it connects.
+func NewPAIR(endpoints string) (*Zsock, error) {
+	z := NewZsock(PAIR)
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
+}
+
+// NewSTREAM creates a STREAM socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it connects.
+func NewSTREAM(endpoints string) (*Zsock, error) {
+	z := NewZsock(STREAM)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
 		return nil, ErrZsockAttach
@@ -181,7 +229,7 @@ func (z *Zsock) SendMessage(parts ...interface{}) error {
 	numParts := len(parts)
 	var f Flag
 
-	allParts := make([]interface{}, 0)
+	var allParts []interface{}
 	for _, part := range parts {
 		switch t := part.(type) {
 		case []string:

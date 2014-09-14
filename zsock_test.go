@@ -7,7 +7,10 @@ import (
 func TestZsock(t *testing.T) {
 
 	pushSock := NewZsock(PUSH)
+	defer pushSock.Destroy()
+
 	pullSock := NewZsock(PULL)
+	defer pullSock.Destroy()
 
 	port, err := pullSock.Bind("inproc://test")
 	if port != 0 {
@@ -60,7 +63,10 @@ func TestZsock(t *testing.T) {
 
 func TestMessage(t *testing.T) {
 	pushSock := NewZsock(PUSH)
+	defer pushSock.Destroy()
+
 	pullSock := NewZsock(PULL)
+	defer pullSock.Destroy()
 
 	port, err := pullSock.Bind("inproc://test")
 	if port != 0 {
@@ -110,26 +116,28 @@ func TestMessage(t *testing.T) {
 	}
 }
 
-func TestPubSub(t *testing.T) {
-	_, err := NewZsockPub("bogus://bogus")
+func TestPUBSUB(t *testing.T) {
+	_, err := NewPUB("bogus://bogus")
 	if err == nil {
-		t.Error("NewZsockPub should have returned error and did not")
+		t.Error("NewPUB should have returned error and did not")
 	}
 
-	_, err = NewZsockSub("bogus://bogus", "")
+	_, err = NewSUB("bogus://bogus", "")
 	if err == nil {
-		t.Error("NewZsockPub should have returned error and did not")
+		t.Error("NewSUB should have returned error and did not")
 	}
 
-	pub, err := NewZsockPub("inproc://pub1,inproc://pub2")
+	pub, err := NewPUB("inproc://pub1,inproc://pub2")
 	if err != nil {
-		t.Errorf("NewZsockPub failed: %s", err)
+		t.Errorf("NewPUB failed: %s", err)
 	}
+	defer pub.Destroy()
 
-	sub, err := NewZsockSub("inproc://pub1,inproc://pub2", "")
+	sub, err := NewSUB("inproc://pub1,inproc://pub2", "")
 	if err != nil {
-		t.Errorf("NewZsockSub failed: %s", err)
+		t.Errorf("NewSUB failed: %s", err)
 	}
+	defer sub.Destroy()
 
 	err = pub.SendMessage("test pub sub")
 	if err != nil {
@@ -146,26 +154,28 @@ func TestPubSub(t *testing.T) {
 	}
 }
 
-func TestReqRep(t *testing.T) {
-	_, err := NewZsockReq("bogus://bogus")
+func TestREQREP(t *testing.T) {
+	_, err := NewREQ("bogus://bogus")
 	if err == nil {
-		t.Error("NewZsockPub should have returned error and did not")
+		t.Error("NewREQ should have returned error and did not")
 	}
 
-	_, err = NewZsockRep("bogus://bogus")
+	_, err = NewREP("bogus://bogus")
 	if err == nil {
-		t.Error("NewZsockPub should have returned error and did not")
+		t.Error("NewREP should have returned error and did not")
 	}
 
-	rep, err := NewZsockRep("inproc://rep1,inproc://rep2")
+	rep, err := NewREP("inproc://rep1,inproc://rep2")
 	if err != nil {
-		t.Errorf("NewZsockRep failed: %s", err)
+		t.Errorf("NewREP failed: %s", err)
 	}
+	defer rep.Destroy()
 
-	req, err := NewZsockReq("inproc://rep1,inproc://rep2")
+	req, err := NewREQ("inproc://rep1,inproc://rep2")
 	if err != nil {
-		t.Errorf("NewZsockReq failed: %s", err)
+		t.Errorf("NewREQ failed: %s", err)
 	}
+	defer req.Destroy()
 
 	err = req.SendMessage("Hello")
 	if err != nil {
@@ -197,26 +207,28 @@ func TestReqRep(t *testing.T) {
 
 }
 
-func TestPushPull(t *testing.T) {
-	_, err := NewZsockPush("bogus://bogus")
+func TestPUSHPULL(t *testing.T) {
+	_, err := NewPUSH("bogus://bogus")
 	if err == nil {
-		t.Error("NewZsockPush should have returned error and did not")
+		t.Error("NewPUSH should have returned error and did not")
 	}
 
-	_, err = NewZsockPull("bogus://bogus")
+	_, err = NewPULL("bogus://bogus")
 	if err == nil {
-		t.Error("NewZsockPull should have returned error and did not")
+		t.Error("NewPULL should have returned error and did not")
 	}
 
-	push, err := NewZsockPush("inproc://push1,inproc://push2")
+	push, err := NewPUSH("inproc://push1,inproc://push2")
 	if err != nil {
-		t.Errorf("NewZsockPush failed: %s", err)
+		t.Errorf("NewPUSH failed: %s", err)
 	}
+	defer push.Destroy()
 
-	pull, err := NewZsockPull("inproc://push1,inproc://push2")
+	pull, err := NewPULL("inproc://push1,inproc://push2")
 	if err != nil {
-		t.Errorf("NewZsockPull failed: %s", err)
+		t.Errorf("NewPULL failed: %s", err)
 	}
+	defer pull.Destroy()
 
 	err = push.SendMessage("Hello", "World")
 	if err != nil {
@@ -237,26 +249,28 @@ func TestPushPull(t *testing.T) {
 	}
 }
 
-func TestRouterDealer(t *testing.T) {
-	_, err := NewZsockDealer("bogus://bogus")
+func TestROUTERDEALER(t *testing.T) {
+	_, err := NewDEALER("bogus://bogus")
 	if err == nil {
-		t.Error("NewZsockDealer should have returned error and did not")
+		t.Error("NewDEALER should have returned error and did not")
 	}
 
-	_, err = NewZsockRouter("bogus://bogus")
+	_, err = NewROUTER("bogus://bogus")
 	if err == nil {
-		t.Error("NewZsockRouter should have returned error and did not")
+		t.Error("NewROUTER should have returned error and did not")
 	}
 
-	dealer, err := NewZsockDealer("inproc://router1,inproc://router2")
+	dealer, err := NewDEALER("inproc://router1,inproc://router2")
 	if err != nil {
-		t.Errorf("NewZsockDealer failed: %s", err)
+		t.Errorf("NewDEALER failed: %s", err)
 	}
+	defer dealer.Destroy()
 
-	router, err := NewZsockRouter("inproc://router1,inproc://router2")
+	router, err := NewROUTER("inproc://router1,inproc://router2")
 	if err != nil {
-		t.Errorf("NewZsockRouter failed: %s", err)
+		t.Errorf("NewROUTER failed: %s", err)
 	}
+	defer router.Destroy()
 
 	err = dealer.SendMessage("Hello")
 	if err != nil {
@@ -294,5 +308,67 @@ func TestRouterDealer(t *testing.T) {
 	if string(msg[0]) != "World" {
 		t.Errorf("Expected 'World', received '%s", string(msg[0]))
 	}
+}
+
+func TestXSUBXPUB(t *testing.T) {
+	_, err := NewXPUB("bogus://bogus")
+	if err == nil {
+		t.Error("NewXPUB should have returned error and did not")
+	}
+
+	_, err = NewXSUB("bogus://bogus")
+	if err == nil {
+		t.Error("NewXSUB should have returned error and did not")
+	}
+
+	xpub, err := NewXPUB("inproc://xpub1,inproc://xpub2")
+	if err != nil {
+		t.Errorf("NewXPUB failed: %s", err)
+	}
+	defer xpub.Destroy()
+
+	xsub, err := NewXSUB("inproc://xpub1,inproc://xpub2")
+	if err != nil {
+		t.Errorf("NewXSUB failed: %s", err)
+	}
+	defer xsub.Destroy()
+}
+
+func TestPAIR(t *testing.T) {
+	_, err := NewPAIR("bogus://bogus")
+	if err == nil {
+		t.Error("NewPAIR should have returned error and did not")
+	}
+
+	pair1, err := NewPAIR(">inproc://pair")
+	if err != nil {
+		t.Errorf("NewPAIR failed: %s", err)
+	}
+	defer pair1.Destroy()
+
+	pair2, err := NewPAIR("@inproc://pair")
+	if err != nil {
+		t.Errorf("NewPAIR failed: %s", err)
+	}
+	defer pair2.Destroy()
+}
+
+func TestSTREAM(t *testing.T) {
+	_, err := NewSTREAM("bogus://bogus")
+	if err == nil {
+		t.Error("NewSTREAM should have returned error and did not")
+	}
+
+	stream1, err := NewSTREAM(">inproc://stream")
+	if err != nil {
+		t.Errorf("NewSTREAM failed: %s", err)
+	}
+	defer stream1.Destroy()
+
+	stream2, err := NewSTREAM("@inproc://stream")
+	if err != nil {
+		t.Errorf("NewSTREAM failed: %s", err)
+	}
+	defer stream2.Destroy()
 
 }
