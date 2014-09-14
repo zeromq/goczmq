@@ -94,6 +94,48 @@ func NewZsockSub(endpoints string, subscribe string) (*Zsock, error) {
 	return z, nil
 }
 
+// NewZsockRep creates a Rep socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it binds.
+func NewZsockRep(endpoints string) (*Zsock, error) {
+	var z *Zsock
+	_, file, line, ok := runtime.Caller(1)
+
+	if ok {
+		z = &Zsock{file: file, line: line, zType: REP}
+	} else {
+		z = &Zsock{file: "", line: 0, zType: REP}
+	}
+
+	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
+}
+
+// NewZsockReq creates a Req socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it connects.
+func NewZsockReq(endpoints string) (*Zsock, error) {
+	var z *Zsock
+	_, file, line, ok := runtime.Caller(1)
+
+	if ok {
+		z = &Zsock{file: file, line: line, zType: REQ}
+	} else {
+		z = &Zsock{file: "", line: 0, zType: REQ}
+	}
+
+	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
+}
+
 // Connect connects a socket to an endpoint
 // returns an error if the connect failed.
 func (z *Zsock) Connect(endpoint string) error {
