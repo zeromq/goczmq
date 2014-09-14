@@ -12,22 +12,20 @@ func main() {
 	var messageCount = flag.Int("message_count", 0, "number of messages")
 	flag.Parse()
 
-	pullSock := czmq.NewZsock(czmq.PULL)
-	defer pullSock.Destroy()
-
-	_, err := pullSock.Bind("inproc://test")
+	pullSock, err := czmq.NewPULL("inproc://test")
 	if err != nil {
 		panic(err)
 	}
 
+	defer pullSock.Destroy()
+
 	go func() {
-		pushSock := czmq.NewZsock(czmq.PUSH)
-		defer pushSock.Destroy()
-		err := pushSock.Connect("inproc://test")
+		pushSock, err := czmq.NewPUSH("inproc://test")
 		if err != nil {
 			panic(err)
 		}
 
+		defer pushSock.Destroy()
 		for i := 0; i < *messageCount; i++ {
 			payload := make([]byte, *messageSize)
 			err = pushSock.SendMessage(payload)
