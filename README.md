@@ -37,6 +37,68 @@ accessable "services" within a go process.
 
 Peter Kleiweg's excellent zmq4 library for libzmq: http://github.com/pebbe/zmq4
 
+## Example
+```go
+package main
+
+import (
+	"flag"
+	czmq "github.com/zeromq/goczmq"
+	"log"
+	"time"
+)
+
+func main() {
+	var messageSize = flag.Int("message_size", 0, "size of message")
+	var messageCount = flag.Int("message_count", 0, "number of messages")
+	flag.Parse()
+
+	pullSock, err := czmq.NewPULL("inproc://test")
+	if err != nil {
+		panic(err)
+	}
+
+	defer pullSock.Destroy()
+
+	go func() {
+		pushSock, err := czmq.NewPUSH("inproc://test")
+		if err != nil {
+			panic(err)
+		}
+
+		defer pushSock.Destroy()
+		for i := 0; i < *messageCount; i++ {
+			payload := make([]byte, *messageSize)
+			err = pushSock.SendMessage(payload)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	startTime := time.Now()
+	for i := 0; i < *messageCount; i++ {
+		msg, err := pullSock.RecvMessage()
+		if err != nil {
+			panic(err)
+		}
+		if len(msg) != 1 {
+			panic("msg too small")
+		}
+	}
+	endTime := time.Now()
+	elapsed := endTime.Sub(startTime)
+	throughput := float64(*messageCount) / elapsed.Seconds()
+	megabits := float64(throughput*float64(*messageSize)*8.0) / 1e6
+
+	log.Printf("message size: %d", *messageSize)
+	log.Printf("message count: %d", *messageCount)
+	log.Printf("test time (seconds): %f", elapsed.Seconds())
+	log.Printf("mean throughput: %f [msg/s]", throughput)
+	log.Printf("mean throughput: %f [Mb/s]", megabits)
+}
+```
+
 ## Godoc
 
 # goczmq
@@ -211,6 +273,115 @@ type Zsock struct {
 
 Zsock wraps the zsock_t class in CZMQ.
 
+#### func  NewDEALER
+
+```go
+func NewDEALER(endpoints string) (*Zsock, error)
+```
+NewDEALER creates a DEALER socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it connects.
+
+#### func  NewPAIR
+
+```go
+func NewPAIR(endpoints string) (*Zsock, error)
+```
+NewPAIR creates a PAIR socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). If the endpoint does not start with '@' or '>', it
+connects.
+
+#### func  NewPUB
+
+```go
+func NewPUB(endpoints string) (*Zsock, error)
+```
+NewPUB creates a PUB socket. The endpoint is empty, or starts with '@' (connect)
+or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
+endpoint does not start with '@' or '>', it binds.
+
+#### func  NewPULL
+
+```go
+func NewPULL(endpoints string) (*Zsock, error)
+```
+NewPULL creates a PULL socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it binds.
+
+#### func  NewPUSH
+
+```go
+func NewPUSH(endpoints string) (*Zsock, error)
+```
+NewPUSH creates a PUSH socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it connects.
+
+#### func  NewREP
+
+```go
+func NewREP(endpoints string) (*Zsock, error)
+```
+NewREP creates a REP socket. The endpoint is empty, or starts with '@' (connect)
+or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
+endpoint does not start with '@' or '>', it binds.
+
+#### func  NewREQ
+
+```go
+func NewREQ(endpoints string) (*Zsock, error)
+```
+NewREQ creates a REQ socket. The endpoint is empty, or starts with '@' (connect)
+or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
+endpoint does not start with '@' or '>', it connects.
+
+#### func  NewROUTER
+
+```go
+func NewROUTER(endpoints string) (*Zsock, error)
+```
+NewROUTER creates a ROUTER socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it binds.
+
+#### func  NewSTREAM
+
+```go
+func NewSTREAM(endpoints string) (*Zsock, error)
+```
+NewSTREAM creates a STREAM socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it connects.
+
+#### func  NewSUB
+
+```go
+func NewSUB(endpoints string, subscribe string) (*Zsock, error)
+```
+NewSUB creates a SUB socket. The enpoint is empty, or starts with '@' (connect)
+or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
+endpoint does not start with '@' or '>', it connects. The second argument is a
+comma delimited list of topics to subscribe to.
+
+#### func  NewXPUB
+
+```go
+func NewXPUB(endpoints string) (*Zsock, error)
+```
+NewXPUB creates an XPUB socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it binds.
+
+#### func  NewXSUB
+
+```go
+func NewXSUB(endpoints string) (*Zsock, error)
+```
+NewXSUB creates an XSUB socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it connects.
+
 #### func  NewZsock
 
 ```go
@@ -218,79 +389,6 @@ func NewZsock(t Type) *Zsock
 ```
 NewZsock creates a new socket. The caller source and line number are passed so
 CZMQ can report socket leaks intelligently.
-
-#### func  NewZsockDealer
-
-```go
-func NewZsockDealer(endpoints string) (*Zsock, error)
-```
-NewZsockDealer creates a DEALER socket. The endpoint is empty, or starts with
-'@' (connect) or '>' (bind). Multiple endpoints are allowed, separated by
-commas. If the endpoint does not start with '@' or '>', it connects.
-
-#### func  NewZsockPub
-
-```go
-func NewZsockPub(endpoints string) (*Zsock, error)
-```
-NewZsockPub creates a PUB socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it binds.
-
-#### func  NewZsockPull
-
-```go
-func NewZsockPull(endpoints string) (*Zsock, error)
-```
-NewZsockPull creates a PULL socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it binds.
-
-#### func  NewZsockPush
-
-```go
-func NewZsockPush(endpoints string) (*Zsock, error)
-```
-NewZsockPush creates a PUSH socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it connects.
-
-#### func  NewZsockRep
-
-```go
-func NewZsockRep(endpoints string) (*Zsock, error)
-```
-NewZsockRep creates a REP socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it binds.
-
-#### func  NewZsockReq
-
-```go
-func NewZsockReq(endpoints string) (*Zsock, error)
-```
-NewZsockReq creates a REQ socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it connects.
-
-#### func  NewZsockRouter
-
-```go
-func NewZsockRouter(endpoints string) (*Zsock, error)
-```
-NewZsockRouter creates a ROUTER socket. The endpoint is empty, or starts with
-'@' (connect) or '>' (bind). Multiple endpoints are allowed, separated by
-commas. If the endpoint does not start with '@' or '>', it binds.
-
-#### func  NewZsockSub
-
-```go
-func NewZsockSub(endpoints string, subscribe string) (*Zsock, error)
-```
-NewZsockSub creates a SUB socket. Ent enpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it connects. The second argument is
-a comma delimited list of topics to subscribe to.
 
 #### func (*Zsock) Affinity
 
