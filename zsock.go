@@ -46,19 +46,11 @@ func NewZsock(t Type) *Zsock {
 	return z
 }
 
-// NewZsockPub creates a Pub socket.  The endpoint is empty, or starts with
+// NewZsockPub creates a PUB socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
 func NewZsockPub(endpoints string) (*Zsock, error) {
-	var z *Zsock
-	_, file, line, ok := runtime.Caller(1)
-
-	if ok {
-		z = &Zsock{file: file, line: line, zType: PUB}
-	} else {
-		z = &Zsock{file: "", line: 0, zType: PUB}
-	}
-
+	z := NewZsock(PUB)
 	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
@@ -67,21 +59,12 @@ func NewZsockPub(endpoints string) (*Zsock, error) {
 	return z, nil
 }
 
-// NewZsockSub creates a Sub socket.  Ent enpoint is empty, or starts with
+// NewZsockSub creates a SUB socket.  Ent enpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
 // The second argument is a comma delimited list of topics to subscribe to.
 func NewZsockSub(endpoints string, subscribe string) (*Zsock, error) {
-	var z *Zsock
-	_, file, line, ok := runtime.Caller(1)
-
-	if ok {
-		z = &Zsock{file: file, line: line, zType: SUB}
-	} else {
-		z = &Zsock{file: "", line: 0, zType: SUB}
-	}
-
-	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
+	z := NewZsock(SUB)
 	subscriptions := strings.Split(subscribe, ",")
 	for _, s := range subscriptions {
 		z.SetSubscribe(s)
@@ -94,19 +77,11 @@ func NewZsockSub(endpoints string, subscribe string) (*Zsock, error) {
 	return z, nil
 }
 
-// NewZsockRep creates a Rep socket.  The endpoint is empty, or starts with
+// NewZsockRep creates a REP socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
 func NewZsockRep(endpoints string) (*Zsock, error) {
-	var z *Zsock
-	_, file, line, ok := runtime.Caller(1)
-
-	if ok {
-		z = &Zsock{file: file, line: line, zType: REP}
-	} else {
-		z = &Zsock{file: "", line: 0, zType: REP}
-	}
-
+	z := NewZsock(REP)
 	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
@@ -115,19 +90,37 @@ func NewZsockRep(endpoints string) (*Zsock, error) {
 	return z, nil
 }
 
-// NewZsockReq creates a Req socket.  The endpoint is empty, or starts with
+// NewZsockReq creates a REQ socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
 func NewZsockReq(endpoints string) (*Zsock, error) {
-	var z *Zsock
-	_, file, line, ok := runtime.Caller(1)
-
-	if ok {
-		z = &Zsock{file: file, line: line, zType: REQ}
-	} else {
-		z = &Zsock{file: "", line: 0, zType: REQ}
+	z := NewZsock(REQ)
+	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
+	if rc == -1 {
+		return nil, ErrZsockAttach
 	}
+	return z, nil
+}
 
+// NewZsockPull creates a PULL socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it binds.
+func NewZsockPull(endpoints string) (*Zsock, error) {
+	z := NewZsock(PULL)
+	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
+	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
+	if rc == -1 {
+		return nil, ErrZsockAttach
+	}
+	return z, nil
+}
+
+// NewZsockPush creates a PUSH socket.  The endpoint is empty, or starts with
+// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// by commas.  If the endpoint does not start with '@' or '>', it connects.
+func NewZsockPush(endpoints string) (*Zsock, error) {
+	z := NewZsock(PUSH)
 	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {

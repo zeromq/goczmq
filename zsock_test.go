@@ -196,3 +196,43 @@ func TestReqRep(t *testing.T) {
 	}
 
 }
+
+func TestPushPull(t *testing.T) {
+	_, err := NewZsockPush("bogus://bogus")
+	if err == nil {
+		t.Error("NewZsockPush should have returned error and did not")
+	}
+
+	_, err = NewZsockPull("bogus://bogus")
+	if err == nil {
+		t.Error("NewZsockPull should have returned error and did not")
+	}
+
+	push, err := NewZsockPush("inproc://push1,inproc://push2")
+	if err != nil {
+		t.Errorf("NewZsockPush failed: %s", err)
+	}
+
+	pull, err := NewZsockPull("inproc://push1,inproc://push2")
+	if err != nil {
+		t.Errorf("NewZsockPull failed: %s", err)
+	}
+
+	err = push.SendMessage("Hello", "World")
+	if err != nil {
+		t.Errorf("SendMessage failed: %s", err)
+	}
+
+	msg, err := pull.RecvMessage()
+	if err != nil {
+		t.Errorf("RecvMessage failed: %s", err)
+	}
+
+	if string(msg[0]) != "Hello" {
+		t.Errorf("Expected 'Hello', received '%s", string(msg[0]))
+	}
+
+	if string(msg[1]) != "World" {
+		t.Errorf("Expected 'World', received '%s", string(msg[0]))
+	}
+}

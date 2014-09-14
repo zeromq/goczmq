@@ -224,16 +224,52 @@ CZMQ can report socket leaks intelligently.
 ```go
 func NewZsockPub(endpoints string) (*Zsock, error)
 ```
-NewZsockPub creates a Pub socket. The endpoint is empty, or starts with '@'
+NewZsockPub creates a PUB socket. The endpoint is empty, or starts with '@'
 (connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
 the endpoint does not start with '@' or '>', it binds.
+
+#### func  NewZsockPull
+
+```go
+func NewZsockPull(endpoints string) (*Zsock, error)
+```
+NewZsockPull creates a PULL socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it binds.
+
+#### func  NewZsockPush
+
+```go
+func NewZsockPush(endpoints string) (*Zsock, error)
+```
+NewZsockPush creates a PUSH socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it connects.
+
+#### func  NewZsockRep
+
+```go
+func NewZsockRep(endpoints string) (*Zsock, error)
+```
+NewZsockRep creates a REP socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it binds.
+
+#### func  NewZsockReq
+
+```go
+func NewZsockReq(endpoints string) (*Zsock, error)
+```
+NewZsockReq creates a REQ socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it connects.
 
 #### func  NewZsockSub
 
 ```go
 func NewZsockSub(endpoints string, subscribe string) (*Zsock, error)
 ```
-NewZsockSub creates a Sub socket. Ent enpoint is empty, or starts with '@'
+NewZsockSub creates a SUB socket. Ent enpoint is empty, or starts with '@'
 (connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
 the endpoint does not start with '@' or '>', it connects. The second argument is
 a comma delimited list of topics to subscribe to.
