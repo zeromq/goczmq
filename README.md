@@ -6,6 +6,13 @@ Development is currently using CZMQ head compiled against ZeroMQ 4.0.4 Stable.
 
 ## Install
 
+### Required
+
+* ZeroMQ 4.0.4 or higher ( http://zeromq.org/intro:get-the-software )
+* CZMQ Head ( https://github.com/zeromq/czmq )
+
+### Get Go Library
+
   go get github.com/zeromq/goczmq
 
 ## Status
@@ -67,6 +74,7 @@ func main() {
 		}
 
 		defer pushSock.Destroy()
+		
 		for i := 0; i < *messageCount; i++ {
 			payload := make([]byte, *messageSize)
 			err = pushSock.SendMessage(payload)
