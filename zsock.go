@@ -181,7 +181,24 @@ func (z *Zsock) SendMessage(parts ...interface{}) error {
 	numParts := len(parts)
 	var f Flag
 
-	for i, val := range parts {
+	allParts := make([]interface{}, 0)
+	for _, part := range parts {
+		switch t := part.(type) {
+		case []string:
+			for _, p := range t {
+				allParts = append(allParts, p)
+			}
+		case [][]byte:
+			for _, p := range t {
+				allParts = append(allParts, p)
+			}
+		default:
+			allParts = append(allParts, t)
+		}
+	}
+
+	numParts = len(allParts)
+	for i, val := range allParts {
 		if i == numParts-1 {
 			f = 0
 		} else {

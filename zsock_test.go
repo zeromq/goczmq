@@ -277,8 +277,7 @@ func TestRouterDealer(t *testing.T) {
 
 	msg[1] = []byte("World")
 
-	// FIXME: SendMessage should be fixed to flatten arrays
-	err = router.SendMessage(msg[0], msg[1])
+	err = router.SendMessage(msg)
 	if err != nil {
 		t.Errorf("SendMessage failed: %s", err)
 	}
