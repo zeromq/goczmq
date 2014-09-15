@@ -40,6 +40,24 @@ func NewZpoller(readers ...*Zsock) (*Zpoller, error) {
 	return z, nil
 }
 
+// Add adds a reader to be polled.
+func (z *Zpoller) Add(reader *Zsock) error {
+	rc := C.zpoller_add(z.zpoller_t, unsafe.Pointer(reader))
+	if int(rc) == -1 {
+		return fmt.Errorf("error adding reader")
+	}
+	return nil
+}
+
+// Remove removes a reader from the poller
+func (z *Zpoller) Remove(reader *Zsock) error {
+	rc := C.zpoller_remove(z.zpoller_t, unsafe.Pointer(reader))
+	if int(rc) == -1 {
+		return fmt.Errorf("error removing reader")
+	}
+	return nil
+}
+
 // Destroy destroys the Zpoller
 func (z *Zpoller) Destroy() {
 	C.zpoller_destroy(&z.zpoller_t)
