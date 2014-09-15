@@ -23,19 +23,17 @@ Currently implemented:
 
 * ZSock
 * ZProxy
+* ZBeacon
 
 ## Goals
 
-Initial: Support "main" CZMQ classes that add useful abstractions on top of libzmq:
+Todo to finish inital phase::
 
 * ZAuth
-* ZBeacon
 * ZGossip
 * ZLoop
 * ZMonitor
 * ZPoller
-* ZProxy
-* ZSock
 
 Secondary: Provide additional abstractions for "Go-isms" such as providing Zsocks as channel
 accessable "services" within a go process.
