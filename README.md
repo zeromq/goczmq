@@ -196,6 +196,20 @@ func (z *Zbeacon) Publish(announcement string, interval int) error
 ```
 Publish publishes an announcement at an interval
 
+#### func (*Zbeacon) Recv
+
+```go
+func (z *Zbeacon) Recv(timeout int) string
+```
+Recv waits for the specific timeout in milliseconds to receive a beacon
+
+#### func (*Zbeacon) Subscribe
+
+```go
+func (z *Zbeacon) Subscribe(filter string) error
+```
+Subscribe subscribes to beacons matching the filter
+
 #### func (*Zbeacon) Verbose
 
 ```go
