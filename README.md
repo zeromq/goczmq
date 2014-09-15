@@ -23,19 +23,17 @@ Currently implemented:
 
 * ZSock
 * ZProxy
+* ZBeacon
 
 ## Goals
 
-Initial: Support "main" CZMQ classes that add useful abstractions on top of libzmq:
+Todo to finish inital phase::
 
 * ZAuth
-* ZBeacon
 * ZGossip
 * ZLoop
 * ZMonitor
 * ZPoller
-* ZProxy
-* ZSock
 
 Secondary: Provide additional abstractions for "Go-isms" such as providing Zsocks as channel
 accessable "services" within a go process.
@@ -195,6 +193,20 @@ Destroy destroys the beacon.
 func (z *Zbeacon) Publish(announcement string, interval int) error
 ```
 Publish publishes an announcement at an interval
+
+#### func (*Zbeacon) Recv
+
+```go
+func (z *Zbeacon) Recv(timeout int) string
+```
+Recv waits for the specific timeout in milliseconds to receive a beacon
+
+#### func (*Zbeacon) Subscribe
+
+```go
+func (z *Zbeacon) Subscribe(filter string) error
+```
+Subscribe subscribes to beacons matching the filter
 
 #### func (*Zbeacon) Verbose
 

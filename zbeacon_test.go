@@ -29,7 +29,14 @@ func TestZbeacon(t *testing.T) {
 		t.Errorf("CONFIGURE error: %s", err)
 	}
 
+	err = listener.Subscribe("HI")
+	if err != nil {
+		t.Errorf("SUBSCRIBE error: %s", err)
+	}
+
 	speaker.Publish("HI", 100)
+	reply := listener.Recv(500)
+	t.Logf("%v", reply)
 	listener.Destroy()
 	speaker.Destroy()
 }

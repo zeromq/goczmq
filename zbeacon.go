@@ -73,6 +73,28 @@ func (z *Zbeacon) Publish(announcement string, interval int) error {
 	return nil
 }
 
+// Subscribe subscribes to beacons matching the filter
+func (z *Zbeacon) Subscribe(filter string) error {
+	rc := C.zstr_sendm(unsafe.Pointer(z.zactor_t), C.CString("SUBSCRIBE"))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_send(unsafe.Pointer(z.zactor_t), C.CString(filter))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	return nil
+}
+
+// Recv waits for the specific timeout in milliseconds to receive a beacon
+func (z *Zbeacon) Recv(timeout int) string {
+	C.zsock_set_rcvtimeo(unsafe.Pointer(z.zactor_t), C.int(timeout))
+	msg := C.zstr_recv(unsafe.Pointer(z.zactor_t))
+	return C.GoString(msg)
+}
+
 // Destroy destroys the beacon.
 func (z *Zbeacon) Destroy() {
 	C.zactor_destroy(&z.zactor_t)
