@@ -42,7 +42,7 @@ accessable "services" within a go process.
 
 Peter Kleiweg's excellent zmq4 library for libzmq: http://github.com/pebbe/zmq4
 
-## Example
+## Smart Constructor Example
 ```go
 package main
 
@@ -102,6 +102,41 @@ func main() {
 	log.Printf("test time (seconds): %f", elapsed.Seconds())
 	log.Printf("mean throughput: %f [msg/s]", throughput)
 	log.Printf("mean throughput: %f [Mb/s]", megabits)
+}
+```
+
+## Zbeacon Example
+```go
+package main
+
+import (
+	"fmt"
+	czmq "github.com/taotetek/goczmq"
+)
+
+func main() {
+	speaker := czmq.NewZbeacon()
+	addr, err := speaker.Configure(9999)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Beacon configured on: %s\n", addr)
+
+	listener := czmq.NewZbeacon()
+	addr, err = listener.Configure(9999)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Beacon configured on: %s\n", addr)
+
+	listener.Subscribe("HI")
+
+	speaker.Publish("HI", 100)
+	reply := listener.Recv(500)
+	fmt.Printf("Received beacon: %v\n", reply)
+
+	listener.Destroy()
+	speaker.Destroy()
 }
 ```
 
