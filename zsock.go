@@ -9,7 +9,9 @@ package goczmq
 #include <string.h>
 
 int Zsock_connect(zsock_t *self, const char *format) {return zsock_connect(self, format, NULL);}
+int Zsock_disconnect(zsock_t *self, const char *format) {return zsock_disconnect(self, format, NULL);}
 int Zsock_bind(zsock_t *self, const char *format) {return zsock_bind(self, format, NULL);}
+int Zsock_unbind(zsock_t *self, const char *format) {return zsock_unbind(self, format, NULL);}
 */
 import "C"
 
@@ -37,9 +39,17 @@ func NewZsock(t Type) *Zsock {
 	_, file, line, ok := runtime.Caller(1)
 
 	if ok {
-		z = &Zsock{file: file, line: line, zType: t}
+		z = &Zsock{
+			file:  file,
+			line:  line,
+			zType: t,
+		}
 	} else {
-		z = &Zsock{file: "", line: 0, zType: t}
+		z = &Zsock{
+			file:  "",
+			line:  0,
+			zType: t,
+		}
 	}
 
 	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
@@ -207,6 +217,16 @@ func (z *Zsock) Connect(endpoint string) error {
 	return nil
 }
 
+// Disconnect disconnects a socket from an endpoint.  If returns
+// an error if the endpoint was not found
+func (z *Zsock) Disconnect(endpoint string) error {
+	rc := C.Zsock_disconnect(z.zsock_t, C.CString(endpoint))
+	if int(rc) == -1 {
+		return fmt.Errorf("endopint was not bound")
+	}
+	return nil
+}
+
 // Bind binds a socket to an endpoint.  On success returns
 // the port number used for tcp transports, or 0 for other
 // transports.  On failure returns a -1 for port, and an error.
@@ -216,6 +236,16 @@ func (z *Zsock) Bind(endpoint string) (int, error) {
 		return -1, errors.New("failed")
 	}
 	return int(port), nil
+}
+
+// Unbind unbinds a socket from an endpoint.  If returns
+// an error if the endpoint was not found
+func (z *Zsock) Unbind(endpoint string) error {
+	rc := C.Zsock_unbind(z.zsock_t, C.CString(endpoint))
+	if int(rc) == -1 {
+		return fmt.Errorf("endopint was not bound")
+	}
+	return nil
 }
 
 // SendMessage is a variadic function that currently accepts ints,
