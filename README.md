@@ -250,6 +250,43 @@ func (z *Zbeacon) Verbose() error
 ```
 Verbose sets the beacon to log information to stdout.
 
+#### type Zpoller
+
+```go
+type Zpoller struct {
+}
+```
+
+
+#### func  NewZpoller
+
+```go
+func NewZpoller(readers ...*Zsock) (*Zpoller, error)
+```
+NewZpoller creates a new Zpoller instance. It accepts one or more readers to
+poll.
+
+#### func (*Zpoller) Add
+
+```go
+func (z *Zpoller) Add(reader *Zsock) error
+```
+Add adds a reader to be polled.
+
+#### func (*Zpoller) Destroy
+
+```go
+func (z *Zpoller) Destroy()
+```
+Destroy destroys the Zpoller
+
+#### func (*Zpoller) Remove
+
+```go
+func (z *Zpoller) Remove(reader *Zsock) error
+```
+Remove removes a reader from the poller
+
 #### type Zproxy
 
 ```go
@@ -509,6 +546,14 @@ CurveServerkey returns the current value of the socket's curve_serverkey option
 func (z *Zsock) Destroy()
 ```
 Destroy destroys the underlying zsock_t.
+
+#### func (*Zsock) Disconnect
+
+```go
+func (z *Zsock) Disconnect(endpoint string) error
+```
+Disconnect disconnects a socket from an endpoint. If returns an error if the
+endpoint was not found
 
 #### func (*Zsock) Events
 
@@ -1158,6 +1203,14 @@ Tos returns the current value of the socket's tos option
 func (z *Zsock) Type() int
 ```
 Type returns the current value of the socket's type option
+
+#### func (*Zsock) Unbind
+
+```go
+func (z *Zsock) Unbind(endpoint string) error
+```
+Unbind unbinds a socket from an endpoint. If returns an error if the endpoint
+was not found
 
 #### func (*Zsock) ZapDomain
 

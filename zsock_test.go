@@ -57,6 +57,9 @@ func TestZsock(t *testing.T) {
 		t.Errorf("expected 'World' received '%s'", smsg)
 	}
 
+	pushSock.Disconnect("inproc://test")
+	pullSock.Unbind("inproc://test")
+
 	pushSock.Destroy()
 	pullSock.Destroy()
 }
