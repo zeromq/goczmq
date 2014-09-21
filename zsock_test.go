@@ -375,3 +375,26 @@ func TestSTREAM(t *testing.T) {
 	defer stream2.Destroy()
 
 }
+
+func TestWaiting(t *testing.T) {
+	push, err := NewPUSH("inproc://waiting")
+	if err != nil {
+		t.Errorf("NewPUSH failed: %s", err)
+	}
+	defer push.Destroy()
+
+	pull, err := NewPULL("inproc://waiting")
+	if err != nil {
+		t.Errorf("NewPULL failed: %s", err)
+	}
+	defer pull.Destroy()
+
+	err = push.SendMessage("Hello", "World")
+	if err != nil {
+		t.Errorf("SendMessage failed: %s", err)
+	}
+
+	if !pull.Waiting() {
+		t.Errorf("Waiting returned false should be true")
+	}
+}

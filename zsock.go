@@ -248,6 +248,10 @@ func (z *Zsock) Unbind(endpoint string) error {
 	return nil
 }
 
+func (z *Zsock) Waiting() bool {
+	return bool(C.zsock_waiting(z.zsock_t))
+}
+
 // SendMessage is a variadic function that currently accepts ints,
 // strings, and bytes, and sends them as an atomic multi frame
 // message over zeromq as a series of byte arrays.  In the case
