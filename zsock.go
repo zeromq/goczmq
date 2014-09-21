@@ -248,6 +248,8 @@ func (z *Zsock) Unbind(endpoint string) error {
 	return nil
 }
 
+// Waiting returns true of there is a waiting incoming
+// event on the socket
 func (z *Zsock) Waiting() bool {
 	return bool(C.zsock_waiting(z.zsock_t))
 }
