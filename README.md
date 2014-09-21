@@ -250,6 +250,46 @@ func (z *Zbeacon) Verbose() error
 ```
 Verbose sets the beacon to log information to stdout.
 
+#### type Zgossip
+
+```go
+type Zgossip struct {
+}
+```
+
+Zgossip actors use a gossip protocol for decentralized configuration management.
+Zgossip nodes form a loosely connected network that publishes and redistributed
+name/value tuples. A network of Zgossip actors will eventually achieve a
+consistent state
+
+#### func  NewZgossip
+
+```go
+func NewZgossip(name string) *Zgossip
+```
+NewZgossip creates a new Zgossip actor
+
+#### func (*Zgossip) Bind
+
+```go
+func (z *Zgossip) Bind(endpoint string) error
+```
+Bind binds the gossip service to a specified endpoint
+
+#### func (*Zgossip) Destroy
+
+```go
+func (z *Zgossip) Destroy()
+```
+Destroy destroys the gossip actor.
+
+#### func (*Zgossip) Verbose
+
+```go
+func (z *Zgossip) Verbose() error
+```
+Verbose sets the gossip actor to log information to stdout.
+
 #### type Zpoller
 
 ```go
@@ -1211,6 +1251,13 @@ func (z *Zsock) Unbind(endpoint string) error
 ```
 Unbind unbinds a socket from an endpoint. If returns an error if the endpoint
 was not found
+
+#### func (*Zsock) Waiting
+
+```go
+func (z *Zsock) Waiting() bool
+```
+Waiting returns true of there is a waiting incoming event on the socket
 
 #### func (*Zsock) ZapDomain
 
