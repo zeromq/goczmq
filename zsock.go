@@ -248,10 +248,17 @@ func (z *Zsock) Unbind(endpoint string) error {
 	return nil
 }
 
-// Waiting returns true of there is a waiting incoming
+// Pollin returns true if there is a POLLIN
 // event on the socket
-func (z *Zsock) Waiting() bool {
-	return bool(C.zsock_waiting(z.zsock_t))
+func (z *Zsock) Pollin() bool {
+	return z.Events() == POLLIN
+	// return C.zsock_events(unsafe.Pointer(z.zsock_t)) == C.ZMQ_POLLIN
+}
+
+// Pollout returns true if there is a POLLOUT
+// event on the socket
+func (z *Zsock) Pollout() bool {
+	return z.Events() == POLLOUT
 }
 
 // SendMessage is a variadic function that currently accepts ints,
