@@ -376,25 +376,53 @@ func TestSTREAM(t *testing.T) {
 
 }
 
-func TestWaiting(t *testing.T) {
-	push, err := NewPUSH("inproc://waiting")
+func TestPollin(t *testing.T) {
+	push, err := NewPUSH("inproc://pollin")
 	if err != nil {
 		t.Errorf("NewPUSH failed: %s", err)
 	}
 	defer push.Destroy()
 
-	pull, err := NewPULL("inproc://waiting")
+	pull, err := NewPULL("inproc://pollin")
 	if err != nil {
 		t.Errorf("NewPULL failed: %s", err)
 	}
 	defer pull.Destroy()
+
+	if pull.Pollin() {
+		t.Errorf("Pollin returned true should be false")
+	}
 
 	err = push.SendMessage("Hello", "World")
 	if err != nil {
 		t.Errorf("SendMessage failed: %s", err)
 	}
 
-	if !pull.Waiting() {
-		t.Errorf("Waiting returned false should be true")
+	if !pull.Pollin() {
+		t.Errorf("Pollin returned false should be true")
 	}
+}
+
+func TestPollout(t *testing.T) {
+	push := NewZsock(PUSH)
+	_, err := push.Bind("inproc://pollout")
+	if err != nil {
+		t.Errorf("failed binding test socket: %s", err)
+	}
+	defer push.Destroy()
+
+	if push.Pollout() {
+		t.Errorf("Pollout returned true should be false")
+	}
+
+	pull := NewZsock(PULL)
+	err = pull.Connect("inproc://pollout")
+	if err != nil {
+		t.Errorf("failed connecting test socket: %s", err)
+	}
+
+	if !push.Pollout() {
+		t.Errorf("Pollout returned false should be true")
+	}
+
 }

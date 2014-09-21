@@ -32,6 +32,9 @@ const (
 	PAIR   = Type(C.ZMQ_PAIR)
 	STREAM = Type(C.ZMQ_STREAM)
 
+	POLLIN  = int(C.ZMQ_POLLIN)
+	POLLOUT = int(C.ZMQ_POLLOUT)
+
 	ZMSG_TAG = 0x003cafe
 	MORE     = Flag(C.ZFRAME_MORE)
 	REUSE    = Flag(C.ZFRAME_REUSE)
