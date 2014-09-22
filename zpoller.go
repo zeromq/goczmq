@@ -15,6 +15,7 @@ import (
 	"unsafe"
 )
 
+// Zpoller is a simple poller for Zsocks
 type Zpoller struct {
 	zpoller_t *C.struct__zpoller_t
 	zsocks    []*Zsock
@@ -54,6 +55,20 @@ func (z *Zpoller) Add(reader *Zsock) error {
 	}
 	z.zsocks = append(z.zsocks, reader)
 	return nil
+}
+
+// Remove removes a zsock from the poller
+func (z *Zpoller) Remove(reader *Zsock) {
+	num_items := len(z.zsocks)
+	for i := 0; i < num_items; i++ {
+		if z.zsocks[i] == reader {
+			if i == num_items-1 {
+				z.zsocks = z.zsocks[:i]
+			} else {
+				z.zsocks = append(z.zsocks[:i], z.zsocks[i+1:]...)
+			}
+		}
+	}
 }
 
 // Wait waits for the timeout period in milliseconds for a POLLIN
