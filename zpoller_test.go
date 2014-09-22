@@ -10,29 +10,75 @@ func TestZpoller(t *testing.T) {
 		t.Errorf("NewPULL failed: %s", err)
 	}
 
+	poller, err := NewZpoller(pullSock1)
+	if err != nil {
+		t.Errorf("NewZpoller failed: %s", err)
+	}
+
+	if len(poller.zsocks) != 1 {
+		t.Errorf("Expected number of zsocks to be 1, was %d", len(poller.zsocks))
+	}
+
 	pullSock2, err := NewPULL("inproc://poller_pull2")
 	if err != nil {
 		t.Errorf("NewPULL failed: %s", err)
 	}
 
-	poller, err := NewZpoller(pullSock1, pullSock2)
+	err = poller.Add(pullSock2)
 	if err != nil {
-		t.Errorf("NewZpoller failed: %s", err)
+		t.Errorf("poller Add failed: %s", err)
 	}
 
-	pullSock3, err := NewPULL("inproc://poller_pull3")
-	if err != nil {
-		t.Errorf("NewPULL failed: %s", err)
+	if len(poller.zsocks) != 2 {
+		t.Errorf("Expected number of zsocks to be 2, was %d", len(poller.zsocks))
 	}
 
-	err = poller.Add(pullSock3)
+	pushSock, err := NewPUSH("inproc://poller_pull1")
 	if err != nil {
-		t.Errorf("poller.Add failed: %s", err)
+		t.Errorf("NewPUSH failed: %s", err)
 	}
 
-	err = poller.Remove(pullSock3)
+	err = pushSock.SendString("Hello", 0)
 	if err != nil {
-		t.Errorf("poller.Remove failed: %s", err)
+		t.Errorf("SendMessage failed: %s", err)
+	}
+
+	s := poller.Wait(0)
+	if s == nil {
+		t.Errorf("Wait did not return waiting socket")
+	}
+
+	msg, err := s.RecvString()
+	if err != nil {
+		t.Errorf("RecvMessage failed: %s", err)
+	}
+
+	if msg != "Hello" {
+		t.Errorf("Expected 'Hello', received %s", msg)
+	}
+
+	pushSock2, err := NewPUSH("inproc://poller_pull2")
+	if err != nil {
+		t.Errorf("NewPUSH failed: %s", err)
+	}
+
+	err = pushSock2.SendString("World", 0)
+	if err != nil {
+		t.Errorf("SendMessage failed: %s", err)
+	}
+
+	s = poller.Wait(0)
+	if s == nil {
+		t.Errorf("Wait did not return waiting socket")
+	}
+
+	msg, err = s.RecvString()
+	if err != nil {
+		t.Errorf("RecvMessage failed: %s", err)
+	}
+
+	if msg != "World" {
+		t.Errorf("Expected 'World', received %s", msg)
 	}
 
 	poller.Destroy()
