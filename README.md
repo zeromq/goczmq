@@ -24,6 +24,7 @@ Currently implemented:
 * ZSock
 * ZProxy
 * ZBeacon
+* ZPoller
 
 ## Goals
 
@@ -33,7 +34,6 @@ Todo to finish inital phase::
 * ZGossip
 * ZLoop
 * ZMonitor
-* ZPoller
 
 Secondary: Provide additional abstractions for "Go-isms" such as providing Zsocks as channel
 accessable "services" within a go process.
@@ -164,6 +164,9 @@ const (
 	PULL   = Type(C.ZMQ_PULL)
 	PAIR   = Type(C.ZMQ_PAIR)
 	STREAM = Type(C.ZMQ_STREAM)
+
+	POLLIN  = int(C.ZMQ_POLLIN)
+	POLLOUT = int(C.ZMQ_POLLOUT)
 
 	ZMSG_TAG = 0x003cafe
 	MORE     = Flag(C.ZFRAME_MORE)
@@ -320,12 +323,13 @@ func (z *Zpoller) Destroy()
 ```
 Destroy destroys the Zpoller
 
-#### func (*Zpoller) Remove
+#### func (*Zpoller) Wait
 
 ```go
-func (z *Zpoller) Remove(reader *Zsock) error
+func (z *Zpoller) Wait(timeout int) *Zsock
 ```
-Remove removes a reader from the poller
+Wait waits for the timeout period in milliseconds for a POLLIN event, and
+returns the first socket that returns one
 
 #### type Zproxy
 
@@ -723,6 +727,20 @@ PlainServer returns the current value of the socket's plain_server option
 func (z *Zsock) PlainUsername() string
 ```
 PlainUsername returns the current value of the socket's plain_username option
+
+#### func (*Zsock) Pollin
+
+```go
+func (z *Zsock) Pollin() bool
+```
+Pollin returns true if there is a POLLIN event on the socket
+
+#### func (*Zsock) Pollout
+
+```go
+func (z *Zsock) Pollout() bool
+```
+Pollout returns true if there is a POLLOUT event on the socket
 
 #### func (*Zsock) Rate
 
@@ -1251,13 +1269,6 @@ func (z *Zsock) Unbind(endpoint string) error
 ```
 Unbind unbinds a socket from an endpoint. If returns an error if the endpoint
 was not found
-
-#### func (*Zsock) Waiting
-
-```go
-func (z *Zsock) Waiting() bool
-```
-Waiting returns true of there is a waiting incoming event on the socket
 
 #### func (*Zsock) ZapDomain
 
