@@ -81,5 +81,9 @@ func TestZpoller(t *testing.T) {
 		t.Errorf("Expected 'World', received %s", msg)
 	}
 
+	poller.Remove(pullSock2)
+	if len(poller.zsocks) != 1 {
+		t.Errorf("zsocks len should be 1 after removing pushsock, is %d", len(poller.zsocks))
+	}
 	poller.Destroy()
 }
