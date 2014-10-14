@@ -8,10 +8,10 @@ package goczmq
 #include <stdlib.h>
 #include <string.h>
 
-int Zsock_connect(zsock_t *self, const char *format) {return zsock_connect(self, format, NULL);}
-int Zsock_disconnect(zsock_t *self, const char *format) {return zsock_disconnect(self, format, NULL);}
-int Zsock_bind(zsock_t *self, const char *format) {return zsock_bind(self, format, NULL);}
-int Zsock_unbind(zsock_t *self, const char *format) {return zsock_unbind(self, format, NULL);}
+int Sock_connect(zsock_t *self, const char *format) {return zsock_connect(self, format, NULL);}
+int Sock_disconnect(zsock_t *self, const char *format) {return zsock_disconnect(self, format, NULL);}
+int Sock_bind(zsock_t *self, const char *format) {return zsock_bind(self, format, NULL);}
+int Sock_unbind(zsock_t *self, const char *format) {return zsock_unbind(self, format, NULL);}
 */
 import "C"
 
@@ -23,29 +23,29 @@ import (
 	"unsafe"
 )
 
-// Zsock wraps the zsock_t class in CZMQ.
-type Zsock struct {
+// Sock wraps the zsock_t class in CZMQ.
+type Sock struct {
 	zsock_t *C.struct__zsock_t
 	file    string
 	line    int
 	zType   Type
 }
 
-// NewZsock creates a new socket.  The caller source and
+// NewSock creates a new socket.  The caller source and
 // line number are passed so CZMQ can report socket leaks
 // intelligently.
-func NewZsock(t Type) *Zsock {
-	var z *Zsock
+func NewSock(t Type) *Sock {
+	var z *Sock
 	_, file, line, ok := runtime.Caller(1)
 
 	if ok {
-		z = &Zsock{
+		z = &Sock{
 			file:  file,
 			line:  line,
 			zType: t,
 		}
 	} else {
-		z = &Zsock{
+		z = &Sock{
 			file:  "",
 			line:  0,
 			zType: t,
@@ -59,12 +59,12 @@ func NewZsock(t Type) *Zsock {
 // NewPUB creates a PUB socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewPUB(endpoints string) (*Zsock, error) {
-	z := NewZsock(PUB)
+func NewPUB(endpoints string) (*Sock, error) {
+	z := NewSock(PUB)
 	z.zsock_t = C.zsock_new_(C.int(z.zType), C.CString(z.file), C.size_t(z.line))
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
-		return nil, ErrZsockAttach
+		return nil, ErrSockAttach
 	}
 	return z, nil
 }
@@ -73,8 +73,8 @@ func NewPUB(endpoints string) (*Zsock, error) {
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
 // The second argument is a comma delimited list of topics to subscribe to.
-func NewSUB(endpoints string, subscribe string) (*Zsock, error) {
-	z := NewZsock(SUB)
+func NewSUB(endpoints string, subscribe string) (*Sock, error) {
+	z := NewSock(SUB)
 	subscriptions := strings.Split(subscribe, ",")
 	for _, s := range subscriptions {
 		z.SetSubscribe(s)
@@ -82,7 +82,7 @@ func NewSUB(endpoints string, subscribe string) (*Zsock, error) {
 
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
-		return nil, ErrZsockAttach
+		return nil, ErrSockAttach
 	}
 	return z, nil
 }
@@ -90,11 +90,11 @@ func NewSUB(endpoints string, subscribe string) (*Zsock, error) {
 // NewREP creates a REP socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewREP(endpoints string) (*Zsock, error) {
-	z := NewZsock(REP)
+func NewREP(endpoints string) (*Sock, error) {
+	z := NewSock(REP)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
-		return nil, ErrZsockAttach
+		return nil, ErrSockAttach
 	}
 	return z, nil
 }
@@ -102,11 +102,11 @@ func NewREP(endpoints string) (*Zsock, error) {
 // NewREQ creates a REQ socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewREQ(endpoints string) (*Zsock, error) {
-	z := NewZsock(REQ)
+func NewREQ(endpoints string) (*Sock, error) {
+	z := NewSock(REQ)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
-		return nil, ErrZsockAttach
+		return nil, ErrSockAttach
 	}
 	return z, nil
 }
@@ -114,11 +114,11 @@ func NewREQ(endpoints string) (*Zsock, error) {
 // NewPULL creates a PULL socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewPULL(endpoints string) (*Zsock, error) {
-	z := NewZsock(PULL)
+func NewPULL(endpoints string) (*Sock, error) {
+	z := NewSock(PULL)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
-		return nil, ErrZsockAttach
+		return nil, ErrSockAttach
 	}
 	return z, nil
 }
@@ -126,11 +126,11 @@ func NewPULL(endpoints string) (*Zsock, error) {
 // NewPUSH creates a PUSH socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewPUSH(endpoints string) (*Zsock, error) {
-	z := NewZsock(PUSH)
+func NewPUSH(endpoints string) (*Sock, error) {
+	z := NewSock(PUSH)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
-		return nil, ErrZsockAttach
+		return nil, ErrSockAttach
 	}
 	return z, nil
 }
@@ -138,11 +138,11 @@ func NewPUSH(endpoints string) (*Zsock, error) {
 // NewROUTER creates a ROUTER socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewROUTER(endpoints string) (*Zsock, error) {
-	z := NewZsock(ROUTER)
+func NewROUTER(endpoints string) (*Sock, error) {
+	z := NewSock(ROUTER)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
-		return nil, ErrZsockAttach
+		return nil, ErrSockAttach
 	}
 	return z, nil
 }
@@ -150,11 +150,11 @@ func NewROUTER(endpoints string) (*Zsock, error) {
 // NewDEALER creates a DEALER socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewDEALER(endpoints string) (*Zsock, error) {
-	z := NewZsock(DEALER)
+func NewDEALER(endpoints string) (*Sock, error) {
+	z := NewSock(DEALER)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
-		return nil, ErrZsockAttach
+		return nil, ErrSockAttach
 	}
 	return z, nil
 }
@@ -162,11 +162,11 @@ func NewDEALER(endpoints string) (*Zsock, error) {
 // NewXPUB creates an XPUB socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewXPUB(endpoints string) (*Zsock, error) {
-	z := NewZsock(XPUB)
+func NewXPUB(endpoints string) (*Sock, error) {
+	z := NewSock(XPUB)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(true))
 	if rc == -1 {
-		return nil, ErrZsockAttach
+		return nil, ErrSockAttach
 	}
 	return z, nil
 }
@@ -174,11 +174,11 @@ func NewXPUB(endpoints string) (*Zsock, error) {
 // NewXSUB creates an XSUB socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewXSUB(endpoints string) (*Zsock, error) {
-	z := NewZsock(XSUB)
+func NewXSUB(endpoints string) (*Sock, error) {
+	z := NewSock(XSUB)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
-		return nil, ErrZsockAttach
+		return nil, ErrSockAttach
 	}
 	return z, nil
 }
@@ -186,11 +186,11 @@ func NewXSUB(endpoints string) (*Zsock, error) {
 // NewPAIR creates a PAIR socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  If the endpoint does not start with '@' or
 // '>', it connects.
-func NewPAIR(endpoints string) (*Zsock, error) {
-	z := NewZsock(PAIR)
+func NewPAIR(endpoints string) (*Sock, error) {
+	z := NewSock(PAIR)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
-		return nil, ErrZsockAttach
+		return nil, ErrSockAttach
 	}
 	return z, nil
 }
@@ -198,19 +198,19 @@ func NewPAIR(endpoints string) (*Zsock, error) {
 // NewSTREAM creates a STREAM socket.  The endpoint is empty, or starts with
 // '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewSTREAM(endpoints string) (*Zsock, error) {
-	z := NewZsock(STREAM)
+func NewSTREAM(endpoints string) (*Sock, error) {
+	z := NewSock(STREAM)
 	rc := C.zsock_attach(z.zsock_t, C.CString(endpoints), C._Bool(false))
 	if rc == -1 {
-		return nil, ErrZsockAttach
+		return nil, ErrSockAttach
 	}
 	return z, nil
 }
 
 // Connect connects a socket to an endpoint
 // returns an error if the connect failed.
-func (z *Zsock) Connect(endpoint string) error {
-	rc := C.Zsock_connect(z.zsock_t, C.CString(endpoint))
+func (z *Sock) Connect(endpoint string) error {
+	rc := C.Sock_connect(z.zsock_t, C.CString(endpoint))
 	if rc == C.int(-1) {
 		return errors.New("failed")
 	}
@@ -219,8 +219,8 @@ func (z *Zsock) Connect(endpoint string) error {
 
 // Disconnect disconnects a socket from an endpoint.  If returns
 // an error if the endpoint was not found
-func (z *Zsock) Disconnect(endpoint string) error {
-	rc := C.Zsock_disconnect(z.zsock_t, C.CString(endpoint))
+func (z *Sock) Disconnect(endpoint string) error {
+	rc := C.Sock_disconnect(z.zsock_t, C.CString(endpoint))
 	if int(rc) == -1 {
 		return fmt.Errorf("endopint was not bound")
 	}
@@ -230,8 +230,8 @@ func (z *Zsock) Disconnect(endpoint string) error {
 // Bind binds a socket to an endpoint.  On success returns
 // the port number used for tcp transports, or 0 for other
 // transports.  On failure returns a -1 for port, and an error.
-func (z *Zsock) Bind(endpoint string) (int, error) {
-	port := C.Zsock_bind(z.zsock_t, C.CString(endpoint))
+func (z *Sock) Bind(endpoint string) (int, error) {
+	port := C.Sock_bind(z.zsock_t, C.CString(endpoint))
 	if port == C.int(-1) {
 		return -1, errors.New("failed")
 	}
@@ -240,8 +240,8 @@ func (z *Zsock) Bind(endpoint string) (int, error) {
 
 // Unbind unbinds a socket from an endpoint.  If returns
 // an error if the endpoint was not found
-func (z *Zsock) Unbind(endpoint string) error {
-	rc := C.Zsock_unbind(z.zsock_t, C.CString(endpoint))
+func (z *Sock) Unbind(endpoint string) error {
+	rc := C.Sock_unbind(z.zsock_t, C.CString(endpoint))
 	if int(rc) == -1 {
 		return fmt.Errorf("endopint was not bound")
 	}
@@ -250,14 +250,14 @@ func (z *Zsock) Unbind(endpoint string) error {
 
 // Pollin returns true if there is a POLLIN
 // event on the socket
-func (z *Zsock) Pollin() bool {
+func (z *Sock) Pollin() bool {
 	return z.Events() == POLLIN
 	// return C.zsock_events(unsafe.Pointer(z.zsock_t)) == C.ZMQ_POLLIN
 }
 
 // Pollout returns true if there is a POLLOUT
 // event on the socket
-func (z *Zsock) Pollout() bool {
+func (z *Sock) Pollout() bool {
 	return z.Events() == POLLOUT
 }
 
@@ -268,7 +268,7 @@ func (z *Zsock) Pollout() bool {
 // of the number (e.g., 100 turns to "100").  This may be changed to
 // network byte ordered representation in the near future - I have
 // not decided yet!
-func (z *Zsock) SendMessage(parts ...interface{}) error {
+func (z *Sock) SendMessage(parts ...interface{}) error {
 	numParts := len(parts)
 	var f Flag
 
@@ -326,7 +326,7 @@ func (z *Zsock) SendMessage(parts ...interface{}) error {
 
 // RecvMessage receives a full message from the socket
 // and returns it as an array of byte arrays.
-func (z *Zsock) RecvMessage() ([][]byte, error) {
+func (z *Sock) RecvMessage() ([][]byte, error) {
 	var msg [][]byte
 	for {
 		frame, flag, err := z.RecvBytes()
@@ -344,7 +344,7 @@ func (z *Zsock) RecvMessage() ([][]byte, error) {
 // SendBytes sends a byte array via the socket.  For the flags
 // value, use 0 for a single message, or SNDMORE if it is
 // a multi-part message
-func (z *Zsock) SendBytes(data []byte, flags Flag) error {
+func (z *Sock) SendBytes(data []byte, flags Flag) error {
 	frame := C.zframe_new(unsafe.Pointer(&data[0]), C.size_t(len(data)))
 	rc := C.zframe_send(&frame, unsafe.Pointer(z.zsock_t), C.int(flags))
 	if rc == C.int(-1) {
@@ -356,14 +356,14 @@ func (z *Zsock) SendBytes(data []byte, flags Flag) error {
 // SendString sends a string via the socket.  For the flags
 // value, use 0 for a single message, or SNDMORE if it is
 // a multi-part message
-func (z *Zsock) SendString(data string, flags Flag) error {
+func (z *Sock) SendString(data string, flags Flag) error {
 	err := z.SendBytes([]byte(data), flags)
 	return err
 }
 
 // RecvBytes reads a frame from the socket and returns it
 // as a byte array,  Returns an error if the call fails.
-func (z *Zsock) RecvBytes() ([]byte, Flag, error) {
+func (z *Sock) RecvBytes() ([]byte, Flag, error) {
 	frame := C.zframe_recv(unsafe.Pointer(z.zsock_t))
 	if frame == nil {
 		return []byte{0}, 0, errors.New("failed")
@@ -378,7 +378,7 @@ func (z *Zsock) RecvBytes() ([]byte, Flag, error) {
 
 // RecvString reads a frame from the socket and returns it
 // as a string,  Returns an error if the call fails.
-func (z *Zsock) RecvString() (string, error) {
+func (z *Sock) RecvString() (string, error) {
 	b, _, err := z.RecvBytes()
 	if err != nil {
 		return "", err
@@ -387,6 +387,6 @@ func (z *Zsock) RecvString() (string, error) {
 }
 
 // Destroy destroys the underlying zsock_t.
-func (z *Zsock) Destroy() {
+func (z *Sock) Destroy() {
 	C.zsock_destroy_(&z.zsock_t, C.CString(z.file), C.size_t(z.line))
 }

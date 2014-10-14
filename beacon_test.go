@@ -4,9 +4,9 @@ import (
 	"testing"
 )
 
-func TestZbeacon(t *testing.T) {
-	// Create a Zbeacon
-	speaker := NewZbeacon()
+func TestBeacon(t *testing.T) {
+	// Create a Beacon
+	speaker := NewBeacon()
 
 	err := speaker.Verbose()
 	if err != nil {
@@ -18,7 +18,7 @@ func TestZbeacon(t *testing.T) {
 		t.Errorf("CONFIGURE error: %s", err)
 	}
 
-	listener := NewZbeacon()
+	listener := NewBeacon()
 	err = listener.Verbose()
 	if err != nil {
 		t.Errorf("VERBOSE error: %s", err)
