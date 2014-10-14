@@ -85,5 +85,7 @@ func TestPoller(t *testing.T) {
 	if len(poller.zsocks) != 1 {
 		t.Errorf("zsocks len should be 1 after removing pushsock, is %d", len(poller.zsocks))
 	}
+
+	pullSock2.Destroy()
 	poller.Destroy()
 }

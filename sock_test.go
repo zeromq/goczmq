@@ -416,6 +416,8 @@ func TestPollout(t *testing.T) {
 	}
 
 	pull := NewSock(PULL)
+	defer pull.Destroy()
+
 	err = pull.Connect("inproc://pollout")
 	if err != nil {
 		t.Errorf("failed connecting test socket: %s", err)
@@ -424,5 +426,4 @@ func TestPollout(t *testing.T) {
 	if !push.Pollout() {
 		t.Errorf("Pollout returned false should be true")
 	}
-
 }
