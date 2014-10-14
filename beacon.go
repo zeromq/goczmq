@@ -6,7 +6,7 @@ package goczmq
 #cgo windows LDFLAGS: -L/usr/local/lib -lczmq
 #include "czmq.h"
 
-zactor_t *Zbeacon_new () { zactor_t *beacon = zactor_new(zbeacon, NULL); return beacon; }
+zactor_t *Beacon_new () { zactor_t *beacon = zactor_new(zbeacon, NULL); return beacon; }
 */
 import "C"
 
@@ -15,19 +15,19 @@ import (
 	"unsafe"
 )
 
-type Zbeacon struct {
+type Beacon struct {
 	zactor_t *C.struct__zactor_t
 }
 
-// NewZbeacon creates a new Zbeacon instance.
-func NewZbeacon() *Zbeacon {
-	z := &Zbeacon{}
-	z.zactor_t = C.Zbeacon_new()
+// NewBeacon creates a new Beacon instance.
+func NewBeacon() *Beacon {
+	z := &Beacon{}
+	z.zactor_t = C.Beacon_new()
 	return z
 }
 
 // Verbose sets the beacon to log information to stdout.
-func (z *Zbeacon) Verbose() error {
+func (z *Beacon) Verbose() error {
 	rc := C.zstr_send(unsafe.Pointer(z.zactor_t), C.CString("VERBOSE"))
 	if rc == -1 {
 		return ErrActorCmd
@@ -37,7 +37,7 @@ func (z *Zbeacon) Verbose() error {
 }
 
 // Configure accepts a port number and configures the beacon, returning an address
-func (z *Zbeacon) Configure(port int) (string, error) {
+func (z *Beacon) Configure(port int) (string, error) {
 	rc := C.zstr_sendm(unsafe.Pointer(z.zactor_t), C.CString("CONFIGURE"))
 	if rc == -1 {
 		return "", ErrActorCmd
@@ -54,7 +54,7 @@ func (z *Zbeacon) Configure(port int) (string, error) {
 }
 
 // Publish publishes an announcement at an interval
-func (z *Zbeacon) Publish(announcement string, interval int) error {
+func (z *Beacon) Publish(announcement string, interval int) error {
 	rc := C.zstr_sendm(unsafe.Pointer(z.zactor_t), C.CString("PUBLISH"))
 	if rc == -1 {
 		return ErrActorCmd
@@ -74,7 +74,7 @@ func (z *Zbeacon) Publish(announcement string, interval int) error {
 }
 
 // Subscribe subscribes to beacons matching the filter
-func (z *Zbeacon) Subscribe(filter string) error {
+func (z *Beacon) Subscribe(filter string) error {
 	rc := C.zstr_sendm(unsafe.Pointer(z.zactor_t), C.CString("SUBSCRIBE"))
 	if rc == -1 {
 		return ErrActorCmd
@@ -89,13 +89,13 @@ func (z *Zbeacon) Subscribe(filter string) error {
 }
 
 // Recv waits for the specific timeout in milliseconds to receive a beacon
-func (z *Zbeacon) Recv(timeout int) string {
+func (z *Beacon) Recv(timeout int) string {
 	C.zsock_set_rcvtimeo(unsafe.Pointer(z.zactor_t), C.int(timeout))
 	msg := C.zstr_recv(unsafe.Pointer(z.zactor_t))
 	return C.GoString(msg)
 }
 
 // Destroy destroys the beacon.
-func (z *Zbeacon) Destroy() {
+func (z *Beacon) Destroy() {
 	C.zactor_destroy(&z.zactor_t)
 }

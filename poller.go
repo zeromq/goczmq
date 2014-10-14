@@ -6,7 +6,7 @@ package goczmq
 #cgo windows LDFLAGS: -L/usr/local/lib -lczmq
 #include "czmq.h"
 
-zpoller_t *Zpoller_new(void *reader) { zpoller_t *poller = zpoller_new(reader, NULL); return poller; }
+zpoller_t *Poller_new(void *reader) { zpoller_t *poller = zpoller_new(reader, NULL); return poller; }
 */
 import "C"
 
@@ -15,21 +15,21 @@ import (
 	"unsafe"
 )
 
-// Zpoller is a simple poller for Zsocks
-type Zpoller struct {
+// Poller is a simple poller for Socks
+type Poller struct {
 	zpoller_t *C.struct__zpoller_t
-	zsocks    []*Zsock
+	zsocks    []*Sock
 }
 
-// NewZpoller creates a new Zpoller instance.  It accepts one or more readers to poll.
-func NewZpoller(readers ...*Zsock) (*Zpoller, error) {
+// NewPoller creates a new Poller instance.  It accepts one or more readers to poll.
+func NewPoller(readers ...*Sock) (*Poller, error) {
 	if len(readers) == 0 {
 		return nil, fmt.Errorf("requires at least one reader")
 	}
 
-	z := &Zpoller{
-		zpoller_t: C.Zpoller_new(unsafe.Pointer(readers[0].zsock_t)),
-		zsocks:    make([]*Zsock, 0),
+	z := &Poller{
+		zpoller_t: C.Poller_new(unsafe.Pointer(readers[0].zsock_t)),
+		zsocks:    make([]*Sock, 0),
 	}
 
 	z.zsocks = append(z.zsocks, readers[0])
@@ -48,7 +48,7 @@ func NewZpoller(readers ...*Zsock) (*Zpoller, error) {
 }
 
 // Add adds a reader to be polled.
-func (z *Zpoller) Add(reader *Zsock) error {
+func (z *Poller) Add(reader *Sock) error {
 	rc := C.zpoller_add(z.zpoller_t, unsafe.Pointer(reader.zsock_t))
 	if int(rc) == -1 {
 		return fmt.Errorf("error adding reader")
@@ -58,7 +58,7 @@ func (z *Zpoller) Add(reader *Zsock) error {
 }
 
 // Remove removes a zsock from the poller
-func (z *Zpoller) Remove(reader *Zsock) {
+func (z *Poller) Remove(reader *Sock) {
 	num_items := len(z.zsocks)
 	for i := 0; i < num_items; i++ {
 		if z.zsocks[i] == reader {
@@ -73,7 +73,7 @@ func (z *Zpoller) Remove(reader *Zsock) {
 
 // Wait waits for the timeout period in milliseconds for a POLLIN
 // event, and returns the first socket that returns one
-func (z *Zpoller) Wait(timeout int) *Zsock {
+func (z *Poller) Wait(timeout int) *Sock {
 	s := C.zpoller_wait(z.zpoller_t, C.int(timeout))
 	s = unsafe.Pointer(s)
 	if s == nil {
@@ -87,7 +87,7 @@ func (z *Zpoller) Wait(timeout int) *Zsock {
 	return nil
 }
 
-// Destroy destroys the Zpoller
-func (z *Zpoller) Destroy() {
+// Destroy destroys the Poller
+func (z *Poller) Destroy() {
 	C.zpoller_destroy(&z.zpoller_t)
 }

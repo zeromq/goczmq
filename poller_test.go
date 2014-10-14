@@ -4,15 +4,15 @@ import (
 	"testing"
 )
 
-func TestZpoller(t *testing.T) {
+func TestPoller(t *testing.T) {
 	pullSock1, err := NewPULL("inproc://poller_pull1")
 	if err != nil {
 		t.Errorf("NewPULL failed: %s", err)
 	}
 
-	poller, err := NewZpoller(pullSock1)
+	poller, err := NewPoller(pullSock1)
 	if err != nil {
-		t.Errorf("NewZpoller failed: %s", err)
+		t.Errorf("NewPoller failed: %s", err)
 	}
 
 	if len(poller.zsocks) != 1 {

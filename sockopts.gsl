@@ -28,5 +28,5 @@ for version
     endfor
 endfor
 .endtemplate
-.include "zsock_option.gsl"
-.include "zsock_option_test.gsl"
+.include "sock_option.gsl"
+.include "sock_option_test.gsl"

@@ -4,8 +4,8 @@ import (
 	"testing"
 )
 
-func TestZgossip(t *testing.T) {
-	server := NewZgossip("server")
+func TestGossip(t *testing.T) {
+	server := NewGossip("server")
 
 	err := server.Verbose()
 	if err != nil {

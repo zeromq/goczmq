@@ -42,8 +42,8 @@ const (
 )
 
 var (
-	ErrActorCmd    = errors.New("error sending actor command")
-	ErrZsockAttach = errors.New("error attaching zsock")
+	ErrActorCmd   = errors.New("error sending actor command")
+	ErrSockAttach = errors.New("error attaching zsock")
 )
 
 func getStringType(k Type) string {

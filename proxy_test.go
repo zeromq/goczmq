@@ -29,19 +29,19 @@ func TestZproxy(t *testing.T) {
 	}
 
 	// connect application sockets to proxy
-	faucet := NewZsock(PUSH)
+	faucet := NewSock(PUSH)
 	err = faucet.Connect("inproc://frontend")
 	if err != nil {
 		t.Error(err)
 	}
 
-	sink := NewZsock(PULL)
+	sink := NewSock(PULL)
 	err = sink.Connect("inproc://backend")
 	if err != nil {
 		t.Error(err)
 	}
 
-	tap := NewZsock(PULL)
+	tap := NewSock(PULL)
 	_, err = tap.Bind("inproc://capture")
 	if err != nil {
 		t.Error(err)

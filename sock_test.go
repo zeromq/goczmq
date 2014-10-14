@@ -4,12 +4,12 @@ import (
 	"testing"
 )
 
-func TestZsock(t *testing.T) {
+func TestSock(t *testing.T) {
 
-	pushSock := NewZsock(PUSH)
+	pushSock := NewSock(PUSH)
 	defer pushSock.Destroy()
 
-	pullSock := NewZsock(PULL)
+	pullSock := NewSock(PULL)
 	defer pullSock.Destroy()
 
 	port, err := pullSock.Bind("inproc://test")
@@ -65,10 +65,10 @@ func TestZsock(t *testing.T) {
 }
 
 func TestMessage(t *testing.T) {
-	pushSock := NewZsock(PUSH)
+	pushSock := NewSock(PUSH)
 	defer pushSock.Destroy()
 
-	pullSock := NewZsock(PULL)
+	pullSock := NewSock(PULL)
 	defer pullSock.Destroy()
 
 	port, err := pullSock.Bind("inproc://test")
@@ -404,7 +404,7 @@ func TestPollin(t *testing.T) {
 }
 
 func TestPollout(t *testing.T) {
-	push := NewZsock(PUSH)
+	push := NewSock(PUSH)
 	_, err := push.Bind("inproc://pollout")
 	if err != nil {
 		t.Errorf("failed binding test socket: %s", err)
@@ -415,7 +415,7 @@ func TestPollout(t *testing.T) {
 		t.Errorf("Pollout returned true should be false")
 	}
 
-	pull := NewZsock(PULL)
+	pull := NewSock(PULL)
 	err = pull.Connect("inproc://pollout")
 	if err != nil {
 		t.Errorf("failed connecting test socket: %s", err)
