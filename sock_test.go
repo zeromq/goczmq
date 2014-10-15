@@ -59,9 +59,6 @@ func TestSock(t *testing.T) {
 
 	pushSock.Disconnect("inproc://test")
 	pullSock.Unbind("inproc://test")
-
-	pushSock.Destroy()
-	pullSock.Destroy()
 }
 
 func TestMessage(t *testing.T) {
@@ -420,9 +417,9 @@ func TestPollout(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed connecting test socket: %s", err)
 	}
+	defer pull.Destroy()
 
 	if !push.Pollout() {
 		t.Errorf("Pollout returned false should be true")
 	}
-
 }
