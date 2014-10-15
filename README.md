@@ -177,10 +177,67 @@ const (
 
 ```go
 var (
-	ErrActorCmd    = errors.New("error sending actor command")
-	ErrZsockAttach = errors.New("error attaching zsock")
+	ErrActorCmd   = errors.New("error sending actor command")
+	ErrSockAttach = errors.New("error attaching zsock")
 )
 ```
+
+#### type Beacon
+
+```go
+type Beacon struct {
+}
+```
+
+
+#### func  NewBeacon
+
+```go
+func NewBeacon() *Beacon
+```
+NewBeacon creates a new Beacon instance.
+
+#### func (*Beacon) Configure
+
+```go
+func (z *Beacon) Configure(port int) (string, error)
+```
+Configure accepts a port number and configures the beacon, returning an address
+
+#### func (*Beacon) Destroy
+
+```go
+func (z *Beacon) Destroy()
+```
+Destroy destroys the beacon.
+
+#### func (*Beacon) Publish
+
+```go
+func (z *Beacon) Publish(announcement string, interval int) error
+```
+Publish publishes an announcement at an interval
+
+#### func (*Beacon) Recv
+
+```go
+func (z *Beacon) Recv(timeout int) string
+```
+Recv waits for the specific timeout in milliseconds to receive a beacon
+
+#### func (*Beacon) Subscribe
+
+```go
+func (z *Beacon) Subscribe(filter string) error
+```
+Subscribe subscribes to beacons matching the filter
+
+#### func (*Beacon) Verbose
+
+```go
+func (z *Beacon) Verbose() error
+```
+Verbose sets the beacon to log information to stdout.
 
 #### type Flag
 
@@ -189,147 +246,974 @@ type Flag int
 ```
 
 
+#### type Gossip
+
+```go
+type Gossip struct {
+}
+```
+
+Gossip actors use a gossip protocol for decentralized configuration management.
+Gossip nodes form a loosely connected network that publishes and redistributed
+name/value tuples. A network of Gossip actors will eventually achieve a
+consistent state
+
+#### func  NewGossip
+
+```go
+func NewGossip(name string) *Gossip
+```
+NewGossip creates a new Gossip actor
+
+#### func (*Gossip) Bind
+
+```go
+func (z *Gossip) Bind(endpoint string) error
+```
+Bind binds the gossip service to a specified endpoint
+
+#### func (*Gossip) Destroy
+
+```go
+func (z *Gossip) Destroy()
+```
+Destroy destroys the gossip actor.
+
+#### func (*Gossip) Verbose
+
+```go
+func (z *Gossip) Verbose() error
+```
+Verbose sets the gossip actor to log information to stdout.
+
+#### type Poller
+
+```go
+type Poller struct {
+}
+```
+
+Poller is a simple poller for Socks
+
+#### func  NewPoller
+
+```go
+func NewPoller(readers ...*Sock) (*Poller, error)
+```
+NewPoller creates a new Poller instance. It accepts one or more readers to poll.
+
+#### func (*Poller) Add
+
+```go
+func (z *Poller) Add(reader *Sock) error
+```
+Add adds a reader to be polled.
+
+#### func (*Poller) Destroy
+
+```go
+func (z *Poller) Destroy()
+```
+Destroy destroys the Poller
+
+#### func (*Poller) Remove
+
+```go
+func (z *Poller) Remove(reader *Sock)
+```
+Remove removes a zsock from the poller
+
+#### func (*Poller) Wait
+
+```go
+func (z *Poller) Wait(timeout int) *Sock
+```
+Wait waits for the timeout period in milliseconds for a POLLIN event, and
+returns the first socket that returns one
+
+#### type Sock
+
+```go
+type Sock struct {
+}
+```
+
+Sock wraps the zsock_t class in CZMQ.
+
+#### func  NewDEALER
+
+```go
+func NewDEALER(endpoints string) (*Sock, error)
+```
+NewDEALER creates a DEALER socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it connects.
+
+#### func  NewPAIR
+
+```go
+func NewPAIR(endpoints string) (*Sock, error)
+```
+NewPAIR creates a PAIR socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). If the endpoint does not start with '@' or '>', it
+connects.
+
+#### func  NewPUB
+
+```go
+func NewPUB(endpoints string) (*Sock, error)
+```
+NewPUB creates a PUB socket. The endpoint is empty, or starts with '@' (connect)
+or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
+endpoint does not start with '@' or '>', it binds.
+
+#### func  NewPULL
+
+```go
+func NewPULL(endpoints string) (*Sock, error)
+```
+NewPULL creates a PULL socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it binds.
+
+#### func  NewPUSH
+
+```go
+func NewPUSH(endpoints string) (*Sock, error)
+```
+NewPUSH creates a PUSH socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it connects.
+
+#### func  NewREP
+
+```go
+func NewREP(endpoints string) (*Sock, error)
+```
+NewREP creates a REP socket. The endpoint is empty, or starts with '@' (connect)
+or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
+endpoint does not start with '@' or '>', it binds.
+
+#### func  NewREQ
+
+```go
+func NewREQ(endpoints string) (*Sock, error)
+```
+NewREQ creates a REQ socket. The endpoint is empty, or starts with '@' (connect)
+or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
+endpoint does not start with '@' or '>', it connects.
+
+#### func  NewROUTER
+
+```go
+func NewROUTER(endpoints string) (*Sock, error)
+```
+NewROUTER creates a ROUTER socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it binds.
+
+#### func  NewSTREAM
+
+```go
+func NewSTREAM(endpoints string) (*Sock, error)
+```
+NewSTREAM creates a STREAM socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it connects.
+
+#### func  NewSUB
+
+```go
+func NewSUB(endpoints string, subscribe string) (*Sock, error)
+```
+NewSUB creates a SUB socket. The enpoint is empty, or starts with '@' (connect)
+or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
+endpoint does not start with '@' or '>', it connects. The second argument is a
+comma delimited list of topics to subscribe to.
+
+#### func  NewSock
+
+```go
+func NewSock(t Type) *Sock
+```
+NewSock creates a new socket. The caller source and line number are passed so
+CZMQ can report socket leaks intelligently.
+
+#### func  NewXPUB
+
+```go
+func NewXPUB(endpoints string) (*Sock, error)
+```
+NewXPUB creates an XPUB socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it binds.
+
+#### func  NewXSUB
+
+```go
+func NewXSUB(endpoints string) (*Sock, error)
+```
+NewXSUB creates an XSUB socket. The endpoint is empty, or starts with '@'
+(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+the endpoint does not start with '@' or '>', it connects.
+
+#### func (*Sock) Affinity
+
+```go
+func (z *Sock) Affinity() int
+```
+Affinity returns the current value of the socket's affinity option
+
+#### func (*Sock) Backlog
+
+```go
+func (z *Sock) Backlog() int
+```
+Backlog returns the current value of the socket's backlog option
+
+#### func (*Sock) Bind
+
+```go
+func (z *Sock) Bind(endpoint string) (int, error)
+```
+Bind binds a socket to an endpoint. On success returns the port number used for
+tcp transports, or 0 for other transports. On failure returns a -1 for port, and
+an error.
+
+#### func (*Sock) Connect
+
+```go
+func (z *Sock) Connect(endpoint string) error
+```
+Connect connects a socket to an endpoint returns an error if the connect failed.
+
+#### func (*Sock) CurvePublickey
+
+```go
+func (z *Sock) CurvePublickey() string
+```
+CurvePublickey returns the current value of the socket's curve_publickey option
+
+#### func (*Sock) CurveSecretkey
+
+```go
+func (z *Sock) CurveSecretkey() string
+```
+CurveSecretkey returns the current value of the socket's curve_secretkey option
+
+#### func (*Sock) CurveServer
+
+```go
+func (z *Sock) CurveServer() int
+```
+CurveServer returns the current value of the socket's curve_server option
+
+#### func (*Sock) CurveServerkey
+
+```go
+func (z *Sock) CurveServerkey() string
+```
+CurveServerkey returns the current value of the socket's curve_serverkey option
+
+#### func (*Sock) Destroy
+
+```go
+func (z *Sock) Destroy()
+```
+Destroy destroys the underlying zsock_t.
+
+#### func (*Sock) Disconnect
+
+```go
+func (z *Sock) Disconnect(endpoint string) error
+```
+Disconnect disconnects a socket from an endpoint. If returns an error if the
+endpoint was not found
+
+#### func (*Sock) Events
+
+```go
+func (z *Sock) Events() int
+```
+Events returns the current value of the socket's events option
+
+#### func (*Sock) Fd
+
+```go
+func (z *Sock) Fd() int
+```
+Fd returns the current value of the socket's fd option
+
+#### func (*Sock) GssapiPlaintext
+
+```go
+func (z *Sock) GssapiPlaintext() int
+```
+GssapiPlaintext returns the current value of the socket's gssapi_plaintext
+option
+
+#### func (*Sock) GssapiPrincipal
+
+```go
+func (z *Sock) GssapiPrincipal() string
+```
+GssapiPrincipal returns the current value of the socket's gssapi_principal
+option
+
+#### func (*Sock) GssapiServer
+
+```go
+func (z *Sock) GssapiServer() int
+```
+GssapiServer returns the current value of the socket's gssapi_server option
+
+#### func (*Sock) GssapiServicePrincipal
+
+```go
+func (z *Sock) GssapiServicePrincipal() string
+```
+GssapiServicePrincipal returns the current value of the socket's
+gssapi_service_principal option
+
+#### func (*Sock) Identity
+
+```go
+func (z *Sock) Identity() string
+```
+Identity returns the current value of the socket's identity option
+
+#### func (*Sock) Immediate
+
+```go
+func (z *Sock) Immediate() int
+```
+Immediate returns the current value of the socket's immediate option
+
+#### func (*Sock) Ipv4only
+
+```go
+func (z *Sock) Ipv4only() int
+```
+Ipv4only returns the current value of the socket's ipv4only option
+
+#### func (*Sock) Ipv6
+
+```go
+func (z *Sock) Ipv6() int
+```
+Ipv6 returns the current value of the socket's ipv6 option
+
+#### func (*Sock) LastEndpoint
+
+```go
+func (z *Sock) LastEndpoint() string
+```
+LastEndpoint returns the current value of the socket's last_endpoint option
+
+#### func (*Sock) Linger
+
+```go
+func (z *Sock) Linger() int
+```
+Linger returns the current value of the socket's linger option
+
+#### func (*Sock) Maxmsgsize
+
+```go
+func (z *Sock) Maxmsgsize() int
+```
+Maxmsgsize returns the current value of the socket's maxmsgsize option
+
+#### func (*Sock) Mechanism
+
+```go
+func (z *Sock) Mechanism() int
+```
+Mechanism returns the current value of the socket's mechanism option
+
+#### func (*Sock) MulticastHops
+
+```go
+func (z *Sock) MulticastHops() int
+```
+MulticastHops returns the current value of the socket's multicast_hops option
+
+#### func (*Sock) PlainPassword
+
+```go
+func (z *Sock) PlainPassword() string
+```
+PlainPassword returns the current value of the socket's plain_password option
+
+#### func (*Sock) PlainServer
+
+```go
+func (z *Sock) PlainServer() int
+```
+PlainServer returns the current value of the socket's plain_server option
+
+#### func (*Sock) PlainUsername
+
+```go
+func (z *Sock) PlainUsername() string
+```
+PlainUsername returns the current value of the socket's plain_username option
+
+#### func (*Sock) Pollin
+
+```go
+func (z *Sock) Pollin() bool
+```
+Pollin returns true if there is a POLLIN event on the socket
+
+#### func (*Sock) Pollout
+
+```go
+func (z *Sock) Pollout() bool
+```
+Pollout returns true if there is a POLLOUT event on the socket
+
+#### func (*Sock) Rate
+
+```go
+func (z *Sock) Rate() int
+```
+Rate returns the current value of the socket's rate option
+
+#### func (*Sock) Rcvbuf
+
+```go
+func (z *Sock) Rcvbuf() int
+```
+Rcvbuf returns the current value of the socket's rcvbuf option
+
+#### func (*Sock) Rcvhwm
+
+```go
+func (z *Sock) Rcvhwm() int
+```
+Rcvhwm returns the current value of the socket's rcvhwm option
+
+#### func (*Sock) Rcvmore
+
+```go
+func (z *Sock) Rcvmore() int
+```
+Rcvmore returns the current value of the socket's rcvmore option
+
+#### func (*Sock) Rcvtimeo
+
+```go
+func (z *Sock) Rcvtimeo() int
+```
+Rcvtimeo returns the current value of the socket's rcvtimeo option
+
+#### func (*Sock) ReconnectIvl
+
+```go
+func (z *Sock) ReconnectIvl() int
+```
+ReconnectIvl returns the current value of the socket's reconnect_ivl option
+
+#### func (*Sock) ReconnectIvlMax
+
+```go
+func (z *Sock) ReconnectIvlMax() int
+```
+ReconnectIvlMax returns the current value of the socket's reconnect_ivl_max
+option
+
+#### func (*Sock) RecoveryIvl
+
+```go
+func (z *Sock) RecoveryIvl() int
+```
+RecoveryIvl returns the current value of the socket's recovery_ivl option
+
+#### func (*Sock) RecvBytes
+
+```go
+func (z *Sock) RecvBytes() ([]byte, Flag, error)
+```
+RecvBytes reads a frame from the socket and returns it as a byte array, Returns
+an error if the call fails.
+
+#### func (*Sock) RecvMessage
+
+```go
+func (z *Sock) RecvMessage() ([][]byte, error)
+```
+RecvMessage receives a full message from the socket and returns it as an array
+of byte arrays.
+
+#### func (*Sock) RecvString
+
+```go
+func (z *Sock) RecvString() (string, error)
+```
+RecvString reads a frame from the socket and returns it as a string, Returns an
+error if the call fails.
+
+#### func (*Sock) SendBytes
+
+```go
+func (z *Sock) SendBytes(data []byte, flags Flag) error
+```
+SendBytes sends a byte array via the socket. For the flags value, use 0 for a
+single message, or SNDMORE if it is a multi-part message
+
+#### func (*Sock) SendMessage
+
+```go
+func (z *Sock) SendMessage(parts ...interface{}) error
+```
+SendMessage is a variadic function that currently accepts ints, strings, and
+bytes, and sends them as an atomic multi frame message over zeromq as a series
+of byte arrays. In the case of numeric data, the resulting byte array is a
+textual representation of the number (e.g., 100 turns to "100"). This may be
+changed to network byte ordered representation in the near future - I have not
+decided yet!
+
+#### func (*Sock) SendString
+
+```go
+func (z *Sock) SendString(data string, flags Flag) error
+```
+SendString sends a string via the socket. For the flags value, use 0 for a
+single message, or SNDMORE if it is a multi-part message
+
+#### func (*Sock) SetAffinity
+
+```go
+func (z *Sock) SetAffinity(val int)
+```
+SetAffinity sets the affinity option for the socket
+
+#### func (*Sock) SetBacklog
+
+```go
+func (z *Sock) SetBacklog(val int)
+```
+SetBacklog sets the backlog option for the socket
+
+#### func (*Sock) SetConflate
+
+```go
+func (z *Sock) SetConflate(val int)
+```
+SetConflate sets the conflate option for the socket
+
+#### func (*Sock) SetCurvePublickey
+
+```go
+func (z *Sock) SetCurvePublickey(val string)
+```
+SetCurvePublickey sets the curve_publickey option for the socket
+
+#### func (*Sock) SetCurveSecretkey
+
+```go
+func (z *Sock) SetCurveSecretkey(val string)
+```
+SetCurveSecretkey sets the curve_secretkey option for the socket
+
+#### func (*Sock) SetCurveServer
+
+```go
+func (z *Sock) SetCurveServer(val int)
+```
+SetCurveServer sets the curve_server option for the socket
+
+#### func (*Sock) SetCurveServerkey
+
+```go
+func (z *Sock) SetCurveServerkey(val string)
+```
+SetCurveServerkey sets the curve_serverkey option for the socket
+
+#### func (*Sock) SetDelayAttachOnConnect
+
+```go
+func (z *Sock) SetDelayAttachOnConnect(val int)
+```
+SetDelayAttachOnConnect sets the delay_attach_on_connect option for the socket
+
+#### func (*Sock) SetGssapiPlaintext
+
+```go
+func (z *Sock) SetGssapiPlaintext(val int)
+```
+SetGssapiPlaintext sets the gssapi_plaintext option for the socket
+
+#### func (*Sock) SetGssapiPrincipal
+
+```go
+func (z *Sock) SetGssapiPrincipal(val string)
+```
+SetGssapiPrincipal sets the gssapi_principal option for the socket
+
+#### func (*Sock) SetGssapiServer
+
+```go
+func (z *Sock) SetGssapiServer(val int)
+```
+SetGssapiServer sets the gssapi_server option for the socket
+
+#### func (*Sock) SetGssapiServicePrincipal
+
+```go
+func (z *Sock) SetGssapiServicePrincipal(val string)
+```
+SetGssapiServicePrincipal sets the gssapi_service_principal option for the
+socket
+
+#### func (*Sock) SetIdentity
+
+```go
+func (z *Sock) SetIdentity(val string)
+```
+SetIdentity sets the identity option for the socket
+
+#### func (*Sock) SetImmediate
+
+```go
+func (z *Sock) SetImmediate(val int)
+```
+SetImmediate sets the immediate option for the socket
+
+#### func (*Sock) SetIpv4only
+
+```go
+func (z *Sock) SetIpv4only(val int)
+```
+SetIpv4only sets the ipv4only option for the socket
+
+#### func (*Sock) SetIpv6
+
+```go
+func (z *Sock) SetIpv6(val int)
+```
+SetIpv6 sets the ipv6 option for the socket
+
+#### func (*Sock) SetLinger
+
+```go
+func (z *Sock) SetLinger(val int)
+```
+SetLinger sets the linger option for the socket
+
+#### func (*Sock) SetMaxmsgsize
+
+```go
+func (z *Sock) SetMaxmsgsize(val int)
+```
+SetMaxmsgsize sets the maxmsgsize option for the socket
+
+#### func (*Sock) SetMulticastHops
+
+```go
+func (z *Sock) SetMulticastHops(val int)
+```
+SetMulticastHops sets the multicast_hops option for the socket
+
+#### func (*Sock) SetPlainPassword
+
+```go
+func (z *Sock) SetPlainPassword(val string)
+```
+SetPlainPassword sets the plain_password option for the socket
+
+#### func (*Sock) SetPlainServer
+
+```go
+func (z *Sock) SetPlainServer(val int)
+```
+SetPlainServer sets the plain_server option for the socket
+
+#### func (*Sock) SetPlainUsername
+
+```go
+func (z *Sock) SetPlainUsername(val string)
+```
+SetPlainUsername sets the plain_username option for the socket
+
+#### func (*Sock) SetProbeRouter
+
+```go
+func (z *Sock) SetProbeRouter(val int)
+```
+SetProbeRouter sets the probe_router option for the socket
+
+#### func (*Sock) SetRate
+
+```go
+func (z *Sock) SetRate(val int)
+```
+SetRate sets the rate option for the socket
+
+#### func (*Sock) SetRcvbuf
+
+```go
+func (z *Sock) SetRcvbuf(val int)
+```
+SetRcvbuf sets the rcvbuf option for the socket
+
+#### func (*Sock) SetRcvhwm
+
+```go
+func (z *Sock) SetRcvhwm(val int)
+```
+SetRcvhwm sets the rcvhwm option for the socket
+
+#### func (*Sock) SetRcvtimeo
+
+```go
+func (z *Sock) SetRcvtimeo(val int)
+```
+SetRcvtimeo sets the rcvtimeo option for the socket
+
+#### func (*Sock) SetReconnectIvl
+
+```go
+func (z *Sock) SetReconnectIvl(val int)
+```
+SetReconnectIvl sets the reconnect_ivl option for the socket
+
+#### func (*Sock) SetReconnectIvlMax
+
+```go
+func (z *Sock) SetReconnectIvlMax(val int)
+```
+SetReconnectIvlMax sets the reconnect_ivl_max option for the socket
+
+#### func (*Sock) SetRecoveryIvl
+
+```go
+func (z *Sock) SetRecoveryIvl(val int)
+```
+SetRecoveryIvl sets the recovery_ivl option for the socket
+
+#### func (*Sock) SetReqCorrelate
+
+```go
+func (z *Sock) SetReqCorrelate(val int)
+```
+SetReqCorrelate sets the req_correlate option for the socket
+
+#### func (*Sock) SetReqRelaxed
+
+```go
+func (z *Sock) SetReqRelaxed(val int)
+```
+SetReqRelaxed sets the req_relaxed option for the socket
+
+#### func (*Sock) SetRouterHandover
+
+```go
+func (z *Sock) SetRouterHandover(val int)
+```
+SetRouterHandover sets the router_handover option for the socket
+
+#### func (*Sock) SetRouterMandatory
+
+```go
+func (z *Sock) SetRouterMandatory(val int)
+```
+SetRouterMandatory sets the router_mandatory option for the socket
+
+#### func (*Sock) SetRouterRaw
+
+```go
+func (z *Sock) SetRouterRaw(val int)
+```
+SetRouterRaw sets the router_raw option for the socket
+
+#### func (*Sock) SetSndbuf
+
+```go
+func (z *Sock) SetSndbuf(val int)
+```
+SetSndbuf sets the sndbuf option for the socket
+
+#### func (*Sock) SetSndhwm
+
+```go
+func (z *Sock) SetSndhwm(val int)
+```
+SetSndhwm sets the sndhwm option for the socket
+
+#### func (*Sock) SetSndtimeo
+
+```go
+func (z *Sock) SetSndtimeo(val int)
+```
+SetSndtimeo sets the sndtimeo option for the socket
+
+#### func (*Sock) SetSubscribe
+
+```go
+func (z *Sock) SetSubscribe(val string)
+```
+SetSubscribe sets the subscribe option for the socket
+
+#### func (*Sock) SetTcpAcceptFilter
+
+```go
+func (z *Sock) SetTcpAcceptFilter(val string)
+```
+SetTcpAcceptFilter sets the tcp_accept_filter option for the socket
+
+#### func (*Sock) SetTcpKeepalive
+
+```go
+func (z *Sock) SetTcpKeepalive(val int)
+```
+SetTcpKeepalive sets the tcp_keepalive option for the socket
+
+#### func (*Sock) SetTcpKeepaliveCnt
+
+```go
+func (z *Sock) SetTcpKeepaliveCnt(val int)
+```
+SetTcpKeepaliveCnt sets the tcp_keepalive_cnt option for the socket
+
+#### func (*Sock) SetTcpKeepaliveIdle
+
+```go
+func (z *Sock) SetTcpKeepaliveIdle(val int)
+```
+SetTcpKeepaliveIdle sets the tcp_keepalive_idle option for the socket
+
+#### func (*Sock) SetTcpKeepaliveIntvl
+
+```go
+func (z *Sock) SetTcpKeepaliveIntvl(val int)
+```
+SetTcpKeepaliveIntvl sets the tcp_keepalive_intvl option for the socket
+
+#### func (*Sock) SetTos
+
+```go
+func (z *Sock) SetTos(val int)
+```
+SetTos sets the tos option for the socket
+
+#### func (*Sock) SetUnsubscribe
+
+```go
+func (z *Sock) SetUnsubscribe(val string)
+```
+SetUnsubscribe sets the unsubscribe option for the socket
+
+#### func (*Sock) SetXpubVerbose
+
+```go
+func (z *Sock) SetXpubVerbose(val int)
+```
+SetXpubVerbose sets the xpub_verbose option for the socket
+
+#### func (*Sock) SetZapDomain
+
+```go
+func (z *Sock) SetZapDomain(val string)
+```
+SetZapDomain sets the zap_domain option for the socket
+
+#### func (*Sock) Sndbuf
+
+```go
+func (z *Sock) Sndbuf() int
+```
+Sndbuf returns the current value of the socket's sndbuf option
+
+#### func (*Sock) Sndhwm
+
+```go
+func (z *Sock) Sndhwm() int
+```
+Sndhwm returns the current value of the socket's sndhwm option
+
+#### func (*Sock) Sndtimeo
+
+```go
+func (z *Sock) Sndtimeo() int
+```
+Sndtimeo returns the current value of the socket's sndtimeo option
+
+#### func (*Sock) TcpAcceptFilter
+
+```go
+func (z *Sock) TcpAcceptFilter() string
+```
+TcpAcceptFilter returns the current value of the socket's tcp_accept_filter
+option
+
+#### func (*Sock) TcpKeepalive
+
+```go
+func (z *Sock) TcpKeepalive() int
+```
+TcpKeepalive returns the current value of the socket's tcp_keepalive option
+
+#### func (*Sock) TcpKeepaliveCnt
+
+```go
+func (z *Sock) TcpKeepaliveCnt() int
+```
+TcpKeepaliveCnt returns the current value of the socket's tcp_keepalive_cnt
+option
+
+#### func (*Sock) TcpKeepaliveIdle
+
+```go
+func (z *Sock) TcpKeepaliveIdle() int
+```
+TcpKeepaliveIdle returns the current value of the socket's tcp_keepalive_idle
+option
+
+#### func (*Sock) TcpKeepaliveIntvl
+
+```go
+func (z *Sock) TcpKeepaliveIntvl() int
+```
+TcpKeepaliveIntvl returns the current value of the socket's tcp_keepalive_intvl
+option
+
+#### func (*Sock) Tos
+
+```go
+func (z *Sock) Tos() int
+```
+Tos returns the current value of the socket's tos option
+
+#### func (*Sock) Type
+
+```go
+func (z *Sock) Type() int
+```
+Type returns the current value of the socket's type option
+
+#### func (*Sock) Unbind
+
+```go
+func (z *Sock) Unbind(endpoint string) error
+```
+Unbind unbinds a socket from an endpoint. If returns an error if the endpoint
+was not found
+
+#### func (*Sock) ZapDomain
+
+```go
+func (z *Sock) ZapDomain() string
+```
+ZapDomain returns the current value of the socket's zap_domain option
+
 #### type Type
 
 ```go
 type Type int
 ```
 
-
-#### type Zbeacon
-
-```go
-type Zbeacon struct {
-}
-```
-
-
-#### func  NewZbeacon
-
-```go
-func NewZbeacon() *Zbeacon
-```
-NewZbeacon creates a new Zbeacon instance.
-
-#### func (*Zbeacon) Configure
-
-```go
-func (z *Zbeacon) Configure(port int) (string, error)
-```
-Configure accepts a port number and configures the beacon, returning an address
-
-#### func (*Zbeacon) Destroy
-
-```go
-func (z *Zbeacon) Destroy()
-```
-Destroy destroys the beacon.
-
-#### func (*Zbeacon) Publish
-
-```go
-func (z *Zbeacon) Publish(announcement string, interval int) error
-```
-Publish publishes an announcement at an interval
-
-#### func (*Zbeacon) Recv
-
-```go
-func (z *Zbeacon) Recv(timeout int) string
-```
-Recv waits for the specific timeout in milliseconds to receive a beacon
-
-#### func (*Zbeacon) Subscribe
-
-```go
-func (z *Zbeacon) Subscribe(filter string) error
-```
-Subscribe subscribes to beacons matching the filter
-
-#### func (*Zbeacon) Verbose
-
-```go
-func (z *Zbeacon) Verbose() error
-```
-Verbose sets the beacon to log information to stdout.
-
-#### type Zgossip
-
-```go
-type Zgossip struct {
-}
-```
-
-Zgossip actors use a gossip protocol for decentralized configuration management.
-Zgossip nodes form a loosely connected network that publishes and redistributed
-name/value tuples. A network of Zgossip actors will eventually achieve a
-consistent state
-
-#### func  NewZgossip
-
-```go
-func NewZgossip(name string) *Zgossip
-```
-NewZgossip creates a new Zgossip actor
-
-#### func (*Zgossip) Bind
-
-```go
-func (z *Zgossip) Bind(endpoint string) error
-```
-Bind binds the gossip service to a specified endpoint
-
-#### func (*Zgossip) Destroy
-
-```go
-func (z *Zgossip) Destroy()
-```
-Destroy destroys the gossip actor.
-
-#### func (*Zgossip) Verbose
-
-```go
-func (z *Zgossip) Verbose() error
-```
-Verbose sets the gossip actor to log information to stdout.
-
-#### type Zpoller
-
-```go
-type Zpoller struct {
-}
-```
-
-
-#### func  NewZpoller
-
-```go
-func NewZpoller(readers ...*Zsock) (*Zpoller, error)
-```
-NewZpoller creates a new Zpoller instance. It accepts one or more readers to
-poll.
-
-#### func (*Zpoller) Add
-
-```go
-func (z *Zpoller) Add(reader *Zsock) error
-```
-Add adds a reader to be polled.
-
-#### func (*Zpoller) Destroy
-
-```go
-func (z *Zpoller) Destroy()
-```
-Destroy destroys the Zpoller
-
-#### func (*Zpoller) Wait
-
-```go
-func (z *Zpoller) Wait(timeout int) *Zsock
-```
-Wait waits for the timeout period in milliseconds for a POLLIN event, and
-returns the first socket that returns one
 
 #### type Zproxy
 
@@ -399,880 +1283,3 @@ zactor thread telling it to set up a socket bound to the endpoint.
 func (z *Zproxy) Verbose() error
 ```
 Verbose sets the proxy to log information to stdout.
-
-#### type Zsock
-
-```go
-type Zsock struct {
-}
-```
-
-Zsock wraps the zsock_t class in CZMQ.
-
-#### func  NewDEALER
-
-```go
-func NewDEALER(endpoints string) (*Zsock, error)
-```
-NewDEALER creates a DEALER socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it connects.
-
-#### func  NewPAIR
-
-```go
-func NewPAIR(endpoints string) (*Zsock, error)
-```
-NewPAIR creates a PAIR socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). If the endpoint does not start with '@' or '>', it
-connects.
-
-#### func  NewPUB
-
-```go
-func NewPUB(endpoints string) (*Zsock, error)
-```
-NewPUB creates a PUB socket. The endpoint is empty, or starts with '@' (connect)
-or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
-endpoint does not start with '@' or '>', it binds.
-
-#### func  NewPULL
-
-```go
-func NewPULL(endpoints string) (*Zsock, error)
-```
-NewPULL creates a PULL socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it binds.
-
-#### func  NewPUSH
-
-```go
-func NewPUSH(endpoints string) (*Zsock, error)
-```
-NewPUSH creates a PUSH socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it connects.
-
-#### func  NewREP
-
-```go
-func NewREP(endpoints string) (*Zsock, error)
-```
-NewREP creates a REP socket. The endpoint is empty, or starts with '@' (connect)
-or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
-endpoint does not start with '@' or '>', it binds.
-
-#### func  NewREQ
-
-```go
-func NewREQ(endpoints string) (*Zsock, error)
-```
-NewREQ creates a REQ socket. The endpoint is empty, or starts with '@' (connect)
-or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
-endpoint does not start with '@' or '>', it connects.
-
-#### func  NewROUTER
-
-```go
-func NewROUTER(endpoints string) (*Zsock, error)
-```
-NewROUTER creates a ROUTER socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it binds.
-
-#### func  NewSTREAM
-
-```go
-func NewSTREAM(endpoints string) (*Zsock, error)
-```
-NewSTREAM creates a STREAM socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it connects.
-
-#### func  NewSUB
-
-```go
-func NewSUB(endpoints string, subscribe string) (*Zsock, error)
-```
-NewSUB creates a SUB socket. The enpoint is empty, or starts with '@' (connect)
-or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
-endpoint does not start with '@' or '>', it connects. The second argument is a
-comma delimited list of topics to subscribe to.
-
-#### func  NewXPUB
-
-```go
-func NewXPUB(endpoints string) (*Zsock, error)
-```
-NewXPUB creates an XPUB socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it binds.
-
-#### func  NewXSUB
-
-```go
-func NewXSUB(endpoints string) (*Zsock, error)
-```
-NewXSUB creates an XSUB socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it connects.
-
-#### func  NewZsock
-
-```go
-func NewZsock(t Type) *Zsock
-```
-NewZsock creates a new socket. The caller source and line number are passed so
-CZMQ can report socket leaks intelligently.
-
-#### func (*Zsock) Affinity
-
-```go
-func (z *Zsock) Affinity() int
-```
-Affinity returns the current value of the socket's affinity option
-
-#### func (*Zsock) Backlog
-
-```go
-func (z *Zsock) Backlog() int
-```
-Backlog returns the current value of the socket's backlog option
-
-#### func (*Zsock) Bind
-
-```go
-func (z *Zsock) Bind(endpoint string) (int, error)
-```
-Bind binds a socket to an endpoint. On success returns the port number used for
-tcp transports, or 0 for other transports. On failure returns a -1 for port, and
-an error.
-
-#### func (*Zsock) Connect
-
-```go
-func (z *Zsock) Connect(endpoint string) error
-```
-Connect connects a socket to an endpoint returns an error if the connect failed.
-
-#### func (*Zsock) CurvePublickey
-
-```go
-func (z *Zsock) CurvePublickey() string
-```
-CurvePublickey returns the current value of the socket's curve_publickey option
-
-#### func (*Zsock) CurveSecretkey
-
-```go
-func (z *Zsock) CurveSecretkey() string
-```
-CurveSecretkey returns the current value of the socket's curve_secretkey option
-
-#### func (*Zsock) CurveServer
-
-```go
-func (z *Zsock) CurveServer() int
-```
-CurveServer returns the current value of the socket's curve_server option
-
-#### func (*Zsock) CurveServerkey
-
-```go
-func (z *Zsock) CurveServerkey() string
-```
-CurveServerkey returns the current value of the socket's curve_serverkey option
-
-#### func (*Zsock) Destroy
-
-```go
-func (z *Zsock) Destroy()
-```
-Destroy destroys the underlying zsock_t.
-
-#### func (*Zsock) Disconnect
-
-```go
-func (z *Zsock) Disconnect(endpoint string) error
-```
-Disconnect disconnects a socket from an endpoint. If returns an error if the
-endpoint was not found
-
-#### func (*Zsock) Events
-
-```go
-func (z *Zsock) Events() int
-```
-Events returns the current value of the socket's events option
-
-#### func (*Zsock) Fd
-
-```go
-func (z *Zsock) Fd() int
-```
-Fd returns the current value of the socket's fd option
-
-#### func (*Zsock) GssapiPlaintext
-
-```go
-func (z *Zsock) GssapiPlaintext() int
-```
-GssapiPlaintext returns the current value of the socket's gssapi_plaintext
-option
-
-#### func (*Zsock) GssapiPrincipal
-
-```go
-func (z *Zsock) GssapiPrincipal() string
-```
-GssapiPrincipal returns the current value of the socket's gssapi_principal
-option
-
-#### func (*Zsock) GssapiServer
-
-```go
-func (z *Zsock) GssapiServer() int
-```
-GssapiServer returns the current value of the socket's gssapi_server option
-
-#### func (*Zsock) GssapiServicePrincipal
-
-```go
-func (z *Zsock) GssapiServicePrincipal() string
-```
-GssapiServicePrincipal returns the current value of the socket's
-gssapi_service_principal option
-
-#### func (*Zsock) Identity
-
-```go
-func (z *Zsock) Identity() string
-```
-Identity returns the current value of the socket's identity option
-
-#### func (*Zsock) Immediate
-
-```go
-func (z *Zsock) Immediate() int
-```
-Immediate returns the current value of the socket's immediate option
-
-#### func (*Zsock) Ipv4only
-
-```go
-func (z *Zsock) Ipv4only() int
-```
-Ipv4only returns the current value of the socket's ipv4only option
-
-#### func (*Zsock) Ipv6
-
-```go
-func (z *Zsock) Ipv6() int
-```
-Ipv6 returns the current value of the socket's ipv6 option
-
-#### func (*Zsock) LastEndpoint
-
-```go
-func (z *Zsock) LastEndpoint() string
-```
-LastEndpoint returns the current value of the socket's last_endpoint option
-
-#### func (*Zsock) Linger
-
-```go
-func (z *Zsock) Linger() int
-```
-Linger returns the current value of the socket's linger option
-
-#### func (*Zsock) Maxmsgsize
-
-```go
-func (z *Zsock) Maxmsgsize() int
-```
-Maxmsgsize returns the current value of the socket's maxmsgsize option
-
-#### func (*Zsock) Mechanism
-
-```go
-func (z *Zsock) Mechanism() int
-```
-Mechanism returns the current value of the socket's mechanism option
-
-#### func (*Zsock) MulticastHops
-
-```go
-func (z *Zsock) MulticastHops() int
-```
-MulticastHops returns the current value of the socket's multicast_hops option
-
-#### func (*Zsock) PlainPassword
-
-```go
-func (z *Zsock) PlainPassword() string
-```
-PlainPassword returns the current value of the socket's plain_password option
-
-#### func (*Zsock) PlainServer
-
-```go
-func (z *Zsock) PlainServer() int
-```
-PlainServer returns the current value of the socket's plain_server option
-
-#### func (*Zsock) PlainUsername
-
-```go
-func (z *Zsock) PlainUsername() string
-```
-PlainUsername returns the current value of the socket's plain_username option
-
-#### func (*Zsock) Pollin
-
-```go
-func (z *Zsock) Pollin() bool
-```
-Pollin returns true if there is a POLLIN event on the socket
-
-#### func (*Zsock) Pollout
-
-```go
-func (z *Zsock) Pollout() bool
-```
-Pollout returns true if there is a POLLOUT event on the socket
-
-#### func (*Zsock) Rate
-
-```go
-func (z *Zsock) Rate() int
-```
-Rate returns the current value of the socket's rate option
-
-#### func (*Zsock) Rcvbuf
-
-```go
-func (z *Zsock) Rcvbuf() int
-```
-Rcvbuf returns the current value of the socket's rcvbuf option
-
-#### func (*Zsock) Rcvhwm
-
-```go
-func (z *Zsock) Rcvhwm() int
-```
-Rcvhwm returns the current value of the socket's rcvhwm option
-
-#### func (*Zsock) Rcvmore
-
-```go
-func (z *Zsock) Rcvmore() int
-```
-Rcvmore returns the current value of the socket's rcvmore option
-
-#### func (*Zsock) Rcvtimeo
-
-```go
-func (z *Zsock) Rcvtimeo() int
-```
-Rcvtimeo returns the current value of the socket's rcvtimeo option
-
-#### func (*Zsock) ReconnectIvl
-
-```go
-func (z *Zsock) ReconnectIvl() int
-```
-ReconnectIvl returns the current value of the socket's reconnect_ivl option
-
-#### func (*Zsock) ReconnectIvlMax
-
-```go
-func (z *Zsock) ReconnectIvlMax() int
-```
-ReconnectIvlMax returns the current value of the socket's reconnect_ivl_max
-option
-
-#### func (*Zsock) RecoveryIvl
-
-```go
-func (z *Zsock) RecoveryIvl() int
-```
-RecoveryIvl returns the current value of the socket's recovery_ivl option
-
-#### func (*Zsock) RecvBytes
-
-```go
-func (z *Zsock) RecvBytes() ([]byte, Flag, error)
-```
-RecvBytes reads a frame from the socket and returns it as a byte array, Returns
-an error if the call fails.
-
-#### func (*Zsock) RecvMessage
-
-```go
-func (z *Zsock) RecvMessage() ([][]byte, error)
-```
-RecvMessage receives a full message from the socket and returns it as an array
-of byte arrays.
-
-#### func (*Zsock) RecvString
-
-```go
-func (z *Zsock) RecvString() (string, error)
-```
-RecvString reads a frame from the socket and returns it as a string, Returns an
-error if the call fails.
-
-#### func (*Zsock) SendBytes
-
-```go
-func (z *Zsock) SendBytes(data []byte, flags Flag) error
-```
-SendBytes sends a byte array via the socket. For the flags value, use 0 for a
-single message, or SNDMORE if it is a multi-part message
-
-#### func (*Zsock) SendMessage
-
-```go
-func (z *Zsock) SendMessage(parts ...interface{}) error
-```
-SendMessage is a variadic function that currently accepts ints, strings, and
-bytes, and sends them as an atomic multi frame message over zeromq as a series
-of byte arrays. In the case of numeric data, the resulting byte array is a
-textual representation of the number (e.g., 100 turns to "100"). This may be
-changed to network byte ordered representation in the near future - I have not
-decided yet!
-
-#### func (*Zsock) SendString
-
-```go
-func (z *Zsock) SendString(data string, flags Flag) error
-```
-SendString sends a string via the socket. For the flags value, use 0 for a
-single message, or SNDMORE if it is a multi-part message
-
-#### func (*Zsock) SetAffinity
-
-```go
-func (z *Zsock) SetAffinity(val int)
-```
-SetAffinity sets the affinity option for the socket
-
-#### func (*Zsock) SetBacklog
-
-```go
-func (z *Zsock) SetBacklog(val int)
-```
-SetBacklog sets the backlog option for the socket
-
-#### func (*Zsock) SetConflate
-
-```go
-func (z *Zsock) SetConflate(val int)
-```
-SetConflate sets the conflate option for the socket
-
-#### func (*Zsock) SetCurvePublickey
-
-```go
-func (z *Zsock) SetCurvePublickey(val string)
-```
-SetCurvePublickey sets the curve_publickey option for the socket
-
-#### func (*Zsock) SetCurveSecretkey
-
-```go
-func (z *Zsock) SetCurveSecretkey(val string)
-```
-SetCurveSecretkey sets the curve_secretkey option for the socket
-
-#### func (*Zsock) SetCurveServer
-
-```go
-func (z *Zsock) SetCurveServer(val int)
-```
-SetCurveServer sets the curve_server option for the socket
-
-#### func (*Zsock) SetCurveServerkey
-
-```go
-func (z *Zsock) SetCurveServerkey(val string)
-```
-SetCurveServerkey sets the curve_serverkey option for the socket
-
-#### func (*Zsock) SetDelayAttachOnConnect
-
-```go
-func (z *Zsock) SetDelayAttachOnConnect(val int)
-```
-SetDelayAttachOnConnect sets the delay_attach_on_connect option for the socket
-
-#### func (*Zsock) SetGssapiPlaintext
-
-```go
-func (z *Zsock) SetGssapiPlaintext(val int)
-```
-SetGssapiPlaintext sets the gssapi_plaintext option for the socket
-
-#### func (*Zsock) SetGssapiPrincipal
-
-```go
-func (z *Zsock) SetGssapiPrincipal(val string)
-```
-SetGssapiPrincipal sets the gssapi_principal option for the socket
-
-#### func (*Zsock) SetGssapiServer
-
-```go
-func (z *Zsock) SetGssapiServer(val int)
-```
-SetGssapiServer sets the gssapi_server option for the socket
-
-#### func (*Zsock) SetGssapiServicePrincipal
-
-```go
-func (z *Zsock) SetGssapiServicePrincipal(val string)
-```
-SetGssapiServicePrincipal sets the gssapi_service_principal option for the
-socket
-
-#### func (*Zsock) SetIdentity
-
-```go
-func (z *Zsock) SetIdentity(val string)
-```
-SetIdentity sets the identity option for the socket
-
-#### func (*Zsock) SetImmediate
-
-```go
-func (z *Zsock) SetImmediate(val int)
-```
-SetImmediate sets the immediate option for the socket
-
-#### func (*Zsock) SetIpv4only
-
-```go
-func (z *Zsock) SetIpv4only(val int)
-```
-SetIpv4only sets the ipv4only option for the socket
-
-#### func (*Zsock) SetIpv6
-
-```go
-func (z *Zsock) SetIpv6(val int)
-```
-SetIpv6 sets the ipv6 option for the socket
-
-#### func (*Zsock) SetLinger
-
-```go
-func (z *Zsock) SetLinger(val int)
-```
-SetLinger sets the linger option for the socket
-
-#### func (*Zsock) SetMaxmsgsize
-
-```go
-func (z *Zsock) SetMaxmsgsize(val int)
-```
-SetMaxmsgsize sets the maxmsgsize option for the socket
-
-#### func (*Zsock) SetMulticastHops
-
-```go
-func (z *Zsock) SetMulticastHops(val int)
-```
-SetMulticastHops sets the multicast_hops option for the socket
-
-#### func (*Zsock) SetPlainPassword
-
-```go
-func (z *Zsock) SetPlainPassword(val string)
-```
-SetPlainPassword sets the plain_password option for the socket
-
-#### func (*Zsock) SetPlainServer
-
-```go
-func (z *Zsock) SetPlainServer(val int)
-```
-SetPlainServer sets the plain_server option for the socket
-
-#### func (*Zsock) SetPlainUsername
-
-```go
-func (z *Zsock) SetPlainUsername(val string)
-```
-SetPlainUsername sets the plain_username option for the socket
-
-#### func (*Zsock) SetProbeRouter
-
-```go
-func (z *Zsock) SetProbeRouter(val int)
-```
-SetProbeRouter sets the probe_router option for the socket
-
-#### func (*Zsock) SetRate
-
-```go
-func (z *Zsock) SetRate(val int)
-```
-SetRate sets the rate option for the socket
-
-#### func (*Zsock) SetRcvbuf
-
-```go
-func (z *Zsock) SetRcvbuf(val int)
-```
-SetRcvbuf sets the rcvbuf option for the socket
-
-#### func (*Zsock) SetRcvhwm
-
-```go
-func (z *Zsock) SetRcvhwm(val int)
-```
-SetRcvhwm sets the rcvhwm option for the socket
-
-#### func (*Zsock) SetRcvtimeo
-
-```go
-func (z *Zsock) SetRcvtimeo(val int)
-```
-SetRcvtimeo sets the rcvtimeo option for the socket
-
-#### func (*Zsock) SetReconnectIvl
-
-```go
-func (z *Zsock) SetReconnectIvl(val int)
-```
-SetReconnectIvl sets the reconnect_ivl option for the socket
-
-#### func (*Zsock) SetReconnectIvlMax
-
-```go
-func (z *Zsock) SetReconnectIvlMax(val int)
-```
-SetReconnectIvlMax sets the reconnect_ivl_max option for the socket
-
-#### func (*Zsock) SetRecoveryIvl
-
-```go
-func (z *Zsock) SetRecoveryIvl(val int)
-```
-SetRecoveryIvl sets the recovery_ivl option for the socket
-
-#### func (*Zsock) SetReqCorrelate
-
-```go
-func (z *Zsock) SetReqCorrelate(val int)
-```
-SetReqCorrelate sets the req_correlate option for the socket
-
-#### func (*Zsock) SetReqRelaxed
-
-```go
-func (z *Zsock) SetReqRelaxed(val int)
-```
-SetReqRelaxed sets the req_relaxed option for the socket
-
-#### func (*Zsock) SetRouterHandover
-
-```go
-func (z *Zsock) SetRouterHandover(val int)
-```
-SetRouterHandover sets the router_handover option for the socket
-
-#### func (*Zsock) SetRouterMandatory
-
-```go
-func (z *Zsock) SetRouterMandatory(val int)
-```
-SetRouterMandatory sets the router_mandatory option for the socket
-
-#### func (*Zsock) SetRouterRaw
-
-```go
-func (z *Zsock) SetRouterRaw(val int)
-```
-SetRouterRaw sets the router_raw option for the socket
-
-#### func (*Zsock) SetSndbuf
-
-```go
-func (z *Zsock) SetSndbuf(val int)
-```
-SetSndbuf sets the sndbuf option for the socket
-
-#### func (*Zsock) SetSndhwm
-
-```go
-func (z *Zsock) SetSndhwm(val int)
-```
-SetSndhwm sets the sndhwm option for the socket
-
-#### func (*Zsock) SetSndtimeo
-
-```go
-func (z *Zsock) SetSndtimeo(val int)
-```
-SetSndtimeo sets the sndtimeo option for the socket
-
-#### func (*Zsock) SetSubscribe
-
-```go
-func (z *Zsock) SetSubscribe(val string)
-```
-SetSubscribe sets the subscribe option for the socket
-
-#### func (*Zsock) SetTcpAcceptFilter
-
-```go
-func (z *Zsock) SetTcpAcceptFilter(val string)
-```
-SetTcpAcceptFilter sets the tcp_accept_filter option for the socket
-
-#### func (*Zsock) SetTcpKeepalive
-
-```go
-func (z *Zsock) SetTcpKeepalive(val int)
-```
-SetTcpKeepalive sets the tcp_keepalive option for the socket
-
-#### func (*Zsock) SetTcpKeepaliveCnt
-
-```go
-func (z *Zsock) SetTcpKeepaliveCnt(val int)
-```
-SetTcpKeepaliveCnt sets the tcp_keepalive_cnt option for the socket
-
-#### func (*Zsock) SetTcpKeepaliveIdle
-
-```go
-func (z *Zsock) SetTcpKeepaliveIdle(val int)
-```
-SetTcpKeepaliveIdle sets the tcp_keepalive_idle option for the socket
-
-#### func (*Zsock) SetTcpKeepaliveIntvl
-
-```go
-func (z *Zsock) SetTcpKeepaliveIntvl(val int)
-```
-SetTcpKeepaliveIntvl sets the tcp_keepalive_intvl option for the socket
-
-#### func (*Zsock) SetTos
-
-```go
-func (z *Zsock) SetTos(val int)
-```
-SetTos sets the tos option for the socket
-
-#### func (*Zsock) SetUnsubscribe
-
-```go
-func (z *Zsock) SetUnsubscribe(val string)
-```
-SetUnsubscribe sets the unsubscribe option for the socket
-
-#### func (*Zsock) SetXpubVerbose
-
-```go
-func (z *Zsock) SetXpubVerbose(val int)
-```
-SetXpubVerbose sets the xpub_verbose option for the socket
-
-#### func (*Zsock) SetZapDomain
-
-```go
-func (z *Zsock) SetZapDomain(val string)
-```
-SetZapDomain sets the zap_domain option for the socket
-
-#### func (*Zsock) Sndbuf
-
-```go
-func (z *Zsock) Sndbuf() int
-```
-Sndbuf returns the current value of the socket's sndbuf option
-
-#### func (*Zsock) Sndhwm
-
-```go
-func (z *Zsock) Sndhwm() int
-```
-Sndhwm returns the current value of the socket's sndhwm option
-
-#### func (*Zsock) Sndtimeo
-
-```go
-func (z *Zsock) Sndtimeo() int
-```
-Sndtimeo returns the current value of the socket's sndtimeo option
-
-#### func (*Zsock) TcpAcceptFilter
-
-```go
-func (z *Zsock) TcpAcceptFilter() string
-```
-TcpAcceptFilter returns the current value of the socket's tcp_accept_filter
-option
-
-#### func (*Zsock) TcpKeepalive
-
-```go
-func (z *Zsock) TcpKeepalive() int
-```
-TcpKeepalive returns the current value of the socket's tcp_keepalive option
-
-#### func (*Zsock) TcpKeepaliveCnt
-
-```go
-func (z *Zsock) TcpKeepaliveCnt() int
-```
-TcpKeepaliveCnt returns the current value of the socket's tcp_keepalive_cnt
-option
-
-#### func (*Zsock) TcpKeepaliveIdle
-
-```go
-func (z *Zsock) TcpKeepaliveIdle() int
-```
-TcpKeepaliveIdle returns the current value of the socket's tcp_keepalive_idle
-option
-
-#### func (*Zsock) TcpKeepaliveIntvl
-
-```go
-func (z *Zsock) TcpKeepaliveIntvl() int
-```
-TcpKeepaliveIntvl returns the current value of the socket's tcp_keepalive_intvl
-option
-
-#### func (*Zsock) Tos
-
-```go
-func (z *Zsock) Tos() int
-```
-Tos returns the current value of the socket's tos option
-
-#### func (*Zsock) Type
-
-```go
-func (z *Zsock) Type() int
-```
-Type returns the current value of the socket's type option
-
-#### func (*Zsock) Unbind
-
-```go
-func (z *Zsock) Unbind(endpoint string) error
-```
-Unbind unbinds a socket from an endpoint. If returns an error if the endpoint
-was not found
-
-#### func (*Zsock) ZapDomain
-
-```go
-func (z *Zsock) ZapDomain() string
-```
-ZapDomain returns the current value of the socket's zap_domain option

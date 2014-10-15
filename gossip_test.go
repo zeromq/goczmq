@@ -6,6 +6,7 @@ import (
 
 func TestGossip(t *testing.T) {
 	server := NewGossip("server")
+	defer server.Destroy()
 
 	err := server.Verbose()
 	if err != nil {
@@ -16,6 +17,4 @@ func TestGossip(t *testing.T) {
 	if err != nil {
 		t.Errorf("BIND error: %s", err)
 	}
-
-	server.Destroy()
 }
