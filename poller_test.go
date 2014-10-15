@@ -9,11 +9,13 @@ func TestPoller(t *testing.T) {
 	if err != nil {
 		t.Errorf("NewPULL failed: %s", err)
 	}
+	defer pullSock1.Destroy()
 
 	poller, err := NewPoller(pullSock1)
 	if err != nil {
 		t.Errorf("NewPoller failed: %s", err)
 	}
+	defer poller.Destroy()
 
 	if len(poller.zsocks) != 1 {
 		t.Errorf("Expected number of zsocks to be 1, was %d", len(poller.zsocks))
@@ -23,6 +25,7 @@ func TestPoller(t *testing.T) {
 	if err != nil {
 		t.Errorf("NewPULL failed: %s", err)
 	}
+	defer pullSock2.Destroy()
 
 	err = poller.Add(pullSock2)
 	if err != nil {
@@ -37,6 +40,7 @@ func TestPoller(t *testing.T) {
 	if err != nil {
 		t.Errorf("NewPUSH failed: %s", err)
 	}
+	defer pushSock.Destroy()
 
 	err = pushSock.SendString("Hello", 0)
 	if err != nil {
@@ -85,7 +89,4 @@ func TestPoller(t *testing.T) {
 	if len(poller.zsocks) != 1 {
 		t.Errorf("zsocks len should be 1 after removing pushsock, is %d", len(poller.zsocks))
 	}
-
-	pullSock2.Destroy()
-	poller.Destroy()
 }

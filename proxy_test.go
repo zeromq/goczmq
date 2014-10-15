@@ -7,6 +7,7 @@ import (
 func TestZproxy(t *testing.T) {
 	// Create and configure our proxy
 	proxy := NewZproxy()
+	defer proxy.Destroy()
 
 	err := proxy.Verbose()
 	if err != nil {
@@ -34,18 +35,21 @@ func TestZproxy(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	defer faucet.Destroy()
 
 	sink := NewSock(PULL)
 	err = sink.Connect("inproc://backend")
 	if err != nil {
 		t.Error(err)
 	}
+	defer sink.Destroy()
 
 	tap := NewSock(PULL)
 	_, err = tap.Bind("inproc://capture")
 	if err != nil {
 		t.Error(err)
 	}
+	defer tap.Destroy()
 
 	// send some messages and check they arrived
 	faucet.SendBytes([]byte("Hello"), 0)
