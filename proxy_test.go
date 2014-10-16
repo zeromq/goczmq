@@ -116,9 +116,45 @@ func TestZproxy(t *testing.T) {
 		t.Error(err)
 	}
 
+	faucet.SendBytes([]byte("Belated Hello"), 0)
+
+	if sink.Pollin() {
+		t.Error("Paused proxy should not pass message but did")
+	}
+
+	if tap.Pollin() {
+		t.Error("Paused proxy should not pass message but did")
+	}
+
 	err = proxy.Resume()
 	if err != nil {
 		t.Error(err)
+	}
+
+	b, f, err = sink.RecvBytes()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if f == MORE {
+		t.Error("MORE set and should not be")
+	}
+
+	if string(b) != "Belated Hello" {
+		t.Errorf("sink expected %s, received %s", "Belated Hello", string(b))
+	}
+
+	b, f, err = tap.RecvBytes()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if f == MORE {
+		t.Error("MORE set and should not be")
+	}
+
+	if string(b) != "Belated Hello" {
+		t.Errorf("tap expected %s, received %s", "Belated Hello", string(b))
 	}
 
 	proxy.Destroy()
