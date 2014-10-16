@@ -110,7 +110,6 @@ func TestZproxy(t *testing.T) {
 	}
 
 	// Test pause/resume functionality
-	// FIXME: improve this test once we can receive with a nowait
 	err = proxy.Pause()
 	if err != nil {
 		t.Error(err)
