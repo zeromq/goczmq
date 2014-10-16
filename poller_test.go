@@ -17,8 +17,8 @@ func TestPoller(t *testing.T) {
 	}
 	defer poller.Destroy()
 
-	if len(poller.zsocks) != 1 {
-		t.Errorf("Expected number of zsocks to be 1, was %d", len(poller.zsocks))
+	if len(poller.socks) != 1 {
+		t.Errorf("Expected number of socks to be 1, was %d", len(poller.socks))
 	}
 
 	pullSock2, err := NewPULL("inproc://poller_pull2")
@@ -32,8 +32,8 @@ func TestPoller(t *testing.T) {
 		t.Errorf("poller Add failed: %s", err)
 	}
 
-	if len(poller.zsocks) != 2 {
-		t.Errorf("Expected number of zsocks to be 2, was %d", len(poller.zsocks))
+	if len(poller.socks) != 2 {
+		t.Errorf("Expected number of socks to be 2, was %d", len(poller.socks))
 	}
 
 	pushSock, err := NewPUSH("inproc://poller_pull1")
@@ -86,7 +86,7 @@ func TestPoller(t *testing.T) {
 	}
 
 	poller.Remove(pullSock2)
-	if len(poller.zsocks) != 1 {
-		t.Errorf("zsocks len should be 1 after removing pushsock, is %d", len(poller.zsocks))
+	if len(poller.socks) != 1 {
+		t.Errorf("socks len should be 1 after removing pushsock, is %d", len(poller.socks))
 	}
 }

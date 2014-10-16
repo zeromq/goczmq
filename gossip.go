@@ -24,19 +24,19 @@ type Gossip struct {
 
 // NewGossip creates a new Gossip actor
 func NewGossip(name string) *Gossip {
-	z := &Gossip{}
-	z.zactor_t = C.Gossip_new(C.CString(name))
-	return z
+	g := &Gossip{}
+	g.zactor_t = C.Gossip_new(C.CString(name))
+	return g
 }
 
 // Bind binds the gossip service to a specified endpoint
-func (z *Gossip) Bind(endpoint string) error {
-	rc := C.zstr_sendm(unsafe.Pointer(z.zactor_t), C.CString("BIND"))
+func (g *Gossip) Bind(endpoint string) error {
+	rc := C.zstr_sendm(unsafe.Pointer(g.zactor_t), C.CString("BIND"))
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(z.zactor_t), C.CString(endpoint))
+	rc = C.zstr_send(unsafe.Pointer(g.zactor_t), C.CString(endpoint))
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -45,8 +45,8 @@ func (z *Gossip) Bind(endpoint string) error {
 }
 
 // Verbose sets the gossip actor to log information to stdout.
-func (z *Gossip) Verbose() error {
-	rc := C.zstr_send(unsafe.Pointer(z.zactor_t), C.CString("VERBOSE"))
+func (g *Gossip) Verbose() error {
+	rc := C.zstr_send(unsafe.Pointer(g.zactor_t), C.CString("VERBOSE"))
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -55,6 +55,6 @@ func (z *Gossip) Verbose() error {
 }
 
 // Destroy destroys the gossip actor.
-func (z *Gossip) Destroy() {
-	C.zactor_destroy(&z.zactor_t)
+func (g *Gossip) Destroy() {
+	C.zactor_destroy(&g.zactor_t)
 }

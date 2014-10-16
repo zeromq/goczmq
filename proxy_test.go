@@ -6,7 +6,7 @@ import (
 
 func TestZproxy(t *testing.T) {
 	// Create and configure our proxy
-	proxy := NewZproxy()
+	proxy := NewProxy()
 	defer proxy.Destroy()
 
 	err := proxy.Verbose()
