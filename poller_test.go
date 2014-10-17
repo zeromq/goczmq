@@ -36,6 +36,20 @@ func TestPoller(t *testing.T) {
 		t.Errorf("Expected number of socks to be 2, was %d", len(poller.socks))
 	}
 
+	poller.Destroy()
+	poller, err = NewPoller(pullSock1, pullSock2)
+	if err != nil {
+		t.Errorf("NewPoller failed: %s", err)
+	}
+
+	if len(poller.socks) != 2 {
+		t.Errorf("Expected number of zsocks to be 2, was %d", len(poller.socks))
+	}
+
+	if poller.socks[0].zsock_t != pullSock1.zsock_t || poller.socks[1].zsock_t != pullSock2.zsock_t {
+		t.Error("Expected each passed zsock to be in the poller")
+	}
+
 	pushSock, err := NewPUSH("inproc://poller_pull1")
 	if err != nil {
 		t.Errorf("NewPUSH failed: %s", err)
