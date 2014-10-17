@@ -12,7 +12,7 @@ func TestSock(t *testing.T) {
 	pullSock := NewSock(PULL)
 	defer pullSock.Destroy()
 
-	port, err := pullSock.Bind("inproc://test")
+	port, err := pullSock.Bind("inproc://test-sock")
 	if port != 0 {
 		t.Errorf("port for Bind should be 0, is %d", port)
 	}
@@ -20,7 +20,7 @@ func TestSock(t *testing.T) {
 		t.Errorf("repSock.Bind failed: %s", err)
 	}
 
-	err = pushSock.Connect("inproc://test")
+	err = pushSock.Connect("inproc://test-sock")
 	if err != nil {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
@@ -56,12 +56,6 @@ func TestSock(t *testing.T) {
 	if smsg != "World" {
 		t.Errorf("expected 'World' received '%s'", smsg)
 	}
-
-	pushSock.Disconnect("inproc://test")
-	pullSock.Unbind("inproc://test")
-
-	pushSock.Destroy()
-	pullSock.Destroy()
 }
 
 func TestMessage(t *testing.T) {
@@ -71,7 +65,7 @@ func TestMessage(t *testing.T) {
 	pullSock := NewSock(PULL)
 	defer pullSock.Destroy()
 
-	port, err := pullSock.Bind("inproc://test")
+	port, err := pullSock.Bind("inproc://test-msg")
 	if port != 0 {
 		t.Errorf("port for Bind should be 0, is %d", port)
 	}
@@ -79,7 +73,7 @@ func TestMessage(t *testing.T) {
 		t.Errorf("repSock.Bind failed: %s", err)
 	}
 
-	err = pushSock.Connect("inproc://test")
+	err = pushSock.Connect("inproc://test-msg")
 	if err != nil {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}

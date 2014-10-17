@@ -37,12 +37,11 @@ func NewPoller(readers ...*Sock) (*Poller, error) {
 		return p, nil
 	}
 
-	for i, reader := range readers[1:] {
-		rc := C.zpoller_add(p.zpoller_t, unsafe.Pointer(reader.zsock_t))
-		if int(rc) == -1 {
-			return p, fmt.Errorf("error creating proxy")
+	for _, reader := range readers[1:] {
+		err := p.Add(reader)
+		if err != nil {
+			return nil, err
 		}
-		p.socks = append(p.socks, readers[i])
 	}
 	return p, nil
 }
@@ -84,7 +83,8 @@ func (p *Poller) Wait(timeout int) *Sock {
 			return sock
 		}
 	}
-	return nil
+
+	panic(fmt.Sprintf("Could not match received pointer with %v with any socket", s, p.socks))
 }
 
 // Destroy destroys the Poller
