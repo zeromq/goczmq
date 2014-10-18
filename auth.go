@@ -32,6 +32,7 @@ func (z *Auth) Verbose() error {
 	if rc == -1 {
 		return ErrActorCmd
 	}
+	C.zsock_wait(unsafe.Pointer(z.zactor_t))
 
 	return nil
 }
@@ -39,6 +40,23 @@ func (z *Auth) Verbose() error {
 // Deny adds an address to a socket's deny list
 func (z *Auth) Deny(address string) error {
 	rc := C.zstr_sendm(unsafe.Pointer(z.zactor_t), C.CString("DENY"))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_send(unsafe.Pointer(z.zactor_t), C.CString(address))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	C.zsock_wait(unsafe.Pointer(z.zactor_t))
+
+	return nil
+}
+
+// Allow removes a previous Deny
+func (z *Auth) Allow(address string) error {
+	rc := C.zstr_sendm(unsafe.Pointer(z.zactor_t), C.CString("ALLOW"))
 	if rc == -1 {
 		return ErrActorCmd
 	}
