@@ -15,6 +15,7 @@ import (
 	"unsafe"
 )
 
+// Beacon wraps a CZMQ zbeacon zactor
 type Beacon struct {
 	zactor_t *C.struct__zactor_t
 }
