@@ -182,6 +182,43 @@ var (
 )
 ```
 
+#### type Auth
+
+```go
+type Auth struct {
+}
+```
+
+Auth wraps a CZMQ zauth zactor
+
+#### func  NewAuth
+
+```go
+func NewAuth() *Auth
+```
+NewAuth creates a new Auth actor.
+
+#### func (*Auth) Deny
+
+```go
+func (z *Auth) Deny(address string) error
+```
+Deny adds an address to a socket's deny list
+
+#### func (*Auth) Destroy
+
+```go
+func (z *Auth) Destroy()
+```
+Destroy destroys the auth actor.
+
+#### func (*Auth) Verbose
+
+```go
+func (z *Auth) Verbose() error
+```
+Verbose sets the auth actor to log information to stdout.
+
 #### type Beacon
 
 ```go
@@ -189,6 +226,7 @@ type Beacon struct {
 }
 ```
 
+Beacon wraps a CZMQ zbeacon zactor
 
 #### func  NewBeacon
 
@@ -238,6 +276,34 @@ Subscribe subscribes to beacons matching the filter
 func (z *Beacon) Verbose() error
 ```
 Verbose sets the beacon to log information to stdout.
+
+#### type Channeler
+
+```go
+type Channeler struct {
+	Send    chan<- [][]byte
+	Receive <-chan [][]byte
+}
+```
+
+Channeler serializes all access to a socket through a send, receive and close
+channel It starts two threads, one is used for receiving from the zeromq socket
+The other is used to listen to the receive channel, and send everything back to
+the socket thread for sending using an additional inproc socket The channeler
+takes ownership of the passed socket and will destroy it when the close channel
+is closed
+
+#### func  NewChanneler
+
+```go
+func NewChanneler(sock *Sock) *Channeler
+```
+
+#### func (*Channeler) Close
+
+```go
+func (c *Channeler) Close()
+```
 
 #### type Flag
 

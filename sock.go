@@ -211,7 +211,7 @@ func NewSTREAM(endpoints string) (*Sock, error) {
 // returns an error if the connect failed.
 func (s *Sock) Connect(endpoint string) error {
 	rc := C.Sock_connect(s.zsock_t, C.CString(endpoint))
-	if rc == C.int(-1) {
+	if rc != C.int(0) {
 		return errors.New("failed")
 	}
 	return nil
