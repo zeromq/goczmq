@@ -33,7 +33,7 @@ func TestChanneler(t *testing.T) {
 			t.Error("Message received on receive channel mismatch")
 			return
 		}
-	case <-time.After(time.Millisecond * 50):
+	case <-time.After(time.Millisecond * 250):
 		t.Error("Timeout while waiting for receive channel")
 		return
 	}
@@ -46,7 +46,7 @@ func TestChanneler(t *testing.T) {
 		return
 	}
 
-	s := poller.Wait(50)
+	s := poller.Wait(250)
 	if s == nil {
 		t.Error("Timeout while waiting for send channel")
 		return
