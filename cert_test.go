@@ -31,5 +31,7 @@ func TestCert(t *testing.T) {
 		t.Errorf("Meta expected '1' got '%s'", version)
 	}
 
+	_ = cert.PublicText()
+
 	cert.Destroy()
 }

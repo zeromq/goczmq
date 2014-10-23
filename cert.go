@@ -55,6 +55,19 @@ func (c *Cert) Meta(key string) string {
 	return C.GoString(val)
 }
 
+// PublicText returns the public key as a string
+func (c *Cert) PublicText() string {
+	val := C.zcert_public_txt(c.zcert_t)
+	return C.GoString(val)
+}
+
+// Apply sets the public and private keys for a socket
+func (c *Cert) Apply(s *Sock) {
+	handle := C.zsock_resolve(unsafe.Pointer(s.zsock_t))
+	C.zsocket_set_curve_secretkey_bin(handle, C.zcert_secret_key(c.zcert_t))
+	C.zsocket_set_curve_publickey_bin(handle, C.zcert_public_key(c.zcert_t))
+}
+
 // Destroy destroys Cert instance
 func (c *Cert) Destroy() {
 	C.zcert_destroy(&c.zcert_t)

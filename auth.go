@@ -71,6 +71,22 @@ func (a *Auth) Allow(address string) error {
 	return nil
 }
 
+func (a *Auth) CurveAllow(allowed string) error {
+	rc := C.zstr_sendm(unsafe.Pointer(a.zactor_t), C.CString("CURVE"))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_send(unsafe.Pointer(a.zactor_t), C.CString("*"))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	C.zsock_wait(unsafe.Pointer(a.zactor_t))
+
+	return nil
+}
+
 func (a *Auth) Plain(directory string) error {
 	rc := C.zstr_sendm(unsafe.Pointer(a.zactor_t), C.CString("PLAIN"))
 	if rc == -1 {

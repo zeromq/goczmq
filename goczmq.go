@@ -39,6 +39,8 @@ const (
 	MORE     = Flag(C.ZFRAME_MORE)
 	REUSE    = Flag(C.ZFRAME_REUSE)
 	DONTWAIT = Flag(C.ZFRAME_DONTWAIT)
+
+	CURVE_ALLOW_ANY = "*"
 )
 
 var (
