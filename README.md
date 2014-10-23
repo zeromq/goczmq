@@ -172,6 +172,8 @@ const (
 	MORE     = Flag(C.ZFRAME_MORE)
 	REUSE    = Flag(C.ZFRAME_REUSE)
 	DONTWAIT = Flag(C.ZFRAME_DONTWAIT)
+
+	CURVE_ALLOW_ANY = "*"
 )
 ```
 
@@ -198,24 +200,43 @@ func NewAuth() *Auth
 ```
 NewAuth creates a new Auth actor.
 
+#### func (*Auth) Allow
+
+```go
+func (a *Auth) Allow(address string) error
+```
+Allow removes a previous Deny
+
+#### func (*Auth) CurveAllow
+
+```go
+func (a *Auth) CurveAllow(allowed string) error
+```
+
 #### func (*Auth) Deny
 
 ```go
-func (z *Auth) Deny(address string) error
+func (a *Auth) Deny(address string) error
 ```
 Deny adds an address to a socket's deny list
 
 #### func (*Auth) Destroy
 
 ```go
-func (z *Auth) Destroy()
+func (a *Auth) Destroy()
 ```
 Destroy destroys the auth actor.
+
+#### func (*Auth) Plain
+
+```go
+func (a *Auth) Plain(directory string) error
+```
 
 #### func (*Auth) Verbose
 
 ```go
-func (z *Auth) Verbose() error
+func (a *Auth) Verbose() error
 ```
 Verbose sets the auth actor to log information to stdout.
 
@@ -276,6 +297,64 @@ Subscribe subscribes to beacons matching the filter
 func (z *Beacon) Verbose() error
 ```
 Verbose sets the beacon to log information to stdout.
+
+#### type Cert
+
+```go
+type Cert struct {
+}
+```
+
+Cert holds a czmq zcert_t
+
+#### func  NewCert
+
+```go
+func NewCert() *Cert
+```
+NewCert creates a new empty Cert instance
+
+#### func  NewCertFrom
+
+```go
+func NewCertFrom(public []byte, secret []byte) (*Cert, error)
+```
+NewCertFrom creates a new Cert from a public and private key
+
+#### func (*Cert) Apply
+
+```go
+func (c *Cert) Apply(s *Sock)
+```
+Apply sets the public and private keys for a socket
+
+#### func (*Cert) Destroy
+
+```go
+func (c *Cert) Destroy()
+```
+Destroy destroys Cert instance
+
+#### func (*Cert) Meta
+
+```go
+func (c *Cert) Meta(key string) string
+```
+Meta returns a meta data item from a Cert given a key
+
+#### func (*Cert) PublicText
+
+```go
+func (c *Cert) PublicText() string
+```
+PublicText returns the public key as a string
+
+#### func (*Cert) SetMeta
+
+```go
+func (c *Cert) SetMeta(key string, value string)
+```
+SetMeta sets meta data for a Cert
 
 #### type Channeler
 

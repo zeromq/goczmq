@@ -12,7 +12,6 @@ func TestAuthNoDeny(t *testing.T) {
 	defer server.Destroy()
 
 	server.SetZapDomain("global")
-	server.Bind("tcp://*:9999")
 
 	client := NewSock(PUSH)
 	defer client.Destroy()
@@ -192,9 +191,92 @@ func TestAuthPlainAllow(t *testing.T) {
 	}
 	defer poller.Destroy()
 
-	// poll for a message.  there should not be one.
+	// poll for a message.  there should be one.
 	s := poller.Wait(200)
 	if s == nil {
 		t.Error("poller should have waiting message!")
+	}
+
+	msg, err := s.RecvString()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if msg != "Hello, World" {
+		t.Error("message not sent properly")
+	}
+
+}
+
+func TestAuthCurveAllow(t *testing.T) {
+	// create server socket and set global auth domain
+	server := NewSock(PULL)
+	defer server.Destroy()
+	server.SetZapDomain("global")
+
+	// create client socket
+	client := NewSock(PUSH)
+	defer client.Destroy()
+
+	// create auth service
+	auth := NewAuth()
+	defer auth.Destroy()
+
+	// set verbus
+	err := auth.Verbose()
+	if err != nil {
+		t.Errorf("VERBOSE error: %s", err)
+	}
+
+	// create server cert pair and get public key
+	// and apply cert to server socket
+	serverCert := NewCert()
+	serverKey := serverCert.PublicText()
+	serverCert.Apply(server)
+	server.SetCurveServer(1)
+
+	// create client cert
+	clientCert := NewCert()
+	clientCert.Apply(client)
+	client.SetCurveServerkey(serverKey)
+
+	// allow any cert
+	auth.CurveAllow(CURVE_ALLOW_ANY)
+
+	// bind the server
+	port, err := server.Bind("tcp://127.0.0.1:*")
+	if port <= 0 {
+		t.Error("port should be > 0, is %d", port)
+	}
+
+	// connect the client
+	err = client.Connect(fmt.Sprintf("tcp://127.0.0.1:%d", port))
+	if err != nil {
+		t.Errorf("client connect error: %s", err)
+	}
+
+	// try to send a message
+	client.SendString("Hello, World", 0)
+
+	// see if we got a message
+	poller, err := NewPoller(server)
+	if err != nil {
+		t.Errorf("NwPoller failed: %s", err)
+	}
+
+	defer poller.Destroy()
+
+	s := poller.Wait(200)
+	if s == nil {
+		t.Error("should be message waiting and there is none")
+	}
+
+	msg, err := s.RecvString()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if msg != "Hello, World" {
+		t.Error("message not sent properly")
 	}
 }
