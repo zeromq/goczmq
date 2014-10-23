@@ -18,6 +18,7 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"os"
 	"runtime"
 	"strings"
 	"unsafe"
@@ -29,6 +30,12 @@ type Sock struct {
 	file    string
 	line    int
 	zType   Type
+}
+
+func init() {
+	if err := os.Setenv("ZSYS_SIGHANDLER", "false"); err != nil {
+		panic(err)
+	}
 }
 
 // NewSock creates a new socket.  The caller source and
