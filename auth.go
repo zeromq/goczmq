@@ -71,7 +71,7 @@ func (a *Auth) Allow(address string) error {
 	return nil
 }
 
-func (a *Auth) CurveAllow(allowed string) error {
+func (a *Auth) Curve(allowed string) error {
 	rc := C.zstr_sendm(unsafe.Pointer(a.zactor_t), C.CString("CURVE"))
 	if rc == -1 {
 		return ErrActorCmd

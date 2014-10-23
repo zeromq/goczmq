@@ -241,7 +241,7 @@ func TestAuthCurveAllow(t *testing.T) {
 	client.SetCurveServerkey(serverKey)
 
 	// allow any cert
-	auth.CurveAllow(CURVE_ALLOW_ANY)
+	auth.Curve(CURVE_ALLOW_ANY)
 
 	// bind the server
 	port, err := server.Bind("tcp://127.0.0.1:*")
