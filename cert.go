@@ -28,7 +28,7 @@ func NewCert() *Cert {
 }
 
 // NewCertFrom creates a new Cert from a public and private key
-func NewCertFrom(public []byte, secret []byte) (*Cert, error) {
+func NewCertFromKeys(public []byte, secret []byte) (*Cert, error) {
 	if len(public) != 32 {
 		return nil, fmt.Errorf("invalid public key")
 	}
@@ -41,6 +41,14 @@ func NewCertFrom(public []byte, secret []byte) (*Cert, error) {
 		zcert_t: C.zcert_new_from(
 			(*C.byte)(unsafe.Pointer(&public[0])),
 			(*C.byte)(unsafe.Pointer(&secret[0]))),
+	}, nil
+}
+
+// Load loads a Cert from files
+func NewCertFromFile(filename string) (*Cert, error) {
+	cert := C.zcert_load(C.CString(filename))
+	return &Cert{
+		zcert_t: cert,
 	}, nil
 }
 
@@ -66,6 +74,55 @@ func (c *Cert) Apply(s *Sock) {
 	handle := C.zsock_resolve(unsafe.Pointer(s.zsock_t))
 	C.zsocket_set_curve_secretkey_bin(handle, C.zcert_secret_key(c.zcert_t))
 	C.zsocket_set_curve_publickey_bin(handle, C.zcert_public_key(c.zcert_t))
+}
+
+// Dup duplicates a Cert
+func (c *Cert) Dup() *Cert {
+	return &Cert{
+		zcert_t: C.zcert_dup(c.zcert_t),
+	}
+}
+
+// Equal checks two Certs for equality
+func (c *Cert) Equal(compare *Cert) bool {
+	check := C.zcert_eq(c.zcert_t, compare.zcert_t)
+	if check == C.bool(true) {
+		return true
+	} else {
+		return false
+	}
+}
+
+// Print prints a Cert to stdout
+func (c *Cert) Print() {
+	C.zcert_print(c.zcert_t)
+}
+
+// SavePublic saves the public key to a file
+func (c *Cert) SavePublic(filename string) error {
+	rc := C.zcert_save_public(c.zcert_t, C.CString(filename))
+	if rc == C.int(-1) {
+		return fmt.Errorf("SavePublic error")
+	}
+	return nil
+}
+
+// SaveSecret saves the secret key to a file
+func (c *Cert) SaveSecret(filename string) error {
+	rc := C.zcert_save_secret(c.zcert_t, C.CString(filename))
+	if rc == C.int(-1) {
+		return fmt.Errorf("SaveSecret error")
+	}
+	return nil
+}
+
+// Save saves the public and secret key to filename and filename_secret
+func (c *Cert) Save(filename string) error {
+	rc := C.zcert_save(c.zcert_t, C.CString(filename))
+	if rc == C.int(-1) {
+		return fmt.Errorf("SavePublic: error")
+	}
+	return nil
 }
 
 // Destroy destroys Cert instance

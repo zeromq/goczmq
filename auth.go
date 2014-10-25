@@ -77,7 +77,7 @@ func (a *Auth) Curve(allowed string) error {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(a.zactor_t), C.CString("*"))
+	rc = C.zstr_send(unsafe.Pointer(a.zactor_t), C.CString(allowed))
 	if rc == -1 {
 		return ErrActorCmd
 	}
