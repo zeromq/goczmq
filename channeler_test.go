@@ -6,19 +6,28 @@ import (
 )
 
 func TestChanneler(t *testing.T) {
-	d1, err := NewDEALER(">inproc://channeler-test")
-	if err != nil {
-		t.Errorf("Error creating d1: %s", err)
-		return
-	}
-
-	d2, err := NewDEALER("@inproc://channeler-test")
+	d2 := NewSock(PAIR)
+	_, err := d2.Bind("inproc://channeler-test")
 	if err != nil {
 		t.Errorf("Error creating d2: %s", err)
 		return
 	}
 
+	d1 := NewSock(PAIR)
+	if err != nil {
+		t.Errorf("Error creating d1: %s", err)
+		return
+	}
+
 	c := NewChanneler(d1)
+	c.Connect <- "inproc://channeler-test"
+	c.Send <- [][]byte{[]byte("ready")}
+
+	m, err := d2.RecvString()
+	if m != "ready" {
+		t.Errorf("Expected 'ready' but got %s", m)
+		return
+	}
 
 	// The channeler listens on d1, do a send on d2 and verify the receive channel of the channeler gets it
 	err = d2.SendMessage("Test")
