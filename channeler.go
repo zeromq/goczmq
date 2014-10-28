@@ -14,15 +14,18 @@ type Channeler struct {
 	sock *Sock
 	id   int64
 
-	close   chan<- struct{}
+	close chan<- struct{}
+
 	Send    chan<- [][]byte
 	Receive <-chan [][]byte
+	Connect chan<- string
 }
 
 func NewChanneler(sock *Sock) *Channeler {
 	close := make(chan struct{})
 	send := make(chan [][]byte)
 	receive := make(chan [][]byte)
+	connect := make(chan string)
 
 	c := &Channeler{
 		sock:    sock,
@@ -30,10 +33,11 @@ func NewChanneler(sock *Sock) *Channeler {
 		close:   close,
 		Send:    send,
 		Receive: receive,
+		Connect: connect,
 	}
 
-	go c.loopSend(close, send)
-	go c.loopMain(send, receive)
+	go c.loopSend(close, send, connect)
+	go c.loopMain(send, receive, connect)
 
 	runtime.SetFinalizer(c, func(c *Channeler) { c.Close() })
 	return c
@@ -43,7 +47,7 @@ func (c *Channeler) Close() {
 	close(c.close)
 }
 
-func (c *Channeler) loopSend(closeChan <-chan struct{}, send <-chan [][]byte) {
+func (c *Channeler) loopSend(closeChan <-chan struct{}, send <-chan [][]byte, connect <-chan string) {
 	push, err := NewPUSH(fmt.Sprintf(">inproc://goczmq-channeler-%d", c.id))
 	if err != nil {
 		panic(err)
@@ -56,15 +60,18 @@ func (c *Channeler) loopSend(closeChan <-chan struct{}, send <-chan [][]byte) {
 			_ = push.SendMessage("close")
 			return
 		case msg := <-send:
-			_ = push.SendMessage("msg", msg)
+			push.SendMessage("msg", msg)
+		case endpoint := <-connect:
+			push.SendMessage("connect", endpoint)
 		}
 	}
 }
 
-func (c *Channeler) loopMain(send chan<- [][]byte, receive chan<- [][]byte) {
-	// Close both send and receive channels as well as the receive socket when returning
+func (c *Channeler) loopMain(send chan<- [][]byte, receive chan<- [][]byte, connect chan<- string) {
+	// Close all channels when we exit
 	defer close(receive)
 	defer close(send)
+	defer close(connect)
 
 	pull, err := NewPULL(fmt.Sprintf("@inproc://goczmq-channeler-%d", c.id))
 	if err != nil {
@@ -79,7 +86,7 @@ func (c *Channeler) loopMain(send chan<- [][]byte, receive chan<- [][]byte) {
 	defer poller.Destroy()
 
 	for {
-		s := poller.Wait(0)
+		s := poller.Wait(-1)
 		if s == nil {
 			continue
 		}
@@ -96,7 +103,10 @@ func (c *Channeler) loopMain(send chan<- [][]byte, receive chan<- [][]byte) {
 				return
 			case "msg":
 				c.sock.SendMessage(msg[1:])
+			case "connect":
+				c.sock.Connect(string(msg[1]))
 			}
+
 		case c.sock:
 			receive <- msg
 		}
