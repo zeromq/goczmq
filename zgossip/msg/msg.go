@@ -27,6 +27,7 @@ const (
 	InvalidId uint8 = 5
 )
 
+// Transit is a codec interface
 type Transit interface {
 	Marshal() ([]byte, error)
 	Unmarshal(...[]byte) error
@@ -38,7 +39,7 @@ type Transit interface {
 	Version() byte
 }
 
-// Unmarshals data from raw frames.
+// Unmarshal unmarshals data from raw frames.
 func Unmarshal(frames ...[]byte) (t Transit, err error) {
 	if frames == nil {
 		return nil, errors.New("can't unmarshal an empty message")
@@ -75,31 +76,30 @@ func Unmarshal(frames ...[]byte) (t Transit, err error) {
 	return t, err
 }
 
-// Receives marshaled data from 0mq socket.
-func Recv(socket *goczmq.Sock) (t Transit, err error) {
-	return recv(socket, 0)
+// Recv receives marshaled data from a 0mq socket.
+func Recv(sock *goczmq.Sock) (t Transit, err error) {
+	return recv(sock, 0)
 }
 
-// Receives marshaled data from 0mq socket. It won't wait for input.
-func RecvNoWait(socket *goczmq.Sock) (t Transit, err error) {
-	return recv(socket, goczmq.DONTWAIT)
+// RecvNoWait receives marshaled data from 0mq socket. It won't wait for input.
+func RecvNoWait(sock *goczmq.Sock) (t Transit, err error) {
+	return recv(sock, goczmq.DONTWAIT)
 }
 
-// Receives marshaled data from 0mq socket.
-func recv(socket *goczmq.Sock, flag goczmq.Flag) (t Transit, err error) {
+func recv(sock *goczmq.Sock, flag goczmq.Flag) (t Transit, err error) {
 	var frames [][]byte
-	
+
 	if flag == goczmq.DONTWAIT {
-		frames, err = socket.RecvMessageNoWait()
+		frames, err = sock.RecvMessageNoWait()
 	} else {
-		frames, err = socket.RecvMessage()
+		frames, err = sock.RecvMessage()
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	sType := socket.GetType()
+	sType := sock.GetType()
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +125,7 @@ func recv(socket *goczmq.Sock, flag goczmq.Flag) (t Transit, err error) {
 	return t, err
 }
 
-// Clones a message.
+// Clone clones a message.
 func Clone(t Transit) Transit {
 
 	switch msg := t.(type) {
