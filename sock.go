@@ -331,10 +331,34 @@ func (s *Sock) SendMessage(parts ...interface{}) error {
 	return nil
 }
 
+// RecvMessageNoWait receives a full message from the socket
+// and returns it as an array of byte arrays if one is waiting.
+// returns an empty message and an error if one is not immediately
+// available
+func (s *Sock) RecvMessageNoWait() ([][]byte, error) {
+	var msg [][]byte
+	if !s.Pollin() {
+		return msg, fmt.Errorf("no message")
+	}
+
+	for {
+		frame, flag, err := s.RecvBytes()
+		if err != nil {
+			return msg, err
+		}
+		msg = append(msg, frame)
+		if flag != MORE {
+			break
+		}
+	}
+	return msg, nil
+}
+
 // RecvMessage receives a full message from the socket
 // and returns it as an array of byte arrays.
 func (s *Sock) RecvMessage() ([][]byte, error) {
 	var msg [][]byte
+
 	for {
 		frame, flag, err := s.RecvBytes()
 		if err != nil {
@@ -391,6 +415,11 @@ func (s *Sock) RecvString() (string, error) {
 		return "", err
 	}
 	return string(b), err
+}
+
+// GetType returns the socket's type
+func (s *Sock) GetType() Type {
+	return s.zType
 }
 
 // Destroy destroys the underlying zsock_t.
