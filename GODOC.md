@@ -267,6 +267,7 @@ SetMeta sets meta data for a Cert
 type Channeler struct {
 	Send    chan<- [][]byte
 	Receive <-chan [][]byte
+	Connect chan<- string
 }
 ```
 
@@ -663,6 +664,13 @@ func (s *Sock) Fd() int
 ```
 Fd returns the current value of the socket's fd option
 
+#### func (*Sock) GetType
+
+```go
+func (s *Sock) GetType() Type
+```
+GetType returns the socket's type
+
 #### func (*Sock) GssapiPlaintext
 
 ```go
@@ -864,6 +872,15 @@ func (s *Sock) RecvMessage() ([][]byte, error)
 ```
 RecvMessage receives a full message from the socket and returns it as an array
 of byte arrays.
+
+#### func (*Sock) RecvMessageNoWait
+
+```go
+func (s *Sock) RecvMessageNoWait() ([][]byte, error)
+```
+RecvMessageNoWait receives a full message from the socket and returns it as an
+array of byte arrays if one is waiting. returns an empty message and an error if
+one is not immediately available
 
 #### func (*Sock) RecvString
 

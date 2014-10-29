@@ -3,6 +3,7 @@ build: format clean test
 
 test: get
 	go test -v .
+	go test -v ./zgossip/msg/
 
 bench: get
 	go test -v -bench . ./...
