@@ -12,7 +12,7 @@ import (
 	"encoding/binary"
 	"errors"
 
-	"github.com/taotetek/goczmq"
+	"github.com/zeromq/goczmq"
 )
 
 const (
@@ -88,7 +88,7 @@ func RecvNoWait(socket *goczmq.Sock) (t Transit, err error) {
 // Receives marshaled data from 0mq socket.
 func recv(socket *goczmq.Sock, flag goczmq.Flag) (t Transit, err error) {
 	var frames [][]byte
-
+	
 	if flag == goczmq.DONTWAIT {
 		frames, err = socket.RecvMessageNoWait()
 	} else {

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/taotetek/goczmq"
+	"github.com/zeromq/goczmq"
 )
 
 // Server responds to ping; note that pongs are not correlated with pings,

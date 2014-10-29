@@ -27,7 +27,7 @@ import (
 	"encoding/binary"
 	"errors"
 
-	"github.com/taotetek/goczmq"
+	"github.com/zeromq/goczmq"
 )
 
 .const_maxlen = 16 # 16 is number of characters of Signature and its type
@@ -256,7 +256,7 @@ import (
 	"strconv"
 .endif
 
-	"github.com/taotetek/goczmq"
+	"github.com/zeromq/goczmq"
 )
 
 // $(string.trim (.?''):left)
@@ -561,7 +561,7 @@ package $(go_package_name())
 import (
 	"testing"
 
-	"github.com/taotetek/goczmq"
+	"github.com/zeromq/goczmq"
 )
 
 // Yay! Test function.

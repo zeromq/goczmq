@@ -3,7 +3,7 @@ package msg
 import (
 	"testing"
 
-	"github.com/taotetek/goczmq"
+	"github.com/zeromq/goczmq"
 )
 
 // Yay! Test function.

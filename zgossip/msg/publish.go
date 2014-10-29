@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/taotetek/goczmq"
+	"github.com/zeromq/goczmq"
 )
 
 // Client or server announces a new tuple
