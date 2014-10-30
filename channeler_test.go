@@ -19,7 +19,7 @@ func TestChanneler(t *testing.T) {
 		return
 	}
 
-	c := NewChanneler(d1)
+	c := NewChanneler(d1, false)
 	c.Connect <- "inproc://channeler-test"
 	c.Send <- [][]byte{[]byte("ready")}
 
