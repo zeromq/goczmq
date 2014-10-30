@@ -51,7 +51,7 @@ func (p *Pong) Marshal() ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-// Unmarshals the message.
+// Unmarshal unmarshals the message.
 func (p *Pong) Unmarshal(frames ...[]byte) error {
 	if frames == nil {
 		return errors.New("Can't unmarshal empty message")
@@ -84,28 +84,28 @@ func (p *Pong) Unmarshal(frames ...[]byte) error {
 	return nil
 }
 
-// Sends marshaled data through 0mq socket.
-func (p *Pong) Send(socket *goczmq.Sock) (err error) {
+// Send sends marshaled data through 0mq socket.
+func (p *Pong) Send(sock *goczmq.Sock) (err error) {
 	frame, err := p.Marshal()
 	if err != nil {
 		return err
 	}
 
-	socType := socket.GetType()
+	socType := sock.GetType()
 	if err != nil {
 		return err
 	}
 
 	// If we're sending to a ROUTER, we send the routingId first
 	if socType == goczmq.ROUTER {
-		err = socket.SendBytes(p.routingId, goczmq.MORE)
+		err = sock.SendBytes(p.routingId, goczmq.MORE)
 		if err != nil {
 			return err
 		}
 	}
 
 	// Now send the data frame
-	err = socket.SendBytes(frame, 0)
+	err = sock.SendBytes(frame, 0)
 	if err != nil {
 		return err
 	}
