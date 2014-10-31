@@ -1,0 +1,36 @@
+//
+// Weather update server
+// Binds PUB socket to tcp://127.0.0.1:5556
+// Publishes random weather updates
+//
+
+package main
+
+import (
+	"fmt"
+	czmq "github.com/zeromq/goczmq"
+	"math/rand"
+)
+
+func main() {
+	pubEndpoint := "tcp://127.0.0.1:5556"
+	pubSock, err := czmq.NewPUB(pubEndpoint)
+	if err != nil {
+		panic(err)
+	}
+
+	defer pubSock.Destroy()
+	pubSock.Bind(pubEndpoint)
+
+	for {
+		zipcode := rand.Intn(100000)
+		temperature := rand.Intn(215) - 85
+		relHumidity := rand.Intn(50) + 10
+
+		msg := fmt.Sprintf("%d %d %d", zipcode, temperature, relHumidity)
+		err := pubSock.SendMessage(msg)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
