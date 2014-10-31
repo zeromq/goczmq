@@ -268,6 +268,7 @@ type Channeler struct {
 	Send    chan<- [][]byte
 	Receive <-chan [][]byte
 	Connect chan<- string
+	Error   <-chan error
 }
 ```
 
@@ -281,8 +282,11 @@ is closed
 #### func  NewChanneler
 
 ```go
-func NewChanneler(sock *Sock) *Channeler
+func NewChanneler(sock *Sock, sendErrors bool) *Channeler
 ```
+NewChanneler initialized a new channeler for the passed socket If sendErrors is
+true, errors will be sent on the error channel If it is false, any error will
+cause a panic
 
 #### func (*Channeler) Close
 
@@ -466,7 +470,7 @@ Sock wraps the zsock_t class in CZMQ.
 func NewDEALER(endpoints string) (*Sock, error)
 ```
 NewDEALER creates a DEALER socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+(bind) or '>' (connect). Multiple endpoints are allowed, separated by commas. If
 the endpoint does not start with '@' or '>', it connects.
 
 #### func  NewPAIR
@@ -474,17 +478,16 @@ the endpoint does not start with '@' or '>', it connects.
 ```go
 func NewPAIR(endpoints string) (*Sock, error)
 ```
-NewPAIR creates a PAIR socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). If the endpoint does not start with '@' or '>', it
-connects.
+NewPAIR creates a PAIR socket. The endpoint is empty, or starts with '@' (bind)
+or '>' (connect). If the endpoint does not start with '@' or '>', it connects.
 
 #### func  NewPUB
 
 ```go
 func NewPUB(endpoints string) (*Sock, error)
 ```
-NewPUB creates a PUB socket. The endpoint is empty, or starts with '@' (connect)
-or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
+NewPUB creates a PUB socket. The endpoint is empty, or starts with '@' (bind) or
+'>' (connect). Multiple endpoints are allowed, separated by commas. If the
 endpoint does not start with '@' or '>', it binds.
 
 #### func  NewPULL
@@ -492,26 +495,26 @@ endpoint does not start with '@' or '>', it binds.
 ```go
 func NewPULL(endpoints string) (*Sock, error)
 ```
-NewPULL creates a PULL socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it binds.
+NewPULL creates a PULL socket. The endpoint is empty, or starts with '@' (bind)
+or '>' (connect). Multiple endpoints are allowed, separated by commas. If the
+endpoint does not start with '@' or '>', it binds.
 
 #### func  NewPUSH
 
 ```go
 func NewPUSH(endpoints string) (*Sock, error)
 ```
-NewPUSH creates a PUSH socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it connects.
+NewPUSH creates a PUSH socket. The endpoint is empty, or starts with '@' (bind)
+or '>' (connect). Multiple endpoints are allowed, separated by commas. If the
+endpoint does not start with '@' or '>', it connects.
 
 #### func  NewREP
 
 ```go
 func NewREP(endpoints string) (*Sock, error)
 ```
-NewREP creates a REP socket. The endpoint is empty, or starts with '@' (connect)
-or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
+NewREP creates a REP socket. The endpoint is empty, or starts with '@' (bind) or
+'>' (connect). Multiple endpoints are allowed, separated by commas. If the
 endpoint does not start with '@' or '>', it binds.
 
 #### func  NewREQ
@@ -519,8 +522,8 @@ endpoint does not start with '@' or '>', it binds.
 ```go
 func NewREQ(endpoints string) (*Sock, error)
 ```
-NewREQ creates a REQ socket. The endpoint is empty, or starts with '@' (connect)
-or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
+NewREQ creates a REQ socket. The endpoint is empty, or starts with '@' (bind) or
+'>' (connect). Multiple endpoints are allowed, separated by commas. If the
 endpoint does not start with '@' or '>', it connects.
 
 #### func  NewROUTER
@@ -529,7 +532,7 @@ endpoint does not start with '@' or '>', it connects.
 func NewROUTER(endpoints string) (*Sock, error)
 ```
 NewROUTER creates a ROUTER socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+(bind) or '>' (connect). Multiple endpoints are allowed, separated by commas. If
 the endpoint does not start with '@' or '>', it binds.
 
 #### func  NewSTREAM
@@ -538,7 +541,7 @@ the endpoint does not start with '@' or '>', it binds.
 func NewSTREAM(endpoints string) (*Sock, error)
 ```
 NewSTREAM creates a STREAM socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
+(bind) or '>' (connect). Multiple endpoints are allowed, separated by commas. If
 the endpoint does not start with '@' or '>', it connects.
 
 #### func  NewSUB
@@ -546,8 +549,8 @@ the endpoint does not start with '@' or '>', it connects.
 ```go
 func NewSUB(endpoints string, subscribe string) (*Sock, error)
 ```
-NewSUB creates a SUB socket. The enpoint is empty, or starts with '@' (connect)
-or '>' (bind). Multiple endpoints are allowed, separated by commas. If the
+NewSUB creates a SUB socket. The enpoint is empty, or starts with '@' (bind) or
+'>' (connect). Multiple endpoints are allowed, separated by commas. If the
 endpoint does not start with '@' or '>', it connects. The second argument is a
 comma delimited list of topics to subscribe to.
 
@@ -564,18 +567,18 @@ CZMQ can report socket leaks intelligently.
 ```go
 func NewXPUB(endpoints string) (*Sock, error)
 ```
-NewXPUB creates an XPUB socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it binds.
+NewXPUB creates an XPUB socket. The endpoint is empty, or starts with '@' (bind)
+or '>' (connect). Multiple endpoints are allowed, separated by commas. If the
+endpoint does not start with '@' or '>', it binds.
 
 #### func  NewXSUB
 
 ```go
 func NewXSUB(endpoints string) (*Sock, error)
 ```
-NewXSUB creates an XSUB socket. The endpoint is empty, or starts with '@'
-(connect) or '>' (bind). Multiple endpoints are allowed, separated by commas. If
-the endpoint does not start with '@' or '>', it connects.
+NewXSUB creates an XSUB socket. The endpoint is empty, or starts with '@' (bind)
+or '>' (connect). Multiple endpoints are allowed, separated by commas. If the
+endpoint does not start with '@' or '>', it connects.
 
 #### func (*Sock) Affinity
 

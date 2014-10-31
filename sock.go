@@ -64,7 +64,7 @@ func NewSock(t Type) *Sock {
 }
 
 // NewPUB creates a PUB socket.  The endpoint is empty, or starts with
-// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
 func NewPUB(endpoints string) (*Sock, error) {
 	s := NewSock(PUB)
@@ -77,7 +77,7 @@ func NewPUB(endpoints string) (*Sock, error) {
 }
 
 // NewSUB creates a SUB socket.  The enpoint is empty, or starts with
-// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
 // The second argument is a comma delimited list of topics to subscribe to.
 func NewSUB(endpoints string, subscribe string) (*Sock, error) {
@@ -95,7 +95,7 @@ func NewSUB(endpoints string, subscribe string) (*Sock, error) {
 }
 
 // NewREP creates a REP socket.  The endpoint is empty, or starts with
-// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
 func NewREP(endpoints string) (*Sock, error) {
 	s := NewSock(REP)
@@ -107,7 +107,7 @@ func NewREP(endpoints string) (*Sock, error) {
 }
 
 // NewREQ creates a REQ socket.  The endpoint is empty, or starts with
-// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
 func NewREQ(endpoints string) (*Sock, error) {
 	s := NewSock(REQ)
@@ -119,7 +119,7 @@ func NewREQ(endpoints string) (*Sock, error) {
 }
 
 // NewPULL creates a PULL socket.  The endpoint is empty, or starts with
-// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
 func NewPULL(endpoints string) (*Sock, error) {
 	s := NewSock(PULL)
@@ -131,7 +131,7 @@ func NewPULL(endpoints string) (*Sock, error) {
 }
 
 // NewPUSH creates a PUSH socket.  The endpoint is empty, or starts with
-// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
 func NewPUSH(endpoints string) (*Sock, error) {
 	s := NewSock(PUSH)
@@ -143,7 +143,7 @@ func NewPUSH(endpoints string) (*Sock, error) {
 }
 
 // NewROUTER creates a ROUTER socket.  The endpoint is empty, or starts with
-// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
 func NewROUTER(endpoints string) (*Sock, error) {
 	s := NewSock(ROUTER)
@@ -155,7 +155,7 @@ func NewROUTER(endpoints string) (*Sock, error) {
 }
 
 // NewDEALER creates a DEALER socket.  The endpoint is empty, or starts with
-// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
 func NewDEALER(endpoints string) (*Sock, error) {
 	s := NewSock(DEALER)
@@ -167,7 +167,7 @@ func NewDEALER(endpoints string) (*Sock, error) {
 }
 
 // NewXPUB creates an XPUB socket.  The endpoint is empty, or starts with
-// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it binds.
 func NewXPUB(endpoints string) (*Sock, error) {
 	s := NewSock(XPUB)
@@ -179,7 +179,7 @@ func NewXPUB(endpoints string) (*Sock, error) {
 }
 
 // NewXSUB creates an XSUB socket.  The endpoint is empty, or starts with
-// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
 func NewXSUB(endpoints string) (*Sock, error) {
 	s := NewSock(XSUB)
@@ -191,7 +191,7 @@ func NewXSUB(endpoints string) (*Sock, error) {
 }
 
 // NewPAIR creates a PAIR socket.  The endpoint is empty, or starts with
-// '@' (connect) or '>' (bind).  If the endpoint does not start with '@' or
+// '@' (bind) or '>' (connect).  If the endpoint does not start with '@' or
 // '>', it connects.
 func NewPAIR(endpoints string) (*Sock, error) {
 	s := NewSock(PAIR)
@@ -203,7 +203,7 @@ func NewPAIR(endpoints string) (*Sock, error) {
 }
 
 // NewSTREAM creates a STREAM socket.  The endpoint is empty, or starts with
-// '@' (connect) or '>' (bind).  Multiple endpoints are allowed, separated
+// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
 // by commas.  If the endpoint does not start with '@' or '>', it connects.
 func NewSTREAM(endpoints string) (*Sock, error) {
 	s := NewSock(STREAM)
