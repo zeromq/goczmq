@@ -56,7 +56,7 @@ func (p *Poller) Add(reader *Sock) error {
 	return nil
 }
 
-// Remove removes a zsock from the poller
+// Remove removes a Sock from the poller
 func (p *Poller) Remove(reader *Sock) {
 	num_items := len(p.socks)
 	for i := 0; i < num_items; i++ {
