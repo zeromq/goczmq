@@ -63,157 +63,6 @@ func NewSock(t Type) *Sock {
 	return s
 }
 
-// NewPUB creates a PUB socket.  The endpoint is empty, or starts with
-// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
-// by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewPUB(endpoints string) (*Sock, error) {
-	s := NewSock(PUB)
-	s.zsock_t = C.zsock_new_(C.int(s.zType), C.CString(s.file), C.size_t(s.line))
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(true))
-	if rc == -1 {
-		return nil, ErrSockAttach
-	}
-	return s, nil
-}
-
-// NewSUB creates a SUB socket.  The enpoint is empty, or starts with
-// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
-// by commas.  If the endpoint does not start with '@' or '>', it connects.
-// The second argument is a comma delimited list of topics to subscribe to.
-func NewSUB(endpoints string, subscribe string) (*Sock, error) {
-	s := NewSock(SUB)
-	subscriptions := strings.Split(subscribe, ",")
-	for _, topic := range subscriptions {
-		s.SetSubscribe(topic)
-	}
-
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(false))
-	if rc == -1 {
-		return nil, ErrSockAttach
-	}
-	return s, nil
-}
-
-// NewREP creates a REP socket.  The endpoint is empty, or starts with
-// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
-// by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewREP(endpoints string) (*Sock, error) {
-	s := NewSock(REP)
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(true))
-	if rc == -1 {
-		return nil, ErrSockAttach
-	}
-	return s, nil
-}
-
-// NewREQ creates a REQ socket.  The endpoint is empty, or starts with
-// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
-// by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewREQ(endpoints string) (*Sock, error) {
-	s := NewSock(REQ)
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(false))
-	if rc == -1 {
-		return nil, ErrSockAttach
-	}
-	return s, nil
-}
-
-// NewPULL creates a PULL socket.  The endpoint is empty, or starts with
-// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
-// by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewPULL(endpoints string) (*Sock, error) {
-	s := NewSock(PULL)
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(true))
-	if rc == -1 {
-		return nil, ErrSockAttach
-	}
-	return s, nil
-}
-
-// NewPUSH creates a PUSH socket.  The endpoint is empty, or starts with
-// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
-// by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewPUSH(endpoints string) (*Sock, error) {
-	s := NewSock(PUSH)
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(false))
-	if rc == -1 {
-		return nil, ErrSockAttach
-	}
-	return s, nil
-}
-
-// NewROUTER creates a ROUTER socket.  The endpoint is empty, or starts with
-// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
-// by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewROUTER(endpoints string) (*Sock, error) {
-	s := NewSock(ROUTER)
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(true))
-	if rc == -1 {
-		return nil, ErrSockAttach
-	}
-	return s, nil
-}
-
-// NewDEALER creates a DEALER socket.  The endpoint is empty, or starts with
-// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
-// by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewDEALER(endpoints string) (*Sock, error) {
-	s := NewSock(DEALER)
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(false))
-	if rc == -1 {
-		return nil, ErrSockAttach
-	}
-	return s, nil
-}
-
-// NewXPUB creates an XPUB socket.  The endpoint is empty, or starts with
-// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
-// by commas.  If the endpoint does not start with '@' or '>', it binds.
-func NewXPUB(endpoints string) (*Sock, error) {
-	s := NewSock(XPUB)
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(true))
-	if rc == -1 {
-		return nil, ErrSockAttach
-	}
-	return s, nil
-}
-
-// NewXSUB creates an XSUB socket.  The endpoint is empty, or starts with
-// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
-// by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewXSUB(endpoints string) (*Sock, error) {
-	s := NewSock(XSUB)
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(false))
-	if rc == -1 {
-		return nil, ErrSockAttach
-	}
-	return s, nil
-}
-
-// NewPAIR creates a PAIR socket.  The endpoint is empty, or starts with
-// '@' (bind) or '>' (connect).  If the endpoint does not start with '@' or
-// '>', it connects.
-func NewPAIR(endpoints string) (*Sock, error) {
-	s := NewSock(PAIR)
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(false))
-	if rc == -1 {
-		return nil, ErrSockAttach
-	}
-	return s, nil
-}
-
-// NewSTREAM creates a STREAM socket.  The endpoint is empty, or starts with
-// '@' (bind) or '>' (connect).  Multiple endpoints are allowed, separated
-// by commas.  If the endpoint does not start with '@' or '>', it connects.
-func NewSTREAM(endpoints string) (*Sock, error) {
-	s := NewSock(STREAM)
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(false))
-	if rc == -1 {
-		return nil, ErrSockAttach
-	}
-	return s, nil
-}
-
 // Connect connects a socket to an endpoint
 // returns an error if the connect failed.
 func (s *Sock) Connect(endpoint string) error {
@@ -245,6 +94,7 @@ func (s *Sock) Bind(endpoint string) (int, error) {
 	return int(port), nil
 }
 
+// Attach attaches a socket to multiple endpoints.
 // Unbind unbinds a socket from an endpoint.  If returns
 // an error if the endpoint was not found
 func (s *Sock) Unbind(endpoint string) error {
@@ -253,6 +103,110 @@ func (s *Sock) Unbind(endpoint string) error {
 		return fmt.Errorf("endopint was not bound")
 	}
 	return nil
+}
+
+// Attach attaches a socket to zero or more endpoints. If endpoints is not null,
+// parses as list of ZeroMQ endpoints, separated by commas, and prefixed by
+// '@' (to bind the socket) or '>' (to attach the socket). If the endpoint
+// does not start with '@' or '>', the serverish argument determines whether
+// it is used to bind (serverish = true) or connect (serverish = false)
+func (s *Sock) Attach(endpoints string, serverish bool) error {
+	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(serverish))
+	if rc == -1 {
+		return ErrSockAttach
+	}
+	return nil
+}
+
+// NewPUB creates a PUB socket and calls Attach.
+// The socket will Bind by default.
+func NewPUB(endpoints string) (*Sock, error) {
+	s := NewSock(PUB)
+	return s, s.Attach(endpoints, true)
+}
+
+// NewSUB creates a SUB socket and calls Attach.
+// 'subscribe' is a comma delimited list of topics to subscribe to.
+// The socket will Connect by default.
+func NewSUB(endpoints string, subscribe string) (*Sock, error) {
+	s := NewSock(SUB)
+	subscriptions := strings.Split(subscribe, ",")
+
+	for _, topic := range subscriptions {
+		s.SetSubscribe(topic)
+	}
+
+	return s, s.Attach(endpoints, false)
+}
+
+// NewREP creates a REP socket and calls Attach.
+// The socket will Bind by default.
+func NewREP(endpoints string) (*Sock, error) {
+	s := NewSock(REP)
+	return s, s.Attach(endpoints, true)
+}
+
+// NewREQ creates a REQ socket and calls Attach.
+// The socket will Connect by default.
+func NewREQ(endpoints string) (*Sock, error) {
+	s := NewSock(REQ)
+	return s, s.Attach(endpoints, false)
+}
+
+// NewPULL creates a PULL socket and calls Attach.
+// The socket will Bind by default.
+func NewPULL(endpoints string) (*Sock, error) {
+	s := NewSock(PULL)
+	return s, s.Attach(endpoints, true)
+}
+
+// NewPUSH creates a PUSH socket and calls Attach.
+// The socket will Connect by default.
+func NewPUSH(endpoints string) (*Sock, error) {
+	s := NewSock(PUSH)
+	return s, s.Attach(endpoints, false)
+}
+
+// NewROUTER creates a ROUTER socket and calls Attach.
+// The socket will Bind by default.
+func NewROUTER(endpoints string) (*Sock, error) {
+	s := NewSock(ROUTER)
+	return s, s.Attach(endpoints, true)
+}
+
+// NewDEALER creates a DEALER socket and calls Attach.
+// The socket will Connect by default.
+func NewDEALER(endpoints string) (*Sock, error) {
+	s := NewSock(DEALER)
+	return s, s.Attach(endpoints, false)
+}
+
+// NewXPUB creates an XPUB socket and calls Attach.
+// The socket will Bind by default.
+func NewXPUB(endpoints string) (*Sock, error) {
+	s := NewSock(XPUB)
+	return s, s.Attach(endpoints, true)
+}
+
+// NewXSUB creates an XSUB socket and calls Attach.
+// The socket will Connect by default.
+func NewXSUB(endpoints string) (*Sock, error) {
+	s := NewSock(XSUB)
+	return s, s.Attach(endpoints, false)
+}
+
+// NewPAIR creates a PAIR socket and calls Attach.
+// The socket will Connect by default.
+func NewPAIR(endpoints string) (*Sock, error) {
+	s := NewSock(PAIR)
+	return s, s.Attach(endpoints, false)
+}
+
+// NewSTREAM creates a STREAM socket and calls Attach.
+// The socket will Connect by default.
+func NewSTREAM(endpoints string) (*Sock, error) {
+	s := NewSock(STREAM)
+	return s, s.Attach(endpoints, false)
 }
 
 // Pollin returns true if there is a POLLIN
