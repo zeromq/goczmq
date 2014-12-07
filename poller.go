@@ -6,7 +6,10 @@ package goczmq
 #cgo windows LDFLAGS: -L/usr/local/lib -lczmq
 #include "czmq.h"
 
-zpoller_t *Poller_new(void *reader) { zpoller_t *poller = zpoller_new(reader, NULL); return poller; }
+zpoller_t *Poller_new(void *reader) {
+	zpoller_t *poller = zpoller_new(reader, NULL);
+	return poller;
+}
 */
 import "C"
 
@@ -17,19 +20,20 @@ import (
 
 // Poller is a simple poller for Socks
 type Poller struct {
-	zpoller_t *C.struct__zpoller_t
-	socks     []*Sock
+	zpollerT *C.struct__zpoller_t
+	socks    []*Sock
 }
 
-// NewPoller creates a new Poller instance.  It accepts one or more readers to poll.
+// NewPoller creates a new Poller instance.
+// It accepts one or more readers to poll.
 func NewPoller(readers ...*Sock) (*Poller, error) {
 	if len(readers) == 0 {
 		return nil, fmt.Errorf("requires at least one reader")
 	}
 
 	p := &Poller{
-		zpoller_t: C.Poller_new(unsafe.Pointer(readers[0].zsock_t)),
-		socks:     make([]*Sock, 0),
+		zpollerT: C.Poller_new(unsafe.Pointer(readers[0].zsockT)),
+		socks:    make([]*Sock, 0),
 	}
 
 	p.socks = append(p.socks, readers[0])
@@ -48,7 +52,7 @@ func NewPoller(readers ...*Sock) (*Poller, error) {
 
 // Add adds a reader to be polled.
 func (p *Poller) Add(reader *Sock) error {
-	rc := C.zpoller_add(p.zpoller_t, unsafe.Pointer(reader.zsock_t))
+	rc := C.zpoller_add(p.zpollerT, unsafe.Pointer(reader.zsockT))
 	if int(rc) == -1 {
 		return fmt.Errorf("error adding reader")
 	}
@@ -58,10 +62,10 @@ func (p *Poller) Add(reader *Sock) error {
 
 // Remove removes a Sock from the poller
 func (p *Poller) Remove(reader *Sock) {
-	num_items := len(p.socks)
-	for i := 0; i < num_items; i++ {
+	numItems := len(p.socks)
+	for i := 0; i < numItems; i++ {
 		if p.socks[i] == reader {
-			if i == num_items-1 {
+			if i == numItems-1 {
 				p.socks = p.socks[:i]
 			} else {
 				p.socks = append(p.socks[:i], p.socks[i+1:]...)
@@ -73,21 +77,23 @@ func (p *Poller) Remove(reader *Sock) {
 // Wait waits for the timeout period in milliseconds for a POLLIN
 // event, and returns the first socket that returns one
 func (p *Poller) Wait(timeout int) *Sock {
-	s := C.zpoller_wait(p.zpoller_t, C.int(timeout))
+	s := C.zpoller_wait(p.zpollerT, C.int(timeout))
 	s = unsafe.Pointer(s)
 	if s == nil {
 		return nil
 	}
 	for _, sock := range p.socks {
-		if unsafe.Pointer(sock.zsock_t) == s {
+		if unsafe.Pointer(sock.zsockT) == s {
 			return sock
 		}
 	}
 
-	panic(fmt.Sprintf("Could not match received pointer with %v with any socket", s, p.socks))
+	panic(fmt.Sprintf(
+		"Could not match received pointer with %v with any socket (%v)",
+		s, p.socks))
 }
 
 // Destroy destroys the Poller
 func (p *Poller) Destroy() {
-	C.zpoller_destroy(&p.zpoller_t)
+	C.zpoller_destroy(&p.zpollerT)
 }

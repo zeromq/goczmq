@@ -36,7 +36,7 @@ func TestAuthIPAllow(t *testing.T) {
 	// bind the socket and get the port it bound to
 	port, err := server.Bind("tcp://127.0.0.1:*")
 	if port <= 0 {
-		t.Error("port should be > 0, is %d", port)
+		t.Errorf("port should be > 0, is %d", port)
 	}
 
 	// create a push socket client
@@ -127,7 +127,7 @@ func TestAuthPlain(t *testing.T) {
 	// bind the socket and get the port it is bound to
 	port, err := server.Bind("tcp://127.0.0.1:*")
 	if port <= 0 {
-		t.Error("port should be > 0, is %d", port)
+		t.Errorf("port should be > 0, is %d", port)
 	}
 
 	// create a push client that will use the correct password
@@ -232,7 +232,7 @@ func TestAuthCurveAllow(t *testing.T) {
 	// bind the server
 	port, err := server.Bind("tcp://127.0.0.1:*")
 	if port <= 0 {
-		t.Error("port should be > 0, is %d", port)
+		t.Errorf("port should be > 0, is %d", port)
 	}
 
 	// connect the goodClient
@@ -344,7 +344,7 @@ func TestAuthCurveCertificate(t *testing.T) {
 	// bind the server
 	port, err := server.Bind("tcp://127.0.0.1:*")
 	if port <= 0 {
-		t.Error("port should be > 0, is %d", port)
+		t.Errorf("port should be > 0, is %d", port)
 	}
 
 	// connect the good client

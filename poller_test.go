@@ -46,7 +46,7 @@ func TestPoller(t *testing.T) {
 		t.Errorf("Expected number of zsocks to be 2, was %d", len(poller.socks))
 	}
 
-	if poller.socks[0].zsock_t != pullSock1.zsock_t || poller.socks[1].zsock_t != pullSock2.zsock_t {
+	if poller.socks[0].zsockT != pullSock1.zsockT || poller.socks[1].zsockT != pullSock2.zsockT {
 		t.Error("Expected each passed zsock to be in the poller")
 	}
 

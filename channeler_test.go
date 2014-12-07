@@ -29,7 +29,8 @@ func TestChanneler(t *testing.T) {
 		return
 	}
 
-	// The channeler listens on d1, do a send on d2 and verify the receive channel of the channeler gets it
+	// The channeler listens on d1, do a send on d2 and verify the receive
+	// channel of the channeler gets it
 	err = d2.SendMessage("Test")
 	if err != nil {
 		t.Errorf("d2.SendMessage failed: %s", err)

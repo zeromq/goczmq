@@ -17,17 +17,17 @@ import (
 
 // Cert holds a czmq zcert_t
 type Cert struct {
-	zcert_t *C.struct__zcert_t
+	zcertT *C.struct__zcert_t
 }
 
 // NewCert creates a new empty Cert instance
 func NewCert() *Cert {
 	return &Cert{
-		zcert_t: C.zcert_new(),
+		zcertT: C.zcert_new(),
 	}
 }
 
-// NewCertFrom creates a new Cert from a public and private key
+// NewCertFromKeys creates a new Cert from a public and private key
 func NewCertFromKeys(public []byte, secret []byte) (*Cert, error) {
 	if len(public) != 32 {
 		return nil, fmt.Errorf("invalid public key")
@@ -38,69 +38,68 @@ func NewCertFromKeys(public []byte, secret []byte) (*Cert, error) {
 	}
 
 	return &Cert{
-		zcert_t: C.zcert_new_from(
+		zcertT: C.zcert_new_from(
 			(*C.byte)(unsafe.Pointer(&public[0])),
 			(*C.byte)(unsafe.Pointer(&secret[0]))),
 	}, nil
 }
 
-// Load loads a Cert from files
+// NewCertFromFile Load loads a Cert from files
 func NewCertFromFile(filename string) (*Cert, error) {
 	cert := C.zcert_load(C.CString(filename))
 	return &Cert{
-		zcert_t: cert,
+		zcertT: cert,
 	}, nil
 }
 
 // SetMeta sets meta data for a Cert
 func (c *Cert) SetMeta(key string, value string) {
-	C.Set_meta(c.zcert_t, C.CString(key), C.CString(value))
+	C.Set_meta(c.zcertT, C.CString(key), C.CString(value))
 }
 
 // Meta returns a meta data item from a Cert given a key
 func (c *Cert) Meta(key string) string {
-	val := C.zcert_meta(c.zcert_t, C.CString(key))
+	val := C.zcert_meta(c.zcertT, C.CString(key))
 	return C.GoString(val)
 }
 
 // PublicText returns the public key as a string
 func (c *Cert) PublicText() string {
-	val := C.zcert_public_txt(c.zcert_t)
+	val := C.zcert_public_txt(c.zcertT)
 	return C.GoString(val)
 }
 
 // Apply sets the public and private keys for a socket
 func (c *Cert) Apply(s *Sock) {
-	handle := C.zsock_resolve(unsafe.Pointer(s.zsock_t))
-	C.zsocket_set_curve_secretkey_bin(handle, C.zcert_secret_key(c.zcert_t))
-	C.zsocket_set_curve_publickey_bin(handle, C.zcert_public_key(c.zcert_t))
+	handle := C.zsock_resolve(unsafe.Pointer(s.zsockT))
+	C.zsocket_set_curve_secretkey_bin(handle, C.zcert_secret_key(c.zcertT))
+	C.zsocket_set_curve_publickey_bin(handle, C.zcert_public_key(c.zcertT))
 }
 
 // Dup duplicates a Cert
 func (c *Cert) Dup() *Cert {
 	return &Cert{
-		zcert_t: C.zcert_dup(c.zcert_t),
+		zcertT: C.zcert_dup(c.zcertT),
 	}
 }
 
 // Equal checks two Certs for equality
 func (c *Cert) Equal(compare *Cert) bool {
-	check := C.zcert_eq(c.zcert_t, compare.zcert_t)
+	check := C.zcert_eq(c.zcertT, compare.zcertT)
 	if check == C.bool(true) {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 // Print prints a Cert to stdout
 func (c *Cert) Print() {
-	C.zcert_print(c.zcert_t)
+	C.zcert_print(c.zcertT)
 }
 
 // SavePublic saves the public key to a file
 func (c *Cert) SavePublic(filename string) error {
-	rc := C.zcert_save_public(c.zcert_t, C.CString(filename))
+	rc := C.zcert_save_public(c.zcertT, C.CString(filename))
 	if rc == C.int(-1) {
 		return fmt.Errorf("SavePublic error")
 	}
@@ -109,7 +108,7 @@ func (c *Cert) SavePublic(filename string) error {
 
 // SaveSecret saves the secret key to a file
 func (c *Cert) SaveSecret(filename string) error {
-	rc := C.zcert_save_secret(c.zcert_t, C.CString(filename))
+	rc := C.zcert_save_secret(c.zcertT, C.CString(filename))
 	if rc == C.int(-1) {
 		return fmt.Errorf("SaveSecret error")
 	}
@@ -118,7 +117,7 @@ func (c *Cert) SaveSecret(filename string) error {
 
 // Save saves the public and secret key to filename and filename_secret
 func (c *Cert) Save(filename string) error {
-	rc := C.zcert_save(c.zcert_t, C.CString(filename))
+	rc := C.zcert_save(c.zcertT, C.CString(filename))
 	if rc == C.int(-1) {
 		return fmt.Errorf("SavePublic: error")
 	}
@@ -127,5 +126,5 @@ func (c *Cert) Save(filename string) error {
 
 // Destroy destroys Cert instance
 func (c *Cert) Destroy() {
-	C.zcert_destroy(&c.zcert_t)
+	C.zcert_destroy(&c.zcertT)
 }
