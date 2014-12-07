@@ -26,10 +26,10 @@ import (
 
 // Sock wraps the zsock_t class in CZMQ.
 type Sock struct {
-	zsock_t *C.struct__zsock_t
-	file    string
-	line    int
-	zType   Type
+	zsockT *C.struct__zsock_t
+	file   string
+	line   int
+	zType  Type
 }
 
 func init() {
@@ -59,14 +59,14 @@ func NewSock(t Type) *Sock {
 		}
 	}
 
-	s.zsock_t = C.zsock_new_(C.int(s.zType), C.CString(s.file), C.size_t(s.line))
+	s.zsockT = C.zsock_new_(C.int(s.zType), C.CString(s.file), C.size_t(s.line))
 	return s
 }
 
 // Connect connects a socket to an endpoint
 // returns an error if the connect failed.
 func (s *Sock) Connect(endpoint string) error {
-	rc := C.Sock_connect(s.zsock_t, C.CString(endpoint))
+	rc := C.Sock_connect(s.zsockT, C.CString(endpoint))
 	if rc != C.int(0) {
 		return errors.New("failed")
 	}
@@ -76,7 +76,7 @@ func (s *Sock) Connect(endpoint string) error {
 // Disconnect disconnects a socket from an endpoint.  If returns
 // an error if the endpoint was not found
 func (s *Sock) Disconnect(endpoint string) error {
-	rc := C.Sock_disconnect(s.zsock_t, C.CString(endpoint))
+	rc := C.Sock_disconnect(s.zsockT, C.CString(endpoint))
 	if int(rc) == -1 {
 		return fmt.Errorf("endopint was not bound")
 	}
@@ -87,18 +87,17 @@ func (s *Sock) Disconnect(endpoint string) error {
 // the port number used for tcp transports, or 0 for other
 // transports.  On failure returns a -1 for port, and an error.
 func (s *Sock) Bind(endpoint string) (int, error) {
-	port := C.Sock_bind(s.zsock_t, C.CString(endpoint))
+	port := C.Sock_bind(s.zsockT, C.CString(endpoint))
 	if port == C.int(-1) {
 		return -1, errors.New("failed")
 	}
 	return int(port), nil
 }
 
-// Attach attaches a socket to multiple endpoints.
 // Unbind unbinds a socket from an endpoint.  If returns
 // an error if the endpoint was not found
 func (s *Sock) Unbind(endpoint string) error {
-	rc := C.Sock_unbind(s.zsock_t, C.CString(endpoint))
+	rc := C.Sock_unbind(s.zsockT, C.CString(endpoint))
 	if int(rc) == -1 {
 		return fmt.Errorf("endopint was not bound")
 	}
@@ -111,7 +110,7 @@ func (s *Sock) Unbind(endpoint string) error {
 // does not start with '@' or '>', the serverish argument determines whether
 // it is used to bind (serverish = true) or connect (serverish = false)
 func (s *Sock) Attach(endpoints string, serverish bool) error {
-	rc := C.zsock_attach(s.zsock_t, C.CString(endpoints), C._Bool(serverish))
+	rc := C.zsock_attach(s.zsockT, C.CString(endpoints), C._Bool(serverish))
 	if rc == -1 {
 		return ErrSockAttach
 	}
@@ -213,7 +212,7 @@ func NewSTREAM(endpoints string) (*Sock, error) {
 // event on the socket
 func (s *Sock) Pollin() bool {
 	return s.Events() == POLLIN
-	// return C.zsock_events(unsafe.Pointer(s.zsock_t)) == C.ZMQ_POLLIN
+	// return C.zsock_events(unsafe.Pointer(s.zsockT)) == C.ZMQ_POLLIN
 }
 
 // Pollout returns true if there is a POLLOUT
@@ -331,7 +330,7 @@ func (s *Sock) RecvMessage() ([][]byte, error) {
 // a multi-part message
 func (s *Sock) SendBytes(data []byte, flags Flag) error {
 	frame := C.zframe_new(unsafe.Pointer(&data[0]), C.size_t(len(data)))
-	rc := C.zframe_send(&frame, unsafe.Pointer(s.zsock_t), C.int(flags))
+	rc := C.zframe_send(&frame, unsafe.Pointer(s.zsockT), C.int(flags))
 	if rc == C.int(-1) {
 		return errors.New("failed")
 	}
@@ -349,7 +348,7 @@ func (s *Sock) SendString(data string, flags Flag) error {
 // RecvBytes reads a frame from the socket and returns it
 // as a byte array,  Returns an error if the call fails.
 func (s *Sock) RecvBytes() ([]byte, Flag, error) {
-	frame := C.zframe_recv(unsafe.Pointer(s.zsock_t))
+	frame := C.zframe_recv(unsafe.Pointer(s.zsockT))
 	if frame == nil {
 		return []byte{0}, 0, errors.New("failed")
 	}
@@ -376,7 +375,7 @@ func (s *Sock) GetType() Type {
 	return s.zType
 }
 
-// Destroy destroys the underlying zsock_t.
+// Destroy destroys the underlying zsockT.
 func (s *Sock) Destroy() {
-	C.zsock_destroy_(&s.zsock_t, C.CString(s.file), C.size_t(s.line))
+	C.zsock_destroy_(&s.zsockT, C.CString(s.file), C.size_t(s.line))
 }

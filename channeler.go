@@ -6,10 +6,13 @@ import (
 	"runtime"
 )
 
-// Channeler serializes all access to a socket through a send, receive and close channel
-// It starts two threads, one is used for receiving from the zeromq socket
-// The other is used to listen to the receive channel, and send everything back to the socket thread for sending using an additional inproc socket
-// The channeler takes ownership of the passed socket and will destroy it when the close channel is closed
+// Channeler serializes all access to a socket through a send, receive
+// and close channel.  It starts two threads, on is used for receiving
+// from the zeromq socket.  The other is used to listen to the receive
+// channel, and send everything back to the socket thrad for sending
+// using an additional inproc socket.  The channeler takes ownership
+// of the passed socket and will destroy it when the close channel
+// is closed.
 type Channeler struct {
 	sock *Sock
 	id   int64
@@ -52,6 +55,7 @@ func NewChanneler(sock *Sock, sendErrors bool) *Channeler {
 	return c
 }
 
+// Close closes the close channel sigaling the channeler to shut down
 func (c *Channeler) Close() {
 	close(c.close)
 }
