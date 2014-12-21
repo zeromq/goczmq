@@ -3,6 +3,7 @@
 .#  is licensed under MIT/X11.
 .#
 .output "./sock_option.go"
+//go:generate gsl sockopts.xml
 package goczmq
 
 /*  =========================================================================
