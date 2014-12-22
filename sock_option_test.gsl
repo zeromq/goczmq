@@ -3,6 +3,7 @@
 .#  is licensed under MIT/X11.
 .#
 .output "./sock_option_test.go"
+//go:generate gsl sockopts.xml
 package goczmq
 /*  =========================================================================
     zsock_option - get/set 0MQ socket options
@@ -54,7 +55,7 @@ func Test$(name:pascal)(t *testing.T) {
 		t.Errorf("$(name:pascal) returned %s should be %s", val, testval)
 	}
 .endif
-        sock.Destroy()
+	sock.Destroy()
 }
 
 .endif
