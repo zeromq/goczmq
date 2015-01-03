@@ -125,20 +125,11 @@ func (c *Channeler) loopMain(sendChan chan<- [][]byte, recvChan chan<- [][]byte,
 				}
 			case "attach":
 				var err error
-				switch string(msg[1][0]) {
-				case "@":
-					err = c.sock.Connect(string(msg[1]))
-				case ">":
-					_, err = c.sock.Bind(string(msg[1]))
+				switch int(c.sock.Type()) {
+				case PUB, REP, ROUTER, PUSH, XPUB:
+					err = c.sock.Attach(string(msg[1]), true)
 				default:
-					switch int(c.sock.Type()) {
-					case PUB, REP, ROUTER, PUSH, XPUB:
-						_, err = c.sock.Bind(string(msg[1]))
-					case SUB, REQ, DEALER, PULL, XSUB, PAIR, STREAM:
-						err = c.sock.Connect(string(msg[1]))
-					default:
-						err = c.sock.Connect(string(msg[1]))
-					}
+					err = c.sock.Attach(string(msg[1]), false)
 				}
 
 				if errChan != nil {
