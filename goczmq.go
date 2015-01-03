@@ -15,22 +15,21 @@ import (
 	"errors"
 )
 
-type Type int
 type Flag int
 
 const (
-	REQ    = Type(C.ZMQ_REQ)
-	REP    = Type(C.ZMQ_REP)
-	DEALER = Type(C.ZMQ_DEALER)
-	ROUTER = Type(C.ZMQ_ROUTER)
-	PUB    = Type(C.ZMQ_PUB)
-	SUB    = Type(C.ZMQ_SUB)
-	XPUB   = Type(C.ZMQ_XPUB)
-	XSUB   = Type(C.ZMQ_XSUB)
-	PUSH   = Type(C.ZMQ_PUSH)
-	PULL   = Type(C.ZMQ_PULL)
-	PAIR   = Type(C.ZMQ_PAIR)
-	STREAM = Type(C.ZMQ_STREAM)
+	REQ    = int(C.ZMQ_REQ)
+	REP    = int(C.ZMQ_REP)
+	DEALER = int(C.ZMQ_DEALER)
+	ROUTER = int(C.ZMQ_ROUTER)
+	PUB    = int(C.ZMQ_PUB)
+	SUB    = int(C.ZMQ_SUB)
+	XPUB   = int(C.ZMQ_XPUB)
+	XSUB   = int(C.ZMQ_XSUB)
+	PUSH   = int(C.ZMQ_PUSH)
+	PULL   = int(C.ZMQ_PULL)
+	PAIR   = int(C.ZMQ_PAIR)
+	STREAM = int(C.ZMQ_STREAM)
 
 	POLLIN  = int(C.ZMQ_POLLIN)
 	POLLOUT = int(C.ZMQ_POLLOUT)
@@ -48,7 +47,7 @@ var (
 	ErrSockAttach = errors.New("error attaching zsock")
 )
 
-func getStringType(k Type) string {
+func getStringType(k int) string {
 	switch k {
 	case REQ:
 		return "REQ"
