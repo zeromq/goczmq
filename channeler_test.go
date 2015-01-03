@@ -20,8 +20,8 @@ func TestChanneler(t *testing.T) {
 	}
 
 	c := NewChanneler(d1, false)
-	c.Connect <- "inproc://channeler-test"
-	c.Send <- [][]byte{[]byte("ready")}
+	c.AttachChan <- "inproc://channeler-test"
+	c.SendChan <- [][]byte{[]byte("ready")}
 
 	m, err := d2.RecvString()
 	if m != "ready" {
@@ -38,7 +38,7 @@ func TestChanneler(t *testing.T) {
 	}
 
 	select {
-	case msg := <-c.Receive:
+	case msg := <-c.RecvChan:
 		if string(msg[0]) != "Test" {
 			t.Error("Message received on receive channel mismatch")
 			return
@@ -49,7 +49,7 @@ func TestChanneler(t *testing.T) {
 	}
 
 	// Send a message through the channeler and verify d2 gets it
-	c.Send <- [][]byte{[]byte("Test")}
+	c.SendChan <- [][]byte{[]byte("Test")}
 	poller, err := NewPoller(d2)
 	if err != nil {
 		t.Errorf("Error while creating poller: %s", err)

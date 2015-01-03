@@ -17,39 +17,39 @@ type Channeler struct {
 	sock *Sock
 	id   int64
 
-	close chan<- struct{}
-
-	Send    chan<- [][]byte
-	Receive <-chan [][]byte
-	Connect chan<- string
-	Error   <-chan error
+	closeChan  chan<- struct{}
+	SendChan   chan<- [][]byte
+	RecvChan   <-chan [][]byte
+	AttachChan chan<- string
+	ErrChan    <-chan error
 }
 
 // NewChanneler initialized a new channeler for the passed socket
 // If sendErrors is true, errors will be sent on the error channel
 // If it is false, any error will cause a panic
 func NewChanneler(sock *Sock, sendErrors bool) *Channeler {
-	close := make(chan struct{})
-	send := make(chan [][]byte)
-	receive := make(chan [][]byte)
-	connect := make(chan string)
-	var err chan error
+	closeChan := make(chan struct{})
+	sendChan := make(chan [][]byte)
+	recvChan := make(chan [][]byte)
+	attachChan := make(chan string)
+
+	var errChan chan error
 	if sendErrors {
-		err = make(chan error)
+		errChan = make(chan error)
 	}
 
 	c := &Channeler{
-		sock:    sock,
-		id:      rand.Int63(),
-		close:   close,
-		Send:    send,
-		Receive: receive,
-		Connect: connect,
-		Error:   err,
+		sock:       sock,
+		id:         rand.Int63(),
+		closeChan:  closeChan,
+		SendChan:   sendChan,
+		RecvChan:   recvChan,
+		AttachChan: attachChan,
+		ErrChan:    errChan,
 	}
 
-	go c.loopSend(close, send, connect)
-	go c.loopMain(send, receive, connect, err)
+	go c.loopSend(closeChan, sendChan, attachChan)
+	go c.loopMain(sendChan, recvChan, attachChan, errChan)
 
 	runtime.SetFinalizer(c, func(c *Channeler) { c.Close() })
 	return c
@@ -57,10 +57,10 @@ func NewChanneler(sock *Sock, sendErrors bool) *Channeler {
 
 // Close closes the close channel sigaling the channeler to shut down
 func (c *Channeler) Close() {
-	close(c.close)
+	close(c.closeChan)
 }
 
-func (c *Channeler) loopSend(closeChan <-chan struct{}, send <-chan [][]byte, connect <-chan string) {
+func (c *Channeler) loopSend(closeChan <-chan struct{}, sendChan <-chan [][]byte, attachChan <-chan string) {
 	push, err := NewPUSH(fmt.Sprintf(">inproc://goczmq-channeler-%d", c.id))
 	if err != nil {
 		panic(err)
@@ -72,19 +72,22 @@ func (c *Channeler) loopSend(closeChan <-chan struct{}, send <-chan [][]byte, co
 		case <-closeChan:
 			_ = push.SendMessage("close")
 			return
-		case msg := <-send:
+		case msg := <-sendChan:
 			push.SendMessage("msg", msg)
-		case endpoint := <-connect:
-			push.SendMessage("connect", endpoint)
+		case endpoint := <-attachChan:
+			push.SendMessage("attach", endpoint)
 		}
 	}
 }
 
-func (c *Channeler) loopMain(send chan<- [][]byte, receive chan<- [][]byte, connect chan<- string, error chan<- error) {
+func (c *Channeler) loopMain(sendChan chan<- [][]byte, recvChan chan<- [][]byte, attachChan chan<- string, errChan chan<- error) {
 	// Close all channels when we exit
-	defer close(receive)
-	defer close(send)
-	defer close(connect)
+	defer close(recvChan)
+	defer close(sendChan)
+	defer close(attachChan)
+	if errChan != nil {
+		defer close(errChan)
+	}
 
 	pull, err := NewPULL(fmt.Sprintf("@inproc://goczmq-channeler-%d", c.id))
 	if err != nil {
@@ -116,24 +119,35 @@ func (c *Channeler) loopMain(send chan<- [][]byte, receive chan<- [][]byte, conn
 				return
 			case "msg":
 				if err := c.sock.SendMessage(msg[1:]); err != nil {
-					if error != nil {
-						error <- err
-					} else {
-						panic(err)
+					if errChan != nil {
+						errChan <- err
 					}
 				}
-			case "connect":
-				if err := c.sock.Connect(string(msg[1])); err != nil {
-					if error != nil {
-						error <- err
-					} else {
-						panic(err)
+			case "attach":
+				var err error
+				switch string(msg[1][0]) {
+				case "@":
+					err = c.sock.Connect(string(msg[1]))
+				case ">":
+					_, err = c.sock.Bind(string(msg[1]))
+				default:
+					switch int(c.sock.Type()) {
+					case PUB, REP, ROUTER, PUSH, XPUB:
+						_, err = c.sock.Bind(string(msg[1]))
+					case SUB, REQ, DEALER, PULL, XSUB, PAIR, STREAM:
+						err = c.sock.Connect(string(msg[1]))
+					default:
+						err = c.sock.Connect(string(msg[1]))
 					}
+				}
+
+				if errChan != nil {
+					errChan <- err
 				}
 			}
 
 		case c.sock:
-			receive <- msg
+			recvChan <- msg
 		}
 	}
 }

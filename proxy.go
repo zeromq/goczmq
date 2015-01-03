@@ -31,7 +31,7 @@ func NewProxy() *Proxy {
 
 // SetFrontend accepts a socket type and endpoint, and sends a message
 // to the zactor thread telling it to set up a socket bound to the endpoint.
-func (p *Proxy) SetFrontend(sockType Type, endpoint string) error {
+func (p *Proxy) SetFrontend(sockType int, endpoint string) error {
 	typeString := getStringType(sockType)
 
 	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), C.CString("FRONTEND"))
@@ -59,7 +59,7 @@ func (p *Proxy) SetFrontend(sockType Type, endpoint string) error {
 
 // SetBackend accepts a socket type and endpoint, and sends a message
 // to the zactor thread telling it to set up a socket bound to the endpoint.
-func (p *Proxy) SetBackend(sockType Type, endpoint string) error {
+func (p *Proxy) SetBackend(sockType int, endpoint string) error {
 	typeString := getStringType(sockType)
 
 	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), C.CString("BACKEND"))

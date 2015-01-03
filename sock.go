@@ -29,7 +29,7 @@ type Sock struct {
 	zsockT *C.struct__zsock_t
 	file   string
 	line   int
-	zType  Type
+	zType  int
 }
 
 func init() {
@@ -41,7 +41,7 @@ func init() {
 // NewSock creates a new socket.  The caller source and
 // line number are passed so CZMQ can report socket leaks
 // intelligently.
-func NewSock(t Type) *Sock {
+func NewSock(t int) *Sock {
 	var s *Sock
 	_, file, line, ok := runtime.Caller(1)
 
@@ -371,7 +371,7 @@ func (s *Sock) RecvString() (string, error) {
 }
 
 // GetType returns the socket's type
-func (s *Sock) GetType() Type {
+func (s *Sock) GetType() int {
 	return s.zType
 }
 
