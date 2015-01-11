@@ -1,21 +1,18 @@
 package goczmq
 
 import (
+	"bytes"
 	"testing"
 )
 
-func TestSock(t *testing.T) {
-
+func TestSendBytes(t *testing.T) {
 	pushSock := NewSock(PUSH)
 	defer pushSock.Destroy()
 
 	pullSock := NewSock(PULL)
 	defer pullSock.Destroy()
 
-	port, err := pullSock.Bind("inproc://test-sock")
-	if port != 0 {
-		t.Errorf("port for Bind should be 0, is %d", port)
-	}
+	_, err := pullSock.Bind("inproc://test-sock")
 	if err != nil {
 		t.Errorf("repSock.Bind failed: %s", err)
 	}
@@ -25,36 +22,104 @@ func TestSock(t *testing.T) {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	err = pushSock.SendBytes([]byte("Hello"), 0)
+	pushSock.SendBytes([]byte("Hello"), 0)
+	msg, flag, err := pullSock.RecvBytes()
+	if bytes.Compare(msg, []byte("Hello")) != 0 {
+		t.Errorf("expected 'Hello' received '%s'", msg)
+	}
+
+	if flag != 0 {
+		t.Errorf("flag shouled have been 0, is '%d'", flag)
+	}
+}
+
+func TestSendMultiBytes(t *testing.T) {
+	pushSock := NewSock(PUSH)
+	defer pushSock.Destroy()
+
+	pullSock := NewSock(PULL)
+	defer pullSock.Destroy()
+
+	_, err := pullSock.Bind("inproc://test-sock")
 	if err != nil {
-		t.Errorf("pushSock.SendBytes failed: %s", err)
+		t.Errorf("repSock.Bind failed: %s", err)
 	}
 
-	bmsg, f, err := pullSock.RecvBytes()
+	err = pushSock.Connect("inproc://test-sock")
 	if err != nil {
-		t.Errorf("pullSock.RecvBytes failed: %s", err)
+		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	if f == MORE {
-		t.Errorf("MORE set and should not be")
+	pushSock.SendMultiBytes([]byte("Hello"), []byte("World"))
+
+	msg, err := pullSock.RecvMultiBytes()
+	if len(msg) != 2 {
+		t.Errorf("expected 2 message parts, have %d", len(msg))
 	}
 
-	if string(bmsg) != "Hello" {
-		t.Errorf("expected 'Hello' received '%s'", string(bmsg))
+	if bytes.Compare(msg[0], []byte("Hello")) != 0 {
+		t.Errorf("first part should be 'Hello', is %s", msg[0])
 	}
 
-	err = pushSock.SendString("World", 0)
+	if bytes.Compare(msg[1], []byte("World")) != 0 {
+		t.Errorf("second part should be 'World', is %s", msg[1])
+	}
+}
+
+func TestSendString(t *testing.T) {
+	pushSock := NewSock(PUSH)
+	defer pushSock.Destroy()
+
+	pullSock := NewSock(PULL)
+	defer pullSock.Destroy()
+
+	_, err := pullSock.Bind("inproc://test-sock")
 	if err != nil {
-		t.Errorf("pushSock.SendString failed: %s", err)
+		t.Errorf("repSock.Bind failed: %s", err)
 	}
 
-	smsg, err := pullSock.RecvString()
+	err = pushSock.Connect("inproc://test-sock")
 	if err != nil {
-		t.Errorf("pullSock.RecvString failed: %s", err)
+		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	if smsg != "World" {
-		t.Errorf("expected 'World' received '%s'", smsg)
+	pushSock.SendString("Hello", 0)
+	msg, err := pullSock.RecvString()
+	if msg != "Hello" {
+		t.Errorf("expected 'Hello' received '%s'", msg)
+	}
+}
+
+func TestSendMultiString(t *testing.T) {
+	pushSock := NewSock(PUSH)
+	defer pushSock.Destroy()
+
+	pullSock := NewSock(PULL)
+	defer pullSock.Destroy()
+
+	_, err := pullSock.Bind("inproc://test-sock")
+	if err != nil {
+		t.Errorf("repSock.Bind failed: %s", err)
+	}
+
+	err = pushSock.Connect("inproc://test-sock")
+	if err != nil {
+		t.Errorf("reqSock.Connect failed: %s", err)
+	}
+
+	pushSock.SendMultiString("Hello", "World")
+
+	msg, err := pullSock.RecvMultiString()
+	if len(msg) != 2 {
+		t.Errorf("expected 2 message parts, have %d", len(msg))
+	}
+
+	if msg[0] != "Hello" {
+		t.Errorf("first part should be 'Hello', is %s", msg[0])
+	}
+
+	if msg[1] != "World" {
+		t.Errorf("second part should be 'World', is %s", msg[1])
 	}
 }
 

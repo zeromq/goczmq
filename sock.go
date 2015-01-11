@@ -337,12 +337,24 @@ func (s *Sock) SendBytes(data []byte, flags Flag) error {
 	return nil
 }
 
-// SendString sends a string via the socket.  For the flags
-// value, use 0 for a single message, or SNDMORE if it is
-// a multi-part message
-func (s *Sock) SendString(data string, flags Flag) error {
-	err := s.SendBytes([]byte(data), flags)
-	return err
+// SendMultiBytes accepts a variable number of byte arrays
+// and sends them as a multi-part message
+func (s *Sock) SendMultiBytes(parts ...[]byte) error {
+	var f Flag
+	numParts := len(parts)
+	for i, val := range parts {
+		if i == numParts-1 {
+			f = 0
+		} else {
+			f = MORE
+		}
+
+		err := s.SendBytes(val, f)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // RecvBytes reads a frame from the socket and returns it
@@ -360,6 +372,30 @@ func (s *Sock) RecvBytes() ([]byte, Flag, error) {
 	return b, Flag(more), nil
 }
 
+func (s *Sock) RecvMultiBytes() ([][]byte, error) {
+	var err error
+	var b []byte
+	var more Flag = 1
+	msg := make([][]byte, 0)
+
+	for more == 1 {
+		b, more, err = s.RecvBytes()
+		if err != nil {
+			return msg, err
+		}
+		msg = append(msg, b)
+	}
+	return msg, err
+}
+
+// SendString sends a string via the socket.  For the flags
+// value, use 0 for a single message, or SNDMORE if it is
+// a multi-part message
+func (s *Sock) SendString(data string, flags Flag) error {
+	err := s.SendBytes([]byte(data), flags)
+	return err
+}
+
 // RecvString reads a frame from the socket and returns it
 // as a string,  Returns an error if the call fails.
 func (s *Sock) RecvString() (string, error) {
@@ -368,6 +404,42 @@ func (s *Sock) RecvString() (string, error) {
 		return "", err
 	}
 	return string(b), err
+}
+
+func (s *Sock) RecvMultiString() ([]string, error) {
+	var err error
+	var b []byte
+	var more Flag = 1
+	msg := make([]string, 0)
+
+	for more == 1 {
+		b, more, err = s.RecvBytes()
+		if err != nil {
+			return msg, err
+		}
+		msg = append(msg, string(b))
+	}
+	return msg, err
+}
+
+// SendMultiString accepts a variable number of strings and
+// sends them as a multi-part message
+func (s *Sock) SendMultiString(parts ...string) error {
+	var f Flag
+	numParts := len(parts)
+	for i, val := range parts {
+		if i == numParts-1 {
+			f = 0
+		} else {
+			f = MORE
+		}
+
+		err := s.SendString(val, f)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // GetType returns the socket's type
