@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	czmq "github.com/taotetek/goczmq"
 	"log"
 	"time"
+
+	czmq "github.com/zeromq/goczmq"
 )
 
 func main() {
