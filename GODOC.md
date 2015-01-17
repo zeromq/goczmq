@@ -2,24 +2,26 @@
 --
     import "github.com/taotetek/goczmq"
 
-A Go Interface to CZMQ
+Package goczmq is a go interface to CZMQ
+
+go:generate gsl sockopts.xml
 
 ## Usage
 
 ```go
 const (
-	REQ    = Type(C.ZMQ_REQ)
-	REP    = Type(C.ZMQ_REP)
-	DEALER = Type(C.ZMQ_DEALER)
-	ROUTER = Type(C.ZMQ_ROUTER)
-	PUB    = Type(C.ZMQ_PUB)
-	SUB    = Type(C.ZMQ_SUB)
-	XPUB   = Type(C.ZMQ_XPUB)
-	XSUB   = Type(C.ZMQ_XSUB)
-	PUSH   = Type(C.ZMQ_PUSH)
-	PULL   = Type(C.ZMQ_PULL)
-	PAIR   = Type(C.ZMQ_PAIR)
-	STREAM = Type(C.ZMQ_STREAM)
+	REQ    = int(C.ZMQ_REQ)
+	REP    = int(C.ZMQ_REP)
+	DEALER = int(C.ZMQ_DEALER)
+	ROUTER = int(C.ZMQ_ROUTER)
+	PUB    = int(C.ZMQ_PUB)
+	SUB    = int(C.ZMQ_SUB)
+	XPUB   = int(C.ZMQ_XPUB)
+	XSUB   = int(C.ZMQ_XSUB)
+	PUSH   = int(C.ZMQ_PUSH)
+	PULL   = int(C.ZMQ_PULL)
+	PAIR   = int(C.ZMQ_PAIR)
+	STREAM = int(C.ZMQ_STREAM)
 
 	POLLIN  = int(C.ZMQ_POLLIN)
 	POLLOUT = int(C.ZMQ_POLLOUT)
@@ -68,6 +70,7 @@ Allow removes a previous Deny
 ```go
 func (a *Auth) Curve(allowed string) error
 ```
+Curve sets auth method to curve
 
 #### func (*Auth) Deny
 
@@ -88,6 +91,7 @@ Destroy destroys the auth actor.
 ```go
 func (a *Auth) Plain(directory string) error
 ```
+Plain sets auth method to plain
 
 #### func (*Auth) Verbose
 
@@ -175,14 +179,14 @@ NewCert creates a new empty Cert instance
 ```go
 func NewCertFromFile(filename string) (*Cert, error)
 ```
-Load loads a Cert from files
+NewCertFromFile Load loads a Cert from files
 
 #### func  NewCertFromKeys
 
 ```go
 func NewCertFromKeys(public []byte, secret []byte) (*Cert, error)
 ```
-NewCertFrom creates a new Cert from a public and private key
+NewCertFromKeys creates a new Cert from a public and private key
 
 #### func (*Cert) Apply
 
@@ -265,19 +269,19 @@ SetMeta sets meta data for a Cert
 
 ```go
 type Channeler struct {
-	Send    chan<- [][]byte
-	Receive <-chan [][]byte
-	Connect chan<- string
-	Error   <-chan error
+	SendChan   chan<- [][]byte
+	RecvChan   <-chan [][]byte
+	AttachChan chan<- string
+	ErrChan    <-chan error
 }
 ```
 
 Channeler serializes all access to a socket through a send, receive and close
-channel It starts two threads, one is used for receiving from the zeromq socket
+channel. It starts two threads, on is used for receiving from the zeromq socket.
 The other is used to listen to the receive channel, and send everything back to
-the socket thread for sending using an additional inproc socket The channeler
+the socket thrad for sending using an additional inproc socket. The channeler
 takes ownership of the passed socket and will destroy it when the close channel
-is closed
+is closed.
 
 #### func  NewChanneler
 
@@ -293,6 +297,7 @@ cause a panic
 ```go
 func (c *Channeler) Close()
 ```
+Close closes the close channel sigaling the channeler to shut down
 
 #### type Flag
 
@@ -376,7 +381,7 @@ Destroy destroys the Poller
 ```go
 func (p *Poller) Remove(reader *Sock)
 ```
-Remove removes a zsock from the poller
+Remove removes a Sock from the poller
 
 #### func (*Poller) Wait
 
@@ -393,15 +398,14 @@ type Proxy struct {
 }
 ```
 
-Zproxy actors switch messages between a frontend and backend socket. The Zproxy
-struct holds a reference to a CZMQ zactor_t.
+Proxy actors switch messages between a frontend and backend socket.
 
 #### func  NewProxy
 
 ```go
 func NewProxy() *Proxy
 ```
-NewZproxy creates a new Zproxy instance.
+NewProxy creates a new Proxy instance.
 
 #### func (*Proxy) Destroy
 
@@ -427,7 +431,7 @@ Resume sends a message to the zproxy actor telling it to resume.
 #### func (*Proxy) SetBackend
 
 ```go
-func (p *Proxy) SetBackend(sockType Type, endpoint string) error
+func (p *Proxy) SetBackend(sockType int, endpoint string) error
 ```
 SetBackend accepts a socket type and endpoint, and sends a message to the zactor
 thread telling it to set up a socket bound to the endpoint.
@@ -443,7 +447,7 @@ endpoint, that sends a copy of all messages passing through the proxy.
 #### func (*Proxy) SetFrontend
 
 ```go
-func (p *Proxy) SetFrontend(sockType Type, endpoint string) error
+func (p *Proxy) SetFrontend(sockType int, endpoint string) error
 ```
 SetFrontend accepts a socket type and endpoint, and sends a message to the
 zactor thread telling it to set up a socket bound to the endpoint.
@@ -544,7 +548,7 @@ list of topics to subscribe to. The socket will Connect by default.
 #### func  NewSock
 
 ```go
-func NewSock(t Type) *Sock
+func NewSock(t int) *Sock
 ```
 NewSock creates a new socket. The caller source and line number are passed so
 CZMQ can report socket leaks intelligently.
@@ -639,7 +643,7 @@ CurveServerkey returns the current value of the socket's curve_serverkey option
 ```go
 func (s *Sock) Destroy()
 ```
-Destroy destroys the underlying zsock_t.
+Destroy destroys the underlying zsockT.
 
 #### func (*Sock) Disconnect
 
@@ -666,7 +670,7 @@ Fd returns the current value of the socket's fd option
 #### func (*Sock) GetType
 
 ```go
-func (s *Sock) GetType() Type
+func (s *Sock) GetType() int
 ```
 GetType returns the socket's type
 
@@ -881,6 +885,18 @@ RecvMessageNoWait receives a full message from the socket and returns it as an
 array of byte arrays if one is waiting. returns an empty message and an error if
 one is not immediately available
 
+#### func (*Sock) RecvMultiBytes
+
+```go
+func (s *Sock) RecvMultiBytes() ([][]byte, error)
+```
+
+#### func (*Sock) RecvMultiString
+
+```go
+func (s *Sock) RecvMultiString() ([]string, error)
+```
+
 #### func (*Sock) RecvString
 
 ```go
@@ -908,6 +924,22 @@ of byte arrays. In the case of numeric data, the resulting byte array is a
 textual representation of the number (e.g., 100 turns to "100"). This may be
 changed to network byte ordered representation in the near future - I have not
 decided yet!
+
+#### func (*Sock) SendMultiBytes
+
+```go
+func (s *Sock) SendMultiBytes(parts ...[]byte) error
+```
+SendMultiBytes accepts a variable number of byte arrays and sends them as a
+multi-part message
+
+#### func (*Sock) SendMultiString
+
+```go
+func (s *Sock) SendMultiString(parts ...string) error
+```
+SendMultiString accepts a variable number of strings and sends them as a
+multi-part message
 
 #### func (*Sock) SendString
 
@@ -1333,8 +1365,8 @@ Type returns the current value of the socket's type option
 ```go
 func (s *Sock) Unbind(endpoint string) error
 ```
-Attach attaches a socket to multiple endpoints. Unbind unbinds a socket from an
-endpoint. If returns an error if the endpoint was not found
+Unbind unbinds a socket from an endpoint. If returns an error if the endpoint
+was not found
 
 #### func (*Sock) ZapDomain
 
@@ -1342,9 +1374,3 @@ endpoint. If returns an error if the endpoint was not found
 func (s *Sock) ZapDomain() string
 ```
 ZapDomain returns the current value of the socket's zap_domain option
-
-#### type Type
-
-```go
-type Type int
-```
