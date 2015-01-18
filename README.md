@@ -111,18 +111,18 @@ package main
 
 import (
 	"fmt"
-	czmq "github.com/taotetek/goczmq"
+	czmq "github.com/zeromq/goczmq"
 )
 
 func main() {
-	speaker := czmq.NewZbeacon()
+	speaker := czmq.NewBeacon()
 	addr, err := speaker.Configure(9999)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Printf("Beacon configured on: %s\n", addr)
 
-	listener := czmq.NewZbeacon()
+	listener := czmq.NewBeacon()
 	addr, err = listener.Configure(9999)
 	if err != nil {
 		panic(err)
