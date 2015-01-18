@@ -257,7 +257,7 @@ func TestAuthCurveAllow(t *testing.T) {
 	}
 	defer poller.Destroy()
 
-	s := poller.Wait(200)
+	s := poller.Wait(2000)
 	if s == nil {
 		t.Error("should be message waiting and there is none")
 	}
