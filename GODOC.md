@@ -865,8 +865,8 @@ RecoveryIvl returns the current value of the socket's recovery_ivl option
 ```go
 func (s *Sock) RecvFrame() ([]byte, Flag, error)
 ```
-RecvBytes reads a frame from the socket and returns it as a byte array, Returns
-an error if the call fails.
+RecvFrame reads a frame from the socket and returns it as a byte array, along
+with a more flag and and error (if there is an error)
 
 #### func (*Sock) RecvMessage
 
@@ -882,7 +882,7 @@ of byte arrays.
 func (s *Sock) RecvMessageNoWait() ([][]byte, error)
 ```
 RecvMessageNoWait receives a full message from the socket and returns it as an
-array of byte arrays if one is waiting. returns an empty message and an error if
+array of byte arrays if one is waiting. Returns an empty message and an error if
 one is not immediately available
 
 #### func (*Sock) SendFrame
@@ -898,8 +898,8 @@ single message, or SNDMORE if it is a multi-part message
 ```go
 func (s *Sock) SendMessage(parts [][]byte) error
 ```
-SendMessage accepts a variable number of byte arrays and sends them as a
-multi-part message
+SendMessage accepts an array of byte arrays and sends it as a multi-part
+message.
 
 #### func (*Sock) SetAffinity
 

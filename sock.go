@@ -223,7 +223,7 @@ func (s *Sock) Pollout() bool {
 
 // RecvMessageNoWait receives a full message from the socket
 // and returns it as an array of byte arrays if one is waiting.
-// returns an empty message and an error if one is not immediately
+// Returns an empty message and an error if one is not immediately
 // available
 func (s *Sock) RecvMessageNoWait() ([][]byte, error) {
 	var msg [][]byte
@@ -274,8 +274,8 @@ func (s *Sock) SendFrame(data []byte, flags Flag) error {
 	return nil
 }
 
-// SendMessage accepts a variable number of byte arrays
-// and sends them as a multi-part message
+// SendMessage accepts an array of byte arrays and
+// sends it as a multi-part message.
 func (s *Sock) SendMessage(parts [][]byte) error {
 	var f Flag
 	numParts := len(parts)
@@ -294,8 +294,9 @@ func (s *Sock) SendMessage(parts [][]byte) error {
 	return nil
 }
 
-// RecvBytes reads a frame from the socket and returns it
-// as a byte array,  Returns an error if the call fails.
+// RecvFrame reads a frame from the socket and returns it
+// as a byte array, along with a more flag and and error
+// (if there is an error)
 func (s *Sock) RecvFrame() ([]byte, Flag, error) {
 	frame := C.zframe_recv(unsafe.Pointer(s.zsockT))
 	if frame == nil {
