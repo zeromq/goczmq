@@ -9,10 +9,11 @@ package main
 
 import (
 	"fmt"
-	czmq "github.com/zeromq/goczmq"
 	"os"
 	"strconv"
 	"strings"
+
+	czmq "github.com/zeromq/goczmq"
 )
 
 func main() {
@@ -35,12 +36,12 @@ func main() {
 	subSock.Connect(pubEndpoint)
 
 	for i := 0; i < 100; i++ {
-		msg, err := subSock.RecvString()
+		msg, _, err := subSock.RecvFrame()
 		if err != nil {
 			panic(err)
 		}
 
-		weatherData := strings.Split(msg, " ")
+		weatherData := strings.Split(string(msg), " ")
 		temperature, err := strconv.ParseInt(weatherData[1], 10, 64)
 		if err == nil {
 			totalTemperature += int(temperature)
