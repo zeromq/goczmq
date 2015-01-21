@@ -23,15 +23,15 @@ func TestChanneler(t *testing.T) {
 	c.AttachChan <- "inproc://channeler-test"
 	c.SendChan <- [][]byte{[]byte("ready")}
 
-	m, err := d2.RecvString()
-	if m != "ready" {
+	m, err := d2.RecvMessage()
+	if string(m[0]) != "ready" {
 		t.Errorf("Expected 'ready' but got %s", m)
 		return
 	}
 
 	// The channeler listens on d1, do a send on d2 and verify the receive
 	// channel of the channeler gets it
-	err = d2.SendMessage("Test")
+	err = d2.SendFrame([]byte("Test"), 0)
 	if err != nil {
 		t.Errorf("d2.SendMessage failed: %s", err)
 		return

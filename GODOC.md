@@ -860,10 +860,10 @@ func (s *Sock) RecoveryIvl() int
 ```
 RecoveryIvl returns the current value of the socket's recovery_ivl option
 
-#### func (*Sock) RecvBytes
+#### func (*Sock) RecvFrame
 
 ```go
-func (s *Sock) RecvBytes() ([]byte, Flag, error)
+func (s *Sock) RecvFrame() ([]byte, Flag, error)
 ```
 RecvBytes reads a frame from the socket and returns it as a byte array, Returns
 an error if the call fails.
@@ -885,69 +885,21 @@ RecvMessageNoWait receives a full message from the socket and returns it as an
 array of byte arrays if one is waiting. returns an empty message and an error if
 one is not immediately available
 
-#### func (*Sock) RecvMultiBytes
+#### func (*Sock) SendFrame
 
 ```go
-func (s *Sock) RecvMultiBytes() ([][]byte, error)
+func (s *Sock) SendFrame(data []byte, flags Flag) error
 ```
-
-#### func (*Sock) RecvMultiString
-
-```go
-func (s *Sock) RecvMultiString() ([]string, error)
-```
-
-#### func (*Sock) RecvString
-
-```go
-func (s *Sock) RecvString() (string, error)
-```
-RecvString reads a frame from the socket and returns it as a string, Returns an
-error if the call fails.
-
-#### func (*Sock) SendBytes
-
-```go
-func (s *Sock) SendBytes(data []byte, flags Flag) error
-```
-SendBytes sends a byte array via the socket. For the flags value, use 0 for a
+SendFrame sends a byte array via the socket. For the flags value, use 0 for a
 single message, or SNDMORE if it is a multi-part message
 
 #### func (*Sock) SendMessage
 
 ```go
-func (s *Sock) SendMessage(parts ...interface{}) error
+func (s *Sock) SendMessage(parts [][]byte) error
 ```
-SendMessage is a variadic function that currently accepts ints, strings, and
-bytes, and sends them as an atomic multi frame message over zeromq as a series
-of byte arrays. In the case of numeric data, the resulting byte array is a
-textual representation of the number (e.g., 100 turns to "100"). This may be
-changed to network byte ordered representation in the near future - I have not
-decided yet!
-
-#### func (*Sock) SendMultiBytes
-
-```go
-func (s *Sock) SendMultiBytes(parts ...[]byte) error
-```
-SendMultiBytes accepts a variable number of byte arrays and sends them as a
+SendMessage accepts a variable number of byte arrays and sends them as a
 multi-part message
-
-#### func (*Sock) SendMultiString
-
-```go
-func (s *Sock) SendMultiString(parts ...string) error
-```
-SendMultiString accepts a variable number of strings and sends them as a
-multi-part message
-
-#### func (*Sock) SendString
-
-```go
-func (s *Sock) SendString(data string, flags Flag) error
-```
-SendString sends a string via the socket. For the flags value, use 0 for a
-single message, or SNDMORE if it is a multi-part message
 
 #### func (*Sock) SetAffinity
 

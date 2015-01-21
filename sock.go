@@ -221,69 +221,6 @@ func (s *Sock) Pollout() bool {
 	return s.Events() == POLLOUT
 }
 
-// SendMessage is a variadic function that currently accepts ints,
-// strings, and bytes, and sends them as an atomic multi frame
-// message over zeromq as a series of byte arrays.  In the case
-// of numeric data, the resulting byte array is a textual representation
-// of the number (e.g., 100 turns to "100").  This may be changed to
-// network byte ordered representation in the near future - I have
-// not decided yet!
-func (s *Sock) SendMessage(parts ...interface{}) error {
-	numParts := len(parts)
-	var f Flag
-
-	var allParts []interface{}
-	for _, part := range parts {
-		switch t := part.(type) {
-		case []string:
-			for _, p := range t {
-				allParts = append(allParts, p)
-			}
-		case [][]byte:
-			for _, p := range t {
-				allParts = append(allParts, p)
-			}
-		default:
-			allParts = append(allParts, t)
-		}
-	}
-
-	numParts = len(allParts)
-	for i, val := range allParts {
-		if i == numParts-1 {
-			f = 0
-		} else {
-			f = MORE
-		}
-
-		switch val.(type) {
-		case int:
-			err := s.SendString(fmt.Sprintf("%d", val.(int)), f)
-			if err != nil {
-				return err
-			}
-		case string:
-			err := s.SendString(val.(string), f)
-			if err != nil {
-				return err
-			}
-		case []byte:
-			var err error
-			if len(val.([]byte)) == 0 {
-				err = s.SendBytes([]byte{0}, f)
-			} else {
-				err = s.SendBytes(val.([]byte), f)
-			}
-			if err != nil {
-				return err
-			}
-		default:
-			return fmt.Errorf("unsupported type at index %d", i)
-		}
-	}
-	return nil
-}
-
 // RecvMessageNoWait receives a full message from the socket
 // and returns it as an array of byte arrays if one is waiting.
 // returns an empty message and an error if one is not immediately
@@ -295,7 +232,7 @@ func (s *Sock) RecvMessageNoWait() ([][]byte, error) {
 	}
 
 	for {
-		frame, flag, err := s.RecvBytes()
+		frame, flag, err := s.RecvFrame()
 		if err != nil {
 			return msg, err
 		}
@@ -313,7 +250,7 @@ func (s *Sock) RecvMessage() ([][]byte, error) {
 	var msg [][]byte
 
 	for {
-		frame, flag, err := s.RecvBytes()
+		frame, flag, err := s.RecvFrame()
 		if err != nil {
 			return msg, err
 		}
@@ -325,10 +262,10 @@ func (s *Sock) RecvMessage() ([][]byte, error) {
 	return msg, nil
 }
 
-// SendBytes sends a byte array via the socket.  For the flags
+// SendFrame sends a byte array via the socket.  For the flags
 // value, use 0 for a single message, or SNDMORE if it is
 // a multi-part message
-func (s *Sock) SendBytes(data []byte, flags Flag) error {
+func (s *Sock) SendFrame(data []byte, flags Flag) error {
 	frame := C.zframe_new(unsafe.Pointer(&data[0]), C.size_t(len(data)))
 	rc := C.zframe_send(&frame, unsafe.Pointer(s.zsockT), C.int(flags))
 	if rc == C.int(-1) {
@@ -337,9 +274,9 @@ func (s *Sock) SendBytes(data []byte, flags Flag) error {
 	return nil
 }
 
-// SendMultiBytes accepts a variable number of byte arrays
+// SendMessage accepts a variable number of byte arrays
 // and sends them as a multi-part message
-func (s *Sock) SendMultiBytes(parts ...[]byte) error {
+func (s *Sock) SendMessage(parts [][]byte) error {
 	var f Flag
 	numParts := len(parts)
 	for i, val := range parts {
@@ -349,7 +286,7 @@ func (s *Sock) SendMultiBytes(parts ...[]byte) error {
 			f = MORE
 		}
 
-		err := s.SendBytes(val, f)
+		err := s.SendFrame(val, f)
 		if err != nil {
 			return err
 		}
@@ -359,7 +296,7 @@ func (s *Sock) SendMultiBytes(parts ...[]byte) error {
 
 // RecvBytes reads a frame from the socket and returns it
 // as a byte array,  Returns an error if the call fails.
-func (s *Sock) RecvBytes() ([]byte, Flag, error) {
+func (s *Sock) RecvFrame() ([]byte, Flag, error) {
 	frame := C.zframe_recv(unsafe.Pointer(s.zsockT))
 	if frame == nil {
 		return []byte{0}, 0, errors.New("failed")
@@ -370,76 +307,6 @@ func (s *Sock) RecvBytes() ([]byte, Flag, error) {
 	more := C.zframe_more(frame)
 	C.zframe_destroy(&frame)
 	return b, Flag(more), nil
-}
-
-func (s *Sock) RecvMultiBytes() ([][]byte, error) {
-	var err error
-	var b []byte
-	var more Flag = 1
-	msg := make([][]byte, 0)
-
-	for more == 1 {
-		b, more, err = s.RecvBytes()
-		if err != nil {
-			return msg, err
-		}
-		msg = append(msg, b)
-	}
-	return msg, err
-}
-
-// SendString sends a string via the socket.  For the flags
-// value, use 0 for a single message, or SNDMORE if it is
-// a multi-part message
-func (s *Sock) SendString(data string, flags Flag) error {
-	err := s.SendBytes([]byte(data), flags)
-	return err
-}
-
-// RecvString reads a frame from the socket and returns it
-// as a string,  Returns an error if the call fails.
-func (s *Sock) RecvString() (string, error) {
-	b, _, err := s.RecvBytes()
-	if err != nil {
-		return "", err
-	}
-	return string(b), err
-}
-
-func (s *Sock) RecvMultiString() ([]string, error) {
-	var err error
-	var b []byte
-	var more Flag = 1
-	msg := make([]string, 0)
-
-	for more == 1 {
-		b, more, err = s.RecvBytes()
-		if err != nil {
-			return msg, err
-		}
-		msg = append(msg, string(b))
-	}
-	return msg, err
-}
-
-// SendMultiString accepts a variable number of strings and
-// sends them as a multi-part message
-func (s *Sock) SendMultiString(parts ...string) error {
-	var f Flag
-	numParts := len(parts)
-	for i, val := range parts {
-		if i == numParts-1 {
-			f = 0
-		} else {
-			f = MORE
-		}
-
-		err := s.SendString(val, f)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // GetType returns the socket's type
