@@ -56,7 +56,7 @@ func TestPoller(t *testing.T) {
 	}
 	defer pushSock.Destroy()
 
-	err = pushSock.SendString("Hello", 0)
+	err = pushSock.SendFrame([]byte("Hello"), 0)
 	if err != nil {
 		t.Errorf("SendMessage failed: %s", err)
 	}
@@ -66,13 +66,13 @@ func TestPoller(t *testing.T) {
 		t.Errorf("Wait did not return waiting socket")
 	}
 
-	msg, err := s.RecvString()
+	frame, _, err := s.RecvFrame()
 	if err != nil {
 		t.Errorf("RecvMessage failed: %s", err)
 	}
 
-	if msg != "Hello" {
-		t.Errorf("Expected 'Hello', received %s", msg)
+	if string(frame) != "Hello" {
+		t.Errorf("Expected 'Hello', received %s", string(frame))
 	}
 
 	pushSock2, err := NewPUSH("inproc://poller_pull2")
@@ -80,7 +80,7 @@ func TestPoller(t *testing.T) {
 		t.Errorf("NewPUSH failed: %s", err)
 	}
 
-	err = pushSock2.SendString("World", 0)
+	err = pushSock2.SendFrame([]byte("World"), 0)
 	if err != nil {
 		t.Errorf("SendMessage failed: %s", err)
 	}
@@ -90,13 +90,13 @@ func TestPoller(t *testing.T) {
 		t.Errorf("Wait did not return waiting socket")
 	}
 
-	msg, err = s.RecvString()
+	frame, _, err = s.RecvFrame()
 	if err != nil {
 		t.Errorf("RecvMessage failed: %s", err)
 	}
 
-	if msg != "World" {
-		t.Errorf("Expected 'World', received %s", msg)
+	if string(frame) != "World" {
+		t.Errorf("Expected 'World', received %s", string(frame))
 	}
 
 	poller.Remove(pullSock2)

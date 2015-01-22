@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestSendBytes(t *testing.T) {
+func TestSendFrame(t *testing.T) {
 	pushSock := NewSock(PUSH)
 	defer pushSock.Destroy()
 
@@ -22,8 +22,8 @@ func TestSendBytes(t *testing.T) {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	pushSock.SendBytes([]byte("Hello"), 0)
-	msg, flag, err := pullSock.RecvBytes()
+	pushSock.SendFrame([]byte("Hello"), 0)
+	msg, flag, err := pullSock.RecvFrame()
 	if bytes.Compare(msg, []byte("Hello")) != 0 {
 		t.Errorf("expected 'Hello' received '%s'", msg)
 	}
@@ -33,7 +33,7 @@ func TestSendBytes(t *testing.T) {
 	}
 }
 
-func TestSendMultiBytes(t *testing.T) {
+func TestSendMessage(t *testing.T) {
 	pushSock := NewSock(PUSH)
 	defer pushSock.Destroy()
 
@@ -50,131 +50,14 @@ func TestSendMultiBytes(t *testing.T) {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	pushSock.SendMultiBytes([]byte("Hello"), []byte("World"))
-
-	msg, err := pullSock.RecvMultiBytes()
-	if len(msg) != 2 {
-		t.Errorf("expected 2 message parts, have %d", len(msg))
+	pushSock.SendMessage([][]byte{[]byte("Hello")})
+	msg, err := pullSock.RecvMessage()
+	if err != nil {
+		t.Errorf("pullsock.RecvMessage() failed: %s", err)
 	}
 
 	if bytes.Compare(msg[0], []byte("Hello")) != 0 {
-		t.Errorf("first part should be 'Hello', is %s", msg[0])
-	}
-
-	if bytes.Compare(msg[1], []byte("World")) != 0 {
-		t.Errorf("second part should be 'World', is %s", msg[1])
-	}
-}
-
-func TestSendString(t *testing.T) {
-	pushSock := NewSock(PUSH)
-	defer pushSock.Destroy()
-
-	pullSock := NewSock(PULL)
-	defer pullSock.Destroy()
-
-	_, err := pullSock.Bind("inproc://test-sock")
-	if err != nil {
-		t.Errorf("repSock.Bind failed: %s", err)
-	}
-
-	err = pushSock.Connect("inproc://test-sock")
-	if err != nil {
-		t.Errorf("reqSock.Connect failed: %s", err)
-	}
-
-	pushSock.SendString("Hello", 0)
-	msg, err := pullSock.RecvString()
-	if msg != "Hello" {
 		t.Errorf("expected 'Hello' received '%s'", msg)
-	}
-}
-
-func TestSendMultiString(t *testing.T) {
-	pushSock := NewSock(PUSH)
-	defer pushSock.Destroy()
-
-	pullSock := NewSock(PULL)
-	defer pullSock.Destroy()
-
-	_, err := pullSock.Bind("inproc://test-sock")
-	if err != nil {
-		t.Errorf("repSock.Bind failed: %s", err)
-	}
-
-	err = pushSock.Connect("inproc://test-sock")
-	if err != nil {
-		t.Errorf("reqSock.Connect failed: %s", err)
-	}
-
-	pushSock.SendMultiString("Hello", "World")
-
-	msg, err := pullSock.RecvMultiString()
-	if len(msg) != 2 {
-		t.Errorf("expected 2 message parts, have %d", len(msg))
-	}
-
-	if msg[0] != "Hello" {
-		t.Errorf("first part should be 'Hello', is %s", msg[0])
-	}
-
-	if msg[1] != "World" {
-		t.Errorf("second part should be 'World', is %s", msg[1])
-	}
-}
-
-func TestMessage(t *testing.T) {
-	pushSock := NewSock(PUSH)
-	defer pushSock.Destroy()
-
-	pullSock := NewSock(PULL)
-	defer pullSock.Destroy()
-
-	port, err := pullSock.Bind("inproc://test-msg")
-	if port != 0 {
-		t.Errorf("port for Bind should be 0, is %d", port)
-	}
-	if err != nil {
-		t.Errorf("repSock.Bind failed: %s", err)
-	}
-
-	err = pushSock.Connect("inproc://test-msg")
-	if err != nil {
-		t.Errorf("reqSock.Connect failed: %s", err)
-	}
-
-	err = pushSock.SendMessage([]byte("The"), "Answer", []byte("Is"), 42, []byte(""))
-	if err != nil {
-		t.Errorf("pushSock.SendMessages failed: %s", err)
-	}
-
-	multiMsg, err := pullSock.RecvMessage()
-	if err != nil {
-		t.Errorf("pullSock.RecvMessage failed: %s", err)
-	}
-
-	if len(multiMsg) != 5 {
-		t.Errorf("pullSock.recvMessage expected 4 message frames, got %d", len(multiMsg))
-	}
-
-	if string(multiMsg[0]) != "The" {
-		t.Errorf("expected 'The', received '%s'", string(multiMsg[0]))
-	}
-
-	if string(multiMsg[1]) != "Answer" {
-		t.Errorf("expected 'Answer', received '%s'", string(multiMsg[1]))
-	}
-
-	if string(multiMsg[2]) != "Is" {
-		t.Errorf("expected 'Is', received '%s'", string(multiMsg[2]))
-	}
-
-	if string(multiMsg[3]) != "42" {
-		t.Errorf("expected '42', received '%s'", string(multiMsg[3]))
-	}
-
-	if string(multiMsg[4]) != string([]byte{0}) {
-		t.Errorf("expected null byte, received '%s'", string(multiMsg[4]))
 	}
 }
 
@@ -201,18 +84,18 @@ func TestPUBSUB(t *testing.T) {
 	}
 	defer sub.Destroy()
 
-	err = pub.SendMessage("test pub sub")
+	err = pub.SendFrame([]byte("test pub sub"), 0)
 	if err != nil {
-		t.Errorf("SendMessage failed: %s", err)
+		t.Errorf("SendFrame failed: %s", err)
 	}
 
-	msg, err := sub.RecvMessage()
+	frame, _, err := sub.RecvFrame()
 	if err != nil {
-		t.Errorf("RecvMessage failed: %s", err)
+		t.Errorf("RecvFrame failed: %s", err)
 	}
 
-	if string(msg[0]) != "test pub sub" {
-		t.Errorf("Expected 'test pub sub', received %s", msg)
+	if string(frame) != "test pub sub" {
+		t.Errorf("Expected 'test pub sub', received %s", frame)
 	}
 }
 
@@ -239,32 +122,32 @@ func TestREQREP(t *testing.T) {
 	}
 	defer req.Destroy()
 
-	err = req.SendMessage("Hello")
+	err = req.SendFrame([]byte("Hello"), 0)
 	if err != nil {
-		t.Errorf("SendMessage failed: %s", err)
+		t.Errorf("SendFrame failed: %s", err)
 	}
 
-	reqmsg, err := rep.RecvMessage()
+	reqframe, _, err := rep.RecvFrame()
 	if err != nil {
-		t.Errorf("RecvMessage failed: %s", err)
+		t.Errorf("RecvFrame failed: %s", err)
 	}
 
-	if string(reqmsg[0]) != "Hello" {
-		t.Errorf("Expected 'Hello', received '%s", string(reqmsg[0]))
+	if string(reqframe) != "Hello" {
+		t.Errorf("Expected 'Hello', received '%s", string(reqframe))
 	}
 
-	err = rep.SendMessage("World")
+	err = rep.SendFrame([]byte("World"), 0)
 	if err != nil {
-		t.Errorf("SendMessage failed: %s", err)
+		t.Errorf("SendFrame failed: %s", err)
 	}
 
-	repmsg, err := req.RecvMessage()
+	repframe, _, err := req.RecvFrame()
 	if err != nil {
-		t.Errorf("RecvMessage failed: %s", err)
+		t.Errorf("RecvFrame failed: %s", err)
 	}
 
-	if string(repmsg[0]) != "World" {
-		t.Errorf("Expected 'World', received '%s", string(repmsg[0]))
+	if string(repframe) != "World" {
+		t.Errorf("Expected 'World', received '%s", string(repframe))
 	}
 
 }
@@ -292,9 +175,14 @@ func TestPUSHPULL(t *testing.T) {
 	}
 	defer pull.Destroy()
 
-	err = push.SendMessage("Hello", "World")
+	err = push.SendFrame([]byte("Hello"), 1)
 	if err != nil {
-		t.Errorf("SendMessage failed: %s", err)
+		t.Errorf("SendFrame failed: %s", err)
+	}
+
+	err = push.SendFrame([]byte("World"), 0)
+	if err != nil {
+		t.Errorf("SendFrame failed: %s", err)
 	}
 
 	msg, err := pull.RecvMessage()
@@ -334,7 +222,7 @@ func TestROUTERDEALER(t *testing.T) {
 	}
 	defer router.Destroy()
 
-	err = dealer.SendMessage("Hello")
+	err = dealer.SendFrame([]byte("Hello"), 0)
 	if err != nil {
 		t.Errorf("SendMessage failed: %s", err)
 	}
@@ -452,9 +340,9 @@ func TestPollin(t *testing.T) {
 		t.Errorf("Pollin returned true should be false")
 	}
 
-	err = push.SendMessage("Hello", "World")
+	err = push.SendFrame([]byte("Hello World"), 0)
 	if err != nil {
-		t.Errorf("SendMessage failed: %s", err)
+		t.Errorf("SendFrame failed: %s", err)
 	}
 
 	if !pull.Pollin() {

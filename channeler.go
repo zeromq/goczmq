@@ -70,12 +70,24 @@ func (c *Channeler) loopSend(closeChan <-chan struct{}, sendChan <-chan [][]byte
 	for {
 		select {
 		case <-closeChan:
-			_ = push.SendMessage("close")
+			_ = push.SendFrame([]byte("close"), 0)
 			return
 		case msg := <-sendChan:
-			push.SendMessage("msg", msg)
+			push.SendFrame([]byte("msg"), 1)
+			var f Flag
+			numFrames := len(msg)
+			for i, val := range msg {
+				if i == numFrames-1 {
+					f = 0
+				} else {
+					f = MORE
+				}
+
+				_ = push.SendFrame(val, f)
+			}
 		case endpoint := <-attachChan:
-			push.SendMessage("attach", endpoint)
+			_ = push.SendFrame([]byte("attach"), 1)
+			_ = push.SendFrame([]byte(endpoint), 0)
 		}
 	}
 }

@@ -29,7 +29,7 @@ func main() {
 		defer pushSock.Destroy()
 		for i := 0; i < *messageCount; i++ {
 			payload := make([]byte, *messageSize)
-			err = pushSock.SendMessage(payload)
+			err = pushSock.SendMessage([][]byte{payload})
 			if err != nil {
 				panic(err)
 			}

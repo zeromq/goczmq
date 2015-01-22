@@ -31,7 +31,7 @@ func main() {
 
 		for i := 0; i < *messageCount; i++ {
 			payload := make([]byte, *messageSize)
-			err = pushSock.SendBytes(payload, 0)
+			err = pushSock.SendFrame(payload, 0)
 			if err != nil {
 				panic(err)
 			}
@@ -40,7 +40,7 @@ func main() {
 
 	startTime := time.Now()
 	for i := 0; i < *messageCount; i++ {
-		msg, _, err := pullSock.RecvBytes()
+		msg, _, err := pullSock.RecvFrame()
 		if err != nil {
 			panic(err)
 		}

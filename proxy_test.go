@@ -52,11 +52,11 @@ func TestZproxy(t *testing.T) {
 	defer tap.Destroy()
 
 	// send some messages and check they arrived
-	faucet.SendBytes([]byte("Hello"), 0)
-	faucet.SendBytes([]byte("World"), 0)
+	faucet.SendFrame([]byte("Hello"), 0)
+	faucet.SendFrame([]byte("World"), 0)
 
 	// check the tap
-	b, f, err := tap.RecvBytes()
+	b, f, err := tap.RecvFrame()
 	if err != nil {
 		t.Error(err)
 	}
@@ -69,7 +69,7 @@ func TestZproxy(t *testing.T) {
 		t.Errorf("tap expected %s, received %s", "Hello", string(b))
 	}
 
-	b, f, err = tap.RecvBytes()
+	b, f, err = tap.RecvFrame()
 	if err != nil {
 		t.Error(err)
 	}
@@ -83,7 +83,7 @@ func TestZproxy(t *testing.T) {
 	}
 
 	// check the sink
-	b, f, err = sink.RecvBytes()
+	b, f, err = sink.RecvFrame()
 	if err != nil {
 		t.Error(err)
 	}
@@ -96,7 +96,7 @@ func TestZproxy(t *testing.T) {
 		t.Errorf("sink expected %s, received %s", "Hello", string(b))
 	}
 
-	b, f, err = sink.RecvBytes()
+	b, f, err = sink.RecvFrame()
 	if err != nil {
 		t.Error(err)
 	}
@@ -115,7 +115,7 @@ func TestZproxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	faucet.SendBytes([]byte("Belated Hello"), 0)
+	faucet.SendFrame([]byte("Belated Hello"), 0)
 
 	if sink.Pollin() {
 		t.Error("Paused proxy should not pass message but did")
@@ -130,7 +130,7 @@ func TestZproxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	b, f, err = sink.RecvBytes()
+	b, f, err = sink.RecvFrame()
 	if err != nil {
 		t.Error(err)
 	}
@@ -143,7 +143,7 @@ func TestZproxy(t *testing.T) {
 		t.Errorf("sink expected %s, received %s", "Belated Hello", string(b))
 	}
 
-	b, f, err = tap.RecvBytes()
+	b, f, err = tap.RecvFrame()
 	if err != nil {
 		t.Error(err)
 	}

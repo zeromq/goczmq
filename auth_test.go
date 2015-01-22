@@ -50,7 +50,8 @@ func TestAuthIPAllow(t *testing.T) {
 	}
 
 	// send a hello world message
-	client.SendString("Hello, World", 0)
+	client.SendFrame([]byte("Hello"), 1)
+	client.SendFrame([]byte("World"), 0)
 
 	// create a poller and add the server socket to it
 	poller, err := NewPoller(server)
@@ -66,12 +67,12 @@ func TestAuthIPAllow(t *testing.T) {
 	}
 
 	// receive the message and check the contents
-	msg, err := s.RecvString()
+	msg, err := s.RecvMessage()
 	if err != nil {
 		t.Error(err)
 	}
 
-	if msg != "Hello, World" {
+	if string(msg[0]) != "Hello" || string(msg[1]) != "World" {
 		t.Error("message not sent properly")
 	}
 }
@@ -151,7 +152,8 @@ func TestAuthPlain(t *testing.T) {
 	// connect to the server as the good client, and send a message.
 	// then poll the server to verify the message arrived, and
 	// receive it.
-	goodClient.SendString("Hello, World", 0)
+	goodClient.SendFrame([]byte("Hello"), 1)
+	goodClient.SendFrame([]byte("World"), 0)
 
 	poller, err := NewPoller(server)
 	if err != nil {
@@ -165,12 +167,12 @@ func TestAuthPlain(t *testing.T) {
 		t.Error("poller should have waiting message!")
 	}
 
-	msg, err := s.RecvString()
+	msg, err := s.RecvMessage()
 	if err != nil {
 		t.Error(err)
 	}
 
-	if msg != "Hello, World" {
+	if string(msg[0]) != "Hello" || string(msg[1]) != "World" {
 		t.Error("message not sent properly")
 	}
 
@@ -182,7 +184,8 @@ func TestAuthPlain(t *testing.T) {
 	}
 
 	// try to send a message.  this should succeed.
-	badClient.SendString("Hello, World", 0)
+	badClient.SendFrame([]byte("Hello"), 1)
+	badClient.SendFrame([]byte("World"), 0)
 
 	// poll for a message.  there should be one.
 	s = poller.Wait(200)
@@ -248,7 +251,8 @@ func TestAuthCurveAllow(t *testing.T) {
 	}
 
 	// try to send a message from the good client
-	goodClient.SendString("Hello, World", 0)
+	goodClient.SendFrame([]byte("Hello"), 1)
+	goodClient.SendFrame([]byte("World"), 0)
 
 	// see if we got a message
 	poller, err := NewPoller(server)
@@ -262,17 +266,18 @@ func TestAuthCurveAllow(t *testing.T) {
 		t.Error("should be message waiting and there is none")
 	}
 
-	msg, err := s.RecvString()
+	msg, err := s.RecvMessage()
 	if err != nil {
 		t.Error(err)
 	}
 
-	if msg != "Hello, World" {
+	if string(msg[0]) != "Hello" || string(msg[1]) != "World" {
 		t.Error("message not sent properly")
 	}
 
 	// try to send a message from the bad client
-	badClient.SendString("Hello, Bad World", 0)
+	badClient.SendFrame([]byte("Hello"), 1)
+	badClient.SendFrame([]byte("Bad World"), 0)
 
 	// poll and verify there is no waiting message from
 	// the bad client.
@@ -360,7 +365,7 @@ func TestAuthCurveCertificate(t *testing.T) {
 	}
 
 	// try to send a message from the good client
-	goodClient.SendString("Hello, Good World", 0)
+	goodClient.SendFrame([]byte("Hello, Good World!"), 0)
 
 	// create a poller to poll the server, and verify
 	// the message from the good client was received.
@@ -375,17 +380,17 @@ func TestAuthCurveCertificate(t *testing.T) {
 		t.Error("should be message waiting and there is none")
 	}
 
-	msg, err := s.RecvString()
+	msg, err := s.RecvMessage()
 	if err != nil {
 		t.Error(err)
 	}
 
-	if msg != "Hello, Good World" {
+	if string(msg[0]) != "Hello, Good World!" {
 		t.Error("message not sent properly")
 	}
 
 	// try to send a message from the bad client
-	badClient.SendString("Hello, Bad World", 0)
+	badClient.SendFrame([]byte("Hello, Bad World"), 0)
 
 	// poll and verify there is no waiting message from
 	// the bad client.

@@ -8,8 +8,9 @@ package main
 
 import (
 	"fmt"
-	czmq "github.com/zeromq/goczmq"
 	"math/rand"
+
+	czmq "github.com/zeromq/goczmq"
 )
 
 func main() {
@@ -28,7 +29,7 @@ func main() {
 		relHumidity := rand.Intn(50) + 10
 
 		msg := fmt.Sprintf("%d %d %d", zipcode, temperature, relHumidity)
-		err := pubSock.SendMessage(msg)
+		err := pubSock.SendFrame([]byte(msg), 0)
 		if err != nil {
 			panic(err)
 		}
