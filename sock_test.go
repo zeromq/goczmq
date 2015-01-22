@@ -22,14 +22,41 @@ func TestSendFrame(t *testing.T) {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	pushSock.SendFrame([]byte("Hello"), 0)
-	msg, flag, err := pullSock.RecvFrame()
-	if bytes.Compare(msg, []byte("Hello")) != 0 {
-		t.Errorf("expected 'Hello' received '%s'", msg)
+	err = pushSock.SendFrame([]byte("Hello"), 0)
+	if err != nil {
+		t.Errorf("pushSock.SendFrame failed: %s", err)
+	}
+
+	frame, flag, err := pullSock.RecvFrame()
+	if bytes.Compare(frame, []byte("Hello")) != 0 {
+		t.Errorf("expected 'Hello' received '%s'", frame)
+	}
+
+	frame, flag, err = pullSock.RecvFrameNoWait()
+	if err == nil {
+		t.Errorf("RecvFrameNoWait should return error if no frame waiting")
 	}
 
 	if flag != 0 {
 		t.Errorf("flag shouled have been 0, is '%d'", flag)
+	}
+
+	err = pushSock.SendFrame([]byte("World"), 0)
+	if err != nil {
+		t.Errorf("pushSock.SendFrame failed: %s", err)
+	}
+
+	frame, flag, err = pullSock.RecvFrameNoWait()
+	if err != nil {
+		t.Errorf("pullsock.RecvFrameNoWait failed: %s", err)
+	}
+
+	if flag != 0 {
+		t.Errorf("flag shouled have been 0, is '%d'", flag)
+	}
+
+	if string(frame) != "World" {
+		t.Errorf("expected 'World' received '%s'", frame)
 	}
 }
 
@@ -58,6 +85,21 @@ func TestSendMessage(t *testing.T) {
 
 	if bytes.Compare(msg[0], []byte("Hello")) != 0 {
 		t.Errorf("expected 'Hello' received '%s'", msg)
+	}
+
+	msg, err = pullSock.RecvMessageNoWait()
+	if err == nil {
+		t.Errorf("RecvMessageNoWait should return error if no frame waiting")
+	}
+
+	pushSock.SendMessage([][]byte{[]byte("World")})
+	msg, err = pullSock.RecvMessageNoWait()
+	if err != nil {
+		t.Errorf("pullsock.RecvMessage() failed: %s", err)
+	}
+
+	if bytes.Compare(msg[0], []byte("World")) != 0 {
+		t.Errorf("expected 'World' received '%s'", msg)
 	}
 }
 
