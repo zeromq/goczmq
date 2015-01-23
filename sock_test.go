@@ -28,6 +28,10 @@ func TestSendFrame(t *testing.T) {
 	}
 
 	frame, flag, err := pullSock.RecvFrame()
+	if err != nil {
+		t.Errorf("pullSock.RecvFrame failed: %s", err)
+	}
+
 	if bytes.Compare(frame, []byte("Hello")) != 0 {
 		t.Errorf("expected 'Hello' received '%s'", frame)
 	}
@@ -58,6 +62,39 @@ func TestSendFrame(t *testing.T) {
 	if string(frame) != "World" {
 		t.Errorf("expected 'World' received '%s'", frame)
 	}
+}
+
+func TestSendEmptyFrame(t *testing.T) {
+	pushSock := NewSock(PUSH)
+	defer pushSock.Destroy()
+
+	pullSock := NewSock(PULL)
+	defer pullSock.Destroy()
+
+	_, err := pullSock.Bind("inproc://test-sock")
+	if err != nil {
+		t.Errorf("repSock.Bind failed: %s", err)
+	}
+
+	err = pushSock.Connect("inproc://test-sock")
+	if err != nil {
+		t.Errorf("reqSock.Connect failed: %s", err)
+	}
+
+	empty := make([]byte, 0)
+	err = pushSock.SendFrame(empty, 0)
+	if err != nil {
+		t.Errorf("pushSock.SendFrame failed: %s", err)
+	}
+
+	frame, _, err := pullSock.RecvFrame()
+	if err != nil {
+		t.Errorf("pullSock.RecvFrame failed: %s", err)
+	}
+	if len(frame) != 0 {
+		t.Errorf("frame should be empty but had len %d", len(frame))
+	}
+
 }
 
 func TestSendMessage(t *testing.T) {
