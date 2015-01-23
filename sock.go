@@ -226,6 +226,7 @@ func (s *Sock) Pollout() bool {
 // a multi-part message
 func (s *Sock) SendFrame(data []byte, flags Flag) error {
 	var rc C.int
+
 	if len(data) == 0 {
 		frame := C.zframe_new(unsafe.Pointer(C.CString("")), C.size_t(len(data)))
 		rc = C.zframe_send(&frame, unsafe.Pointer(s.zsockT), C.int(flags))
@@ -233,9 +234,11 @@ func (s *Sock) SendFrame(data []byte, flags Flag) error {
 		frame := C.zframe_new(unsafe.Pointer(&data[0]), C.size_t(len(data)))
 		rc = C.zframe_send(&frame, unsafe.Pointer(s.zsockT), C.int(flags))
 	}
+
 	if rc == C.int(-1) {
 		return errors.New("failed")
 	}
+
 	return nil
 }
 
