@@ -23,10 +23,9 @@ func NewReadChunker(s *Sock, cs int64) *ReadChunker {
 }
 
 // ReadFrom reads from an io.Reader into a []byte of chunkSize.
-// It writes each chunk of data as a frame to the socket.
-// Each frame will have the more flag set until the last frame.
-// All data from the io.Reader is sent in one atomic multi
-// frame message
+// It writes each chunk of data as a two frame message. The first
+// frame is used to indicate if this is the last message or if
+// there are more messages containing file data to come.
 func (c *ReadChunker) ReadFrom(r io.Reader) (int64, error) {
 	var total int64
 	var n int
@@ -77,7 +76,7 @@ func NewWriteChunker(s *Sock) *WriteChunker {
 	}
 }
 
-// WriteTo to reads each frame of a multi part message one at
+// WriteTo to reads each chunk message one at
 // a time and writes  them to an io.Writer.
 func (c *WriteChunker) WriteTo(w io.Writer) (int64, error) {
 	var total int64
