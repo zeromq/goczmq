@@ -466,7 +466,7 @@ type ReadChunker struct {
 }
 ```
 
-ReadChunker accepts a socket and a chunkSize, and implements the ReadFrom
+ReadChunker accepts a socket and a chunkSize, and implements the ReaderFrom
 interface.
 
 #### func  NewReadChunker
@@ -474,7 +474,8 @@ interface.
 ```go
 func NewReadChunker(s *Sock, cs int64) *ReadChunker
 ```
-NewReadChunker takes a socket and a chunkSize and returns a new chunker instance
+NewReadChunker takes a socket and a chunkSize and returns a new ReadChunker
+instance
 
 #### func (*ReadChunker) Destroy
 
@@ -1369,3 +1370,34 @@ was not found
 func (s *Sock) ZapDomain() string
 ```
 ZapDomain returns the current value of the socket's zap_domain option
+
+#### type WriteChunker
+
+```go
+type WriteChunker struct {
+}
+```
+
+WriteChunker accepts a socket and implements the WriterTo interface
+
+#### func  NewWriteChunker
+
+```go
+func NewWriteChunker(s *Sock) *WriteChunker
+```
+NewWriteChunker takes a socket and returns a new WriteChunker instance
+
+#### func (*WriteChunker) Destroy
+
+```go
+func (c *WriteChunker) Destroy()
+```
+Destroy calls destroy on the underlying socket to clean it up
+
+#### func (*WriteChunker) WriteTo
+
+```go
+func (c *WriteChunker) WriteTo(w io.Writer) (int64, error)
+```
+WriteTo to reads each frame of a multi part message one at a time and writes
+them to an io.Writer.
