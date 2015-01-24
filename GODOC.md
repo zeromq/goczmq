@@ -459,6 +459,40 @@ func (p *Proxy) Verbose() error
 ```
 Verbose sets the proxy to log information to stdout.
 
+#### type ReadChunker
+
+```go
+type ReadChunker struct {
+}
+```
+
+ReadChunker accepts a socket and a chunkSize, and implements the ReadFrom
+interface.
+
+#### func  NewReadChunker
+
+```go
+func NewReadChunker(s *Sock, cs int64) *ReadChunker
+```
+NewReadChunker takes a socket and a chunkSize and returns a new chunker instance
+
+#### func (*ReadChunker) Destroy
+
+```go
+func (c *ReadChunker) Destroy()
+```
+Destroy calls destroy on the underlying socket to clean it up
+
+#### func (*ReadChunker) ReadFrom
+
+```go
+func (c *ReadChunker) ReadFrom(r io.Reader) (int64, error)
+```
+ReadFrom reads from an io.Reader into a []byte of chunkSize. It writes each
+chunk of data as a frame to the socket. Each frame will have the more flag set
+until the last frame. All data from the io.Reader is sent in one atomic multi
+frame message
+
 #### type Sock
 
 ```go
@@ -867,6 +901,15 @@ func (s *Sock) RecvFrame() ([]byte, Flag, error)
 ```
 RecvFrame reads a frame from the socket and returns it as a byte array, along
 with a more flag and and error (if there is an error)
+
+#### func (*Sock) RecvFrameNoWait
+
+```go
+func (s *Sock) RecvFrameNoWait() ([]byte, Flag, error)
+```
+RecvFrameNoWait receives a frame from the socket and returns it as a byte array
+if one is waiting. Returns an empty frame, a 0 more flag and an error if one is
+not immediately available
 
 #### func (*Sock) RecvMessage
 
