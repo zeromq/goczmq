@@ -459,6 +459,41 @@ func (p *Proxy) Verbose() error
 ```
 Verbose sets the proxy to log information to stdout.
 
+#### type ReadChunker
+
+```go
+type ReadChunker struct {
+}
+```
+
+ReadChunker accepts a socket and a chunkSize, and implements the ReaderFrom
+interface.
+
+#### func  NewReadChunker
+
+```go
+func NewReadChunker(s *Sock, cs int64) *ReadChunker
+```
+NewReadChunker takes a socket and a chunkSize and returns a new ReadChunker
+instance
+
+#### func (*ReadChunker) Destroy
+
+```go
+func (c *ReadChunker) Destroy()
+```
+Destroy calls destroy on the underlying socket to clean it up
+
+#### func (*ReadChunker) ReadFrom
+
+```go
+func (c *ReadChunker) ReadFrom(r io.Reader) (int64, error)
+```
+ReadFrom reads from an io.Reader into a []byte of chunkSize. It writes each
+chunk of data as a two frame message. The first frame is used to indicate if
+this is the last message or if there are more messages containing file data to
+come.
+
 #### type Sock
 
 ```go
@@ -867,6 +902,15 @@ func (s *Sock) RecvFrame() ([]byte, Flag, error)
 ```
 RecvFrame reads a frame from the socket and returns it as a byte array, along
 with a more flag and and error (if there is an error)
+
+#### func (*Sock) RecvFrameNoWait
+
+```go
+func (s *Sock) RecvFrameNoWait() ([]byte, Flag, error)
+```
+RecvFrameNoWait receives a frame from the socket and returns it as a byte array
+if one is waiting. Returns an empty frame, a 0 more flag and an error if one is
+not immediately available
 
 #### func (*Sock) RecvMessage
 
@@ -1326,3 +1370,34 @@ was not found
 func (s *Sock) ZapDomain() string
 ```
 ZapDomain returns the current value of the socket's zap_domain option
+
+#### type WriteChunker
+
+```go
+type WriteChunker struct {
+}
+```
+
+WriteChunker accepts a socket and implements the WriterTo interface
+
+#### func  NewWriteChunker
+
+```go
+func NewWriteChunker(s *Sock) *WriteChunker
+```
+NewWriteChunker takes a socket and returns a new WriteChunker instance
+
+#### func (*WriteChunker) Destroy
+
+```go
+func (c *WriteChunker) Destroy()
+```
+Destroy calls destroy on the underlying socket to clean it up
+
+#### func (*WriteChunker) WriteTo
+
+```go
+func (c *WriteChunker) WriteTo(w io.Writer) (int64, error)
+```
+WriteTo to reads each chunk message one at a time and writes them to an
+io.Writer.
