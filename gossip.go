@@ -13,9 +13,7 @@ zactor_t *Gossip_new (char *name) {
 */
 import "C"
 
-import (
-	"unsafe"
-)
+import "unsafe"
 
 // Gossip actors use a gossip protocol for decentralized configuration management.
 // Gossip nodes form a loosely connected network that publishes and redistributed
@@ -40,6 +38,41 @@ func (g *Gossip) Bind(endpoint string) error {
 	}
 
 	rc = C.zstr_send(unsafe.Pointer(g.zactorT), C.CString(endpoint))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	return nil
+}
+
+// Connect connects the gossip service to a specified endpoint
+func (g *Gossip) Connect(endpoint string) error {
+	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), C.CString("CONNECT"))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_send(unsafe.Pointer(g.zactorT), C.CString(endpoint))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	return nil
+}
+
+// Publish announces a key / value pair
+func (g *Gossip) Publish(key, value string) error {
+	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), C.CString("PUBLISH"))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_sendm(unsafe.Pointer(g.zactorT), C.CString(key))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_send(unsafe.Pointer(g.zactorT), C.CString(value))
 	if rc == -1 {
 		return ErrActorCmd
 	}
