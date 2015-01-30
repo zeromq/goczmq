@@ -224,7 +224,7 @@ func (s *Sock) Pollout() bool {
 // SendFrame sends a byte array via the socket.  For the flags
 // value, use 0 for a single message, or SNDMORE if it is
 // a multi-part message
-func (s *Sock) SendFrame(data []byte, flags Flag) error {
+func (s *Sock) SendFrame(data []byte, flags int) error {
 	var rc C.int
 
 	if len(data) == 0 {
@@ -245,7 +245,7 @@ func (s *Sock) SendFrame(data []byte, flags Flag) error {
 // RecvFrame reads a frame from the socket and returns it
 // as a byte array, along with a more flag and and error
 // (if there is an error)
-func (s *Sock) RecvFrame() ([]byte, Flag, error) {
+func (s *Sock) RecvFrame() ([]byte, int, error) {
 	frame := C.zframe_recv(unsafe.Pointer(s.zsockT))
 	if frame == nil {
 		return []byte{0}, 0, errors.New("failed")
@@ -255,16 +255,16 @@ func (s *Sock) RecvFrame() ([]byte, Flag, error) {
 	b := C.GoBytes(unsafe.Pointer(dataPtr), C.int(dataSize))
 	more := C.zframe_more(frame)
 	C.zframe_destroy(&frame)
-	return b, Flag(more), nil
+	return b, int(more), nil
 }
 
 // RecvFrameNoWait receives a frame from the socket
 // and returns it as a byte array if one is waiting.
 // Returns an empty frame, a 0 more flag and an error
 // if one is not immediately available
-func (s *Sock) RecvFrameNoWait() ([]byte, Flag, error) {
+func (s *Sock) RecvFrameNoWait() ([]byte, int, error) {
 	if !s.Pollin() {
-		return []byte{0}, Flag(0), fmt.Errorf("no frame")
+		return []byte{0}, 0, fmt.Errorf("no frame")
 	}
 
 	return s.RecvFrame()
@@ -273,7 +273,7 @@ func (s *Sock) RecvFrameNoWait() ([]byte, Flag, error) {
 // SendMessage accepts an array of byte arrays and
 // sends it as a multi-part message.
 func (s *Sock) SendMessage(parts [][]byte) error {
-	var f Flag
+	var f int
 	numParts := len(parts)
 	for i, val := range parts {
 		if i == numParts-1 {

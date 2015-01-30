@@ -15,8 +15,6 @@ import (
 	"errors"
 )
 
-type Flag int
-
 const (
 	REQ    = int(C.ZMQ_REQ)
 	REP    = int(C.ZMQ_REP)
@@ -35,9 +33,9 @@ const (
 	POLLOUT = int(C.ZMQ_POLLOUT)
 
 	ZMSG_TAG = 0x003cafe
-	MORE     = Flag(C.ZFRAME_MORE)
-	REUSE    = Flag(C.ZFRAME_REUSE)
-	DONTWAIT = Flag(C.ZFRAME_DONTWAIT)
+	MORE     = int(C.ZFRAME_MORE)
+	REUSE    = int(C.ZFRAME_REUSE)
+	DONTWAIT = int(C.ZFRAME_DONTWAIT)
 
 	CURVE_ALLOW_ANY = "*"
 )
