@@ -74,7 +74,7 @@ func (c *Channeler) loopSend(closeChan <-chan struct{}, sendChan <-chan [][]byte
 			return
 		case msg := <-sendChan:
 			push.SendFrame([]byte("msg"), 1)
-			var f Flag
+			var f int
 			numFrames := len(msg)
 			for i, val := range msg {
 				if i == numFrames-1 {
