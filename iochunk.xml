@@ -1,0 +1,21 @@
+<class
+    name = "iochunk_msg"
+    title = "GoCZMQ Byte Transfer Protocol For Use with IO interfaces "
+    script = "zproto_codec_go"
+	package_dir = "."
+	package = "github.com/zeromq/goczmq"
+	source_dir = "."
+	>
+	This is a simple chunk protocol for streaming large messages broken into chunks
+    <include filename = "license.xml" />
+
+    <!-- Header for all messages -->
+    <header>
+        <field name = "version" type = "number" size = "1" value = "1">Version = 1</field>
+    </header>
+
+    <message name = "chunk">
+        <field name = "more" type = "number" size="1">1 if more messages</field>
+        <field name = "payload" type = "chunk">Tuple value, as printable string</field>
+    </message>
+</class>
