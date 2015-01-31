@@ -16,6 +16,11 @@ import (
 	"github.com/zeromq/goczmq"
 )
 
+type goczmqSock interface {
+	SendFrame(data []byte, flags int) error
+	GetType() int	
+}
+
 const (
 	Signature uint16 = 0xAAA0 | 0
 )
@@ -29,7 +34,7 @@ type Transit interface {
 	Marshal() ([]byte, error)
 	Unmarshal(...[]byte) error
 	String() string
-	Send(*goczmq.Sock) error
+	Send(goczmqSock) error
 	SetRoutingId([]byte)
 	RoutingId() []byte
 	SetVersion(byte)
@@ -76,7 +81,7 @@ func RecvNoWait(sock *goczmq.Sock) (t Transit, err error) {
 }
 
 // recv receives marshaled data from 0mq socket.
-func recv(sock *goczmq.Sock, flag goczmq.Flag) (t Transit, err error) {
+func recv(sock *goczmq.Sock, flag int) (t Transit, err error) {
 	var frames [][]byte
 
 	if flag == goczmq.DONTWAIT {

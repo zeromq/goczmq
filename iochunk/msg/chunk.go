@@ -105,7 +105,7 @@ func (c *Chunk) Unmarshal(frames ...[]byte) error {
 }
 
 // Send sends marshaled data through 0mq socket.
-func (c *Chunk) Send(sock *goczmq.Sock) (err error) {
+func (c *Chunk) Send(sock goczmqSock) (err error) {
 	frame, err := c.Marshal()
 	if err != nil {
 		return err

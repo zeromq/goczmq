@@ -1,9 +1,10 @@
 package goczmq
 
 import (
-	"bytes"
 	"fmt"
 	"io"
+
+	iomsg "github.com/taotetek/goczmq/iochunk/msg"
 )
 
 // ReadChunker accepts a socket and a chunkSize, and implements
@@ -37,16 +38,17 @@ func (c *ReadChunker) ReadFrom(r io.Reader) (int64, error) {
 
 	for err == nil {
 		n, err = r.Read(p)
+
+		msg := iomsg.NewChunk()
+		msg.More = 1
+
 		if err != nil {
-			expect = []byte("NOMOAR")
+			msg.More = 0
 		}
 
-		err := c.sock.SendFrame(expect, 1)
-		if err != nil {
-			return total, err
-		}
+		msg.Payload = p
 
-		err = c.sock.SendFrame(p[:n], 0)
+		err = msg.Send(c.sock)
 		if err != nil {
 			return total, err
 		}
@@ -86,24 +88,21 @@ func (c *WriteChunker) WriteTo(w io.Writer) (int64, error) {
 
 	expect := []byte("MOAR")
 
-	for bytes.Compare(expect, []byte("MOAR")) == 0 {
-		chunk, err = c.sock.RecvMessage()
-		if len(chunk) != 2 {
+	more := 1
+	for more == 1 {
+		transit, err := iomsg.Recv(c.sock)
+		if err != nil {
 			return total, fmt.Errorf("protocol error")
 		}
 
-		expect = chunk[0]
-
-		if bytes.Compare(expect, []byte("MOAR")) != 0 &&
-			bytes.Compare(expect, []byte("NOMOAR")) != 0 {
-			return total, fmt.Errorf("protocol error")
-		}
-
-		n, err = w.Write(chunk[1])
+		chunk := transit.(*iomsg.Chunk)
+		n, err = w.Write(chunk.Payload)
 		total += int64(n)
 		if err != nil {
 			return total, err
 		}
+
+		more = chunk.More
 	}
 
 	return total, err
