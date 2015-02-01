@@ -30,30 +30,23 @@ func (c *ReadChunker) ReadFrom(r io.Reader) (int64, error) {
 	var total int64
 	var n int
 	var err error
-
 	expect := []byte("MOAR")
-
 	p := make([]byte, c.chunkSize)
-
 	for err == nil {
 		n, err = r.Read(p)
 		if err != nil {
 			expect = []byte("NOMOAR")
 		}
-
 		err := c.sock.SendFrame(expect, 1)
 		if err != nil {
 			return total, err
 		}
-
 		err = c.sock.SendFrame(p[:n], 0)
 		if err != nil {
 			return total, err
 		}
-
 		total += int64(n)
 	}
-
 	return total, err
 }
 
@@ -77,35 +70,29 @@ func NewWriteChunker(s *Sock) *WriteChunker {
 }
 
 // WriteTo to reads each chunk message one at
-// a time and writes  them to an io.Writer.
+// a time and writes them to an io.Writer.
 func (c *WriteChunker) WriteTo(w io.Writer) (int64, error) {
 	var total int64
 	var n int
 	var err error
 	var chunk [][]byte
-
 	expect := []byte("MOAR")
-
 	for bytes.Compare(expect, []byte("MOAR")) == 0 {
 		chunk, err = c.sock.RecvMessage()
 		if len(chunk) != 2 {
 			return total, fmt.Errorf("protocol error")
 		}
-
 		expect = chunk[0]
-
 		if bytes.Compare(expect, []byte("MOAR")) != 0 &&
 			bytes.Compare(expect, []byte("NOMOAR")) != 0 {
 			return total, fmt.Errorf("protocol error")
 		}
-
 		n, err = w.Write(chunk[1])
 		total += int64(n)
 		if err != nil {
 			return total, err
 		}
 	}
-
 	return total, err
 }
 
