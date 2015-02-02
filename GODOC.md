@@ -1,6 +1,6 @@
 # goczmq
 --
-    import "github.com/taotetek/goczmq"
+    import "github.com/zeromq/goczmq"
 
 Package goczmq is a go interface to CZMQ
 
@@ -27,9 +27,9 @@ const (
 	POLLOUT = int(C.ZMQ_POLLOUT)
 
 	ZMSG_TAG = 0x003cafe
-	MORE     = Flag(C.ZFRAME_MORE)
-	REUSE    = Flag(C.ZFRAME_REUSE)
-	DONTWAIT = Flag(C.ZFRAME_DONTWAIT)
+	MORE     = int(C.ZFRAME_MORE)
+	REUSE    = int(C.ZFRAME_REUSE)
+	DONTWAIT = int(C.ZFRAME_DONTWAIT)
 
 	CURVE_ALLOW_ANY = "*"
 )
@@ -39,6 +39,14 @@ const (
 var (
 	ErrActorCmd   = errors.New("error sending actor command")
 	ErrSockAttach = errors.New("error attaching zsock")
+)
+```
+
+```go
+var (
+	// ErrSliceFull is returned if a []byte passed to Read was not
+	// large enough to hold the contents of a message
+	ErrSliceFull = errors.New("goczmq: slice full")
 )
 ```
 
@@ -299,13 +307,6 @@ func (c *Channeler) Close()
 ```
 Close closes the close channel sigaling the channeler to shut down
 
-#### type Flag
-
-```go
-type Flag int
-```
-
-
 #### type Gossip
 
 ```go
@@ -332,12 +333,26 @@ func (g *Gossip) Bind(endpoint string) error
 ```
 Bind binds the gossip service to a specified endpoint
 
+#### func (*Gossip) Connect
+
+```go
+func (g *Gossip) Connect(endpoint string) error
+```
+Connect connects the gossip service to a specified endpoint
+
 #### func (*Gossip) Destroy
 
 ```go
 func (g *Gossip) Destroy()
 ```
 Destroy destroys the gossip actor.
+
+#### func (*Gossip) Publish
+
+```go
+func (g *Gossip) Publish(key, value string) error
+```
+Publish announces a key / value pair
 
 #### func (*Gossip) Verbose
 
@@ -702,6 +717,14 @@ func (s *Sock) Fd() int
 ```
 Fd returns the current value of the socket's fd option
 
+#### func (*Sock) GetLastClientID
+
+```go
+func (s *Sock) GetLastClientID() []byte
+```
+GetLastClientID returns the id of the last client you received a message from if
+the underlying socket is a ROUTER or SERVER socket
+
 #### func (*Sock) GetType
 
 ```go
@@ -873,6 +896,13 @@ func (s *Sock) Rcvtimeo() int
 ```
 Rcvtimeo returns the current value of the socket's rcvtimeo option
 
+#### func (*Sock) Read
+
+```go
+func (s *Sock) Read(p []byte) (int, error)
+```
+Read provides an io.Reader interface to a zeromq socket
+
 #### func (*Sock) ReconnectIvl
 
 ```go
@@ -898,7 +928,7 @@ RecoveryIvl returns the current value of the socket's recovery_ivl option
 #### func (*Sock) RecvFrame
 
 ```go
-func (s *Sock) RecvFrame() ([]byte, Flag, error)
+func (s *Sock) RecvFrame() ([]byte, int, error)
 ```
 RecvFrame reads a frame from the socket and returns it as a byte array, along
 with a more flag and and error (if there is an error)
@@ -906,7 +936,7 @@ with a more flag and and error (if there is an error)
 #### func (*Sock) RecvFrameNoWait
 
 ```go
-func (s *Sock) RecvFrameNoWait() ([]byte, Flag, error)
+func (s *Sock) RecvFrameNoWait() ([]byte, int, error)
 ```
 RecvFrameNoWait receives a frame from the socket and returns it as a byte array
 if one is waiting. Returns an empty frame, a 0 more flag and an error if one is
@@ -932,7 +962,7 @@ one is not immediately available
 #### func (*Sock) SendFrame
 
 ```go
-func (s *Sock) SendFrame(data []byte, flags Flag) error
+func (s *Sock) SendFrame(data []byte, flags int) error
 ```
 SendFrame sends a byte array via the socket. For the flags value, use 0 for a
 single message, or SNDMORE if it is a multi-part message
@@ -1057,6 +1087,14 @@ SetIpv4only sets the ipv4only option for the socket
 func (s *Sock) SetIpv6(val int)
 ```
 SetIpv6 sets the ipv6 option for the socket
+
+#### func (*Sock) SetLastClientID
+
+```go
+func (s *Sock) SetLastClientID(id []byte)
+```
+SetLastClientID sets the client id that will be used when sending from a ROUTER
+or SERVER socket
 
 #### func (*Sock) SetLinger
 
@@ -1363,6 +1401,13 @@ func (s *Sock) Unbind(endpoint string) error
 ```
 Unbind unbinds a socket from an endpoint. If returns an error if the endpoint
 was not found
+
+#### func (*Sock) Write
+
+```go
+func (s *Sock) Write(p []byte) (int, error)
+```
+Write provides an io.Writer interface to a zeromq socket
 
 #### func (*Sock) ZapDomain
 

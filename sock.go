@@ -26,6 +26,8 @@ import (
 )
 
 var (
+	// ErrSliceFull is returned if a []byte passed to Read was not
+	// large enough to hold the contents of a message
 	ErrSliceFull = errors.New("goczmq: slice full")
 )
 
@@ -372,9 +374,9 @@ func (s *Sock) Write(p []byte) (int, error) {
 	err := s.SendFrame(p, 0)
 	if err != nil {
 		return total, err
-	} else {
-		return len(p), nil
 	}
+
+	return len(p), nil
 }
 
 // RecvMessageNoWait receives a full message from the socket
