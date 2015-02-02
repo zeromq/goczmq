@@ -2,6 +2,7 @@ package goczmq
 
 import (
 	"bytes"
+	"io"
 	"testing"
 )
 
@@ -451,5 +452,228 @@ func TestPollout(t *testing.T) {
 
 	if !push.Pollout() {
 		t.Errorf("Pollout returned false should be true")
+	}
+}
+
+func TestReader(t *testing.T) {
+	pushSock := NewSock(PUSH)
+	defer pushSock.Destroy()
+
+	pullSock := NewSock(PULL)
+	defer pullSock.Destroy()
+
+	_, err := pullSock.Bind("inproc://test-read")
+	if err != nil {
+		t.Errorf("repSock.Bind failed: %s", err)
+	}
+
+	err = pushSock.Connect("inproc://test-read")
+	if err != nil {
+		t.Errorf("reqSock.Connect failed: %s", err)
+	}
+
+	err = pushSock.SendFrame([]byte("Hello"), 0)
+	if err != nil {
+		t.Errorf("pushSock.SendFrame failed: %s", err)
+	}
+
+	b := make([]byte, 5)
+
+	n, err := pullSock.Read(b)
+	if n != 5 {
+		t.Errorf("pullSock.Read expected 5 bytes read %d", n)
+	}
+
+	if err != io.EOF {
+		t.Errorf("pullSock.Read expected io.EOF got %s", err)
+	}
+
+	if bytes.Compare(b, []byte("Hello")) != 0 {
+		t.Errorf("expected 'Hello' received '%s'", b)
+	}
+
+	err = pushSock.SendFrame([]byte("Hello"), 1)
+	if err != nil {
+		t.Errorf("pushSock.SendFrame: %s", err)
+	}
+
+	err = pushSock.SendFrame([]byte(" World"), 0)
+	if err != nil {
+		t.Errorf("pushSock.SendFrame: %s", err)
+	}
+
+	b = make([]byte, 8)
+	n, err = pullSock.Read(b)
+	if err != ErrSliceFull {
+		t.Errorf("expected %s error, got %s", ErrSliceFull, err)
+	}
+
+	if bytes.Compare(b, []byte("Hello Wo")) != 0 {
+		t.Errorf("expected 'Hello Wo' received '%s'", b)
+	}
+}
+
+func TestReaderWithRouterDealer(t *testing.T) {
+	dealerSock := NewSock(DEALER)
+	defer dealerSock.Destroy()
+
+	routerSock := NewSock(ROUTER)
+	defer routerSock.Destroy()
+
+	_, err := routerSock.Bind("inproc://test-read")
+	if err != nil {
+		t.Errorf("repSock.Bind failed: %s", err)
+	}
+
+	err = dealerSock.Connect("inproc://test-read")
+	if err != nil {
+		t.Errorf("reqSock.Connect failed: %s", err)
+	}
+
+	err = dealerSock.SendFrame([]byte("Hello"), 0)
+	if err != nil {
+		t.Errorf("dealerSock.SendFrame failed: %s", err)
+	}
+
+	b := make([]byte, 5)
+
+	n, err := routerSock.Read(b)
+	if n != 5 {
+		t.Errorf("routerSock.Read expected 5 bytes read %d", n)
+	}
+
+	if err != io.EOF {
+		t.Errorf("routerSock.Read expected io.EOF got %s", err)
+	}
+
+	if bytes.Compare(b, []byte("Hello")) != 0 {
+		t.Errorf("expected 'Hello' received '%s'", b)
+	}
+
+	err = dealerSock.SendFrame([]byte("Hello"), 1)
+	if err != nil {
+		t.Errorf("dealerSock.SendFrame: %s", err)
+	}
+
+	err = dealerSock.SendFrame([]byte(" World"), 0)
+	if err != nil {
+		t.Errorf("dealerSock.SendFrame: %s", err)
+	}
+
+	b = make([]byte, 8)
+	n, err = routerSock.Read(b)
+	if err != ErrSliceFull {
+		t.Errorf("expected %s error, got %s", ErrSliceFull, err)
+	}
+
+	if bytes.Compare(b, []byte("Hello Wo")) != 0 {
+		t.Errorf("expected 'Hello Wo' received '%s'", b)
+	}
+
+	n, err = routerSock.Write([]byte("World"))
+	if err != nil {
+		t.Errorf("routerSock.Write: %s", err)
+	}
+	if n != 5 {
+		t.Errorf("expected 5 bytes sent got %d", n)
+	}
+
+	frame, _, err := dealerSock.RecvFrame()
+	if err != nil {
+		t.Errorf("dealer.RecvFrame: %s", err)
+	}
+
+	if bytes.Compare(frame, []byte("World")) != 0 {
+		t.Errorf("expected 'World' received '%s'", b)
+	}
+}
+
+func TestReaderWithRouterDealerAsync(t *testing.T) {
+	dealerSock1 := NewSock(DEALER)
+	defer dealerSock1.Destroy()
+
+	dealerSock2 := NewSock(DEALER)
+	defer dealerSock2.Destroy()
+
+	routerSock := NewSock(ROUTER)
+	defer routerSock.Destroy()
+
+	_, err := routerSock.Bind("inproc://test-read")
+	if err != nil {
+		t.Errorf("repSock.Bind failed: %s", err)
+	}
+
+	err = dealerSock1.Connect("inproc://test-read")
+	if err != nil {
+		t.Errorf("reqSock.Connect failed: %s", err)
+	}
+
+	err = dealerSock1.SendFrame([]byte("Hello From Client 1!"), 0)
+	if err != nil {
+		t.Errorf("dealerSock.SendFrame failed: %s", err)
+	}
+
+	err = dealerSock2.Connect("inproc://test-read")
+	if err != nil {
+		t.Errorf("reqSock.Connect failed: %s", err)
+	}
+
+	err = dealerSock2.SendFrame([]byte("Hello From Client 2!"), 0)
+	if err != nil {
+		t.Errorf("dealerSock.SendFrame failed: %s", err)
+	}
+
+	msg := make([]byte, 255)
+
+	n, err := routerSock.Read(msg)
+	if n != 20 {
+		t.Errorf("routerSock.Read expected 20 bytes read %d", n)
+	}
+
+	client1ID := routerSock.GetLastClientID()
+
+	if bytes.Compare(msg[:n], []byte("Hello From Client 1!")) != 0 {
+		t.Errorf("expected 'Hello From Client 1!' received '%s'", string(msg[:n]))
+	}
+
+	n, err = routerSock.Read(msg)
+	if n != 20 {
+		t.Errorf("routerSock.Read expected 20 bytes read %d", n)
+	}
+
+	client2ID := routerSock.GetLastClientID()
+
+	if bytes.Compare(msg[:n], []byte("Hello From Client 2!")) != 0 {
+		t.Errorf("expected 'Hello From Client 2!' received '%s'", string(msg[:n]))
+	}
+
+	routerSock.SetLastClientID(client1ID)
+	n, err = routerSock.Write([]byte("Hello Client 1!"))
+	if err != nil {
+		t.Errorf("routerSock.Write: %s", err)
+	}
+
+	frame, _, err := dealerSock1.RecvFrame()
+	if err != nil {
+		t.Errorf("dealer.RecvFrame: %s", err)
+	}
+
+	if bytes.Compare(frame, []byte("Hello Client 1!")) != 0 {
+		t.Errorf("expected 'World' received '%s'", frame)
+	}
+
+	routerSock.SetLastClientID(client2ID)
+	n, err = routerSock.Write([]byte("Hello Client 2!"))
+	if err != nil {
+		t.Errorf("routerSock.Write: %s", err)
+	}
+
+	frame, _, err = dealerSock2.RecvFrame()
+	if err != nil {
+		t.Errorf("dealer.RecvFrame: %s", err)
+	}
+
+	if bytes.Compare(frame, []byte("Hello Client 2!")) != 0 {
+		t.Errorf("expected 'World' received '%s'", frame)
 	}
 }
