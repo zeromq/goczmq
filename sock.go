@@ -18,24 +18,43 @@ import "C"
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"runtime"
 	"strings"
 	"unsafe"
 )
 
+var (
+	ErrSliceFull = errors.New("goczmq: slice full")
+)
+
 // Sock wraps the zsock_t class in CZMQ.
 type Sock struct {
-	zsockT *C.struct__zsock_t
-	file   string
-	line   int
-	zType  int
+	zsockT       *C.struct__zsock_t
+	file         string
+	line         int
+	zType        int
+	lastClientID string
 }
 
 func init() {
 	if err := os.Setenv("ZSYS_SIGHANDLER", "false"); err != nil {
 		panic(err)
 	}
+}
+
+// GetLastClientID returns the id of the last client you received
+// a message from if the underlying socket is a ROUTER or SERVER
+// socket
+func (s *Sock) GetLastClientID() []byte {
+	return []byte(s.lastClientID)
+}
+
+// SetLastClientID sets the client id that will be used when
+// sending from a ROUTER or SERVER socket
+func (s *Sock) SetLastClientID(id []byte) {
+	s.lastClientID = string(id)
 }
 
 // NewSock creates a new socket.  The caller source and
@@ -306,6 +325,56 @@ func (s *Sock) RecvMessage() ([][]byte, error) {
 		}
 	}
 	return msg, nil
+}
+
+// Read provides an io.Reader interface to a zeromq socket
+func (s *Sock) Read(p []byte) (int, error) {
+	var total int
+	frame, flag, err := s.RecvFrame()
+	if err != nil {
+		return total, err
+	}
+
+	if s.GetType() == ROUTER {
+		s.lastClientID = string(frame)
+	} else {
+		copy(p[:], frame[:])
+		total += len(frame)
+	}
+
+	for flag == MORE {
+		frame, flag, err = s.RecvFrame()
+		if err != nil {
+			return total, err
+		}
+		copy(p[total:], frame[:])
+		total += len(frame)
+	}
+
+	if total > len(p) {
+		err = ErrSliceFull
+	} else {
+		err = io.EOF
+	}
+
+	return total, err
+}
+
+// Write provides an io.Writer interface to a zeromq socket
+func (s *Sock) Write(p []byte) (int, error) {
+	var total int
+	if s.GetType() == ROUTER {
+		err := s.SendFrame(s.GetLastClientID(), MORE)
+		if err != nil {
+			return total, err
+		}
+	}
+	err := s.SendFrame(p, 0)
+	if err != nil {
+		return total, err
+	} else {
+		return len(p), nil
+	}
 }
 
 // RecvMessageNoWait receives a full message from the socket
