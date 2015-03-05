@@ -1,9 +1,6 @@
 package goczmq
 
 /*
-#cgo !windows pkg-config: libczmq
-#cgo windows CFLAGS: -I/usr/local/include
-#cgo windows LDFLAGS: -L/usr/local/lib -lczmq
 #include "czmq.h"
 
 zactor_t *Gossip_new (char *name) {

@@ -1,9 +1,6 @@
 package goczmq
 
 /*
-#cgo !windows pkg-config: libczmq
-#cgo windows CFLAGS: -I/usr/local/include
-#cgo windows LDFLAGS: -L/usr/local/lib -lczmq
 #include "czmq.h"
 #include <stdlib.h>
 #include <string.h>
@@ -80,7 +77,7 @@ func NewSock(t int) *Sock {
 		}
 	}
 
-	s.zsockT = C.zsock_new_(C.int(s.zType), C.CString(s.file), C.size_t(s.line))
+	s.zsockT = C.zsock_new_checked(C.int(s.zType), C.CString(s.file), C.size_t(s.line))
 	return s
 }
 
@@ -409,5 +406,5 @@ func (s *Sock) GetType() int {
 
 // Destroy destroys the underlying zsockT.
 func (s *Sock) Destroy() {
-	C.zsock_destroy_(&s.zsockT, C.CString(s.file), C.size_t(s.line))
+	C.zsock_destroy_checked(&s.zsockT, C.CString(s.file), C.size_t(s.line))
 }
