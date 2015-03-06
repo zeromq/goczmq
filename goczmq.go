@@ -2,9 +2,7 @@
 package goczmq
 
 /*
-#cgo !windows pkg-config: libczmq
-#cgo windows CFLAGS: -I/usr/local/include
-#cgo windows LDFLAGS: -L/usr/local/lib -lczmq
+#cgo pkg-config: libczmq libzmq libsodium
 #include "czmq.h"
 #include <stdlib.h>
 #include <string.h>

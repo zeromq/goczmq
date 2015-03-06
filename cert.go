@@ -1,9 +1,6 @@
 package goczmq
 
 /*
-#cgo !windows pkg-config: libczmq
-#cgo windows CFLAGS: -I/usr/local/include
-#cgo windows LDFLAGS: -L/usr/local/lib -lczmq
 #include "czmq.h"
 
 int Set_meta(zcert_t *self, const char *key, const char *value) {zcert_set_meta(self, key, value);}
