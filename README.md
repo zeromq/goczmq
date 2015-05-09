@@ -3,8 +3,6 @@
 ## Introduction
 A golang interface to [CZMQ](http://czmq.zeromq.org)
 
-This currently requires CZMQ head, and is targetted to be compatible with the upcoming 3.x release of CZMQ.
-
 ## Installation
 
 ```
