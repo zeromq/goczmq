@@ -95,7 +95,7 @@ func main() {
 	log.Printf("mean throughput: %f [msg/s]", throughput)
 	log.Printf("mean throughput: %f [Mb/s]", megabits)
 }
-'''
+```
 
 ## GoDoc
 [godoc](https://godoc.org/github.com/zeromq/goczmq)

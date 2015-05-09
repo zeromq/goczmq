@@ -5,8 +5,8 @@ go:
 before_install:
         - git clone git://github.com/jedisct1/libsodium.git
         - ( cd libsodium; ./autogen.sh; ./configure; make check; sudo make install; sudo ldconfig )
-        - git clone git://github.com/zeromq/zeromq4-x.git
-        - ( cd zeromq4-x; ./autogen.sh; ./configure; make check; sudo make install; sudo ldconfig )
+        - git clone git://github.com/zeromq/libzmq.git
+        - ( cd libzmq; ./autogen.sh; ./configure; make check; sudo make install; sudo ldconfig )
         - git clone git://github.com/zeromq/czmq.git
         - ( cd czmq; ./autogen.sh; ./configure; make check; sudo make install; sudo ldconfig )
 script:
