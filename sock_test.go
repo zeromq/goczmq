@@ -2,6 +2,7 @@ package goczmq
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"testing"
 )
@@ -676,4 +677,38 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 	if bytes.Compare(frame, []byte("Hello Client 2!")) != 0 {
 		t.Errorf("expected 'World' received '%s'", frame)
 	}
+}
+
+func ExampleSock_output() {
+	dealer, err := NewDEALER("inproc://example")
+	if err != nil {
+		panic(err)
+	}
+
+	router, err := NewROUTER("inproc://example")
+	if err != nil {
+		panic(err)
+	}
+	dealer.SendFrame([]byte("Hello"), 0)
+
+	request, err := router.RecvMessage()
+	if err != nil {
+		panic(err)
+	}
+
+	// first frame is identify of client - let's append 'World'
+	// to the message and route it back.
+	request = append(request, []byte("World"))
+	err = router.SendMessage(request)
+	if err != nil {
+		panic(err)
+	}
+
+	reply, err := dealer.RecvMessage()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s %s", string(reply[0]), string(reply[1]))
+	// Output: Hello World
 }
