@@ -158,3 +158,40 @@ func TestZproxy(t *testing.T) {
 
 	proxy.Destroy()
 }
+
+func ProxyExample() {
+	proxy := NewProxy()
+	defer proxy.Destroy()
+
+	// set front end address and socket type
+	err := proxy.SetFrontend(PULL, "inproc://frontend")
+	if err != nil {
+		panic(err)
+	}
+
+	// set back end address and socket type
+	err = proxy.SetBackend(PUSH, "inproc://backend")
+	if err != nil {
+		panic(err)
+	}
+
+	// set address for "tee"ing proxy traffic to
+	err = proxy.SetCapture("inproc://capture")
+	if err != nil {
+		panic(err)
+	}
+
+	// we can pause the proxy
+	err = proxy.Pause()
+	if err != nil {
+		panic(err)
+	}
+
+	// and we can resume it
+	err = proxy.Resume()
+	if err != nil {
+		panic(err)
+	}
+
+	proxy.Destroy()
+}

@@ -125,3 +125,19 @@ func TestGossip(t *testing.T) {
 		t.Errorf("CONNECT: %s", err)
 	}
 }
+
+func GossipExample() {
+	gossiper := NewGossip("client")
+
+	err := gossiper.Bind("inproc://gossip_example")
+	if err != nil {
+		panic(err)
+	}
+
+	err = gossiper.Publish("key", "value")
+	if err != nil {
+		panic(err)
+	}
+
+	gossiper.Destroy()
+}

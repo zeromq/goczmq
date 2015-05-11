@@ -21,10 +21,10 @@ func TestCert(t *testing.T) {
 		t.Errorf("Meta expected 'Brian Knox' got '%s'", name)
 	}
 
-	cert.SetMeta("organization", "SPEE")
+	cert.SetMeta("organization", "ZeroMQ")
 	organization := cert.Meta("organization")
-	if organization != "SPEE" {
-		t.Errorf("Meta expected 'SPEE' got '%s;", organization)
+	if organization != "ZeroMQ" {
+		t.Errorf("Meta expected 'ZeroMQ' got '%s;", organization)
 	}
 
 	cert.SetMeta("version", "1")
@@ -66,4 +66,12 @@ func TestCert(t *testing.T) {
 
 	os.Remove("./test_cert")
 	os.Remove("./test_cert_secret")
+}
+
+func ExampleCert() {
+	cert := NewCert()
+	defer cert.Destroy()
+	cert.SetMeta("email", "taotetek@gmail.com")
+	cert.SetMeta("name", "Brian Knox")
+	cert.SetMeta("organization", "ZeroMQ")
 }

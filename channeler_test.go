@@ -75,3 +75,11 @@ func TestChanneler(t *testing.T) {
 
 	c.Close()
 }
+
+func ExampleChanneler() {
+	router := NewSock(ROUTER)
+	routerChan := NewChanneler(router, false)
+	routerChan.AttachChan <- "inproc://channel_example"
+
+	routerChan.Close()
+}
