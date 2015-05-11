@@ -1,8 +1,6 @@
 package goczmq
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestPoller(t *testing.T) {
 	pullSock1, err := NewPULL("inproc://poller_pull1")
@@ -103,4 +101,31 @@ func TestPoller(t *testing.T) {
 	if len(poller.socks) != 1 {
 		t.Errorf("socks len should be 1 after removing pushsock, is %d", len(poller.socks))
 	}
+}
+
+func PollerExample() {
+	sock1, err := NewROUTER("inproc://poller_example_1")
+	if err != nil {
+		panic(err)
+	}
+	defer sock1.Destroy()
+
+	poller, err := NewPoller(sock1)
+	if err != nil {
+		panic(err)
+	}
+
+	sock2, err := NewROUTER("inproc://poller_example_2")
+	if err != nil {
+		panic(err)
+	}
+	defer sock2.Destroy()
+
+	err = poller.Add(sock2)
+	if err != nil {
+		panic(err)
+	}
+
+	// Poller.Wait(millis) returns first socket that has a waiting message
+	_ = poller.Wait(1)
 }
