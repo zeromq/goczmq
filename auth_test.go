@@ -299,7 +299,7 @@ func TestAuthCurveCertificate(t *testing.T) {
 	auth := NewAuth()
 	defer auth.Destroy()
 
-	// set verbus
+	// set verbose
 	err = auth.Verbose()
 	if err != nil {
 		t.Errorf("VERBOSE error: %s", err)
@@ -400,4 +400,46 @@ func TestAuthCurveCertificate(t *testing.T) {
 	}
 
 	os.RemoveAll(testpath)
+}
+
+func ExampleAuth() {
+	// create a new server certificate
+	serverCert := NewCert()
+	defer serverCert.Destroy()
+
+	// create a client certificate and save it
+	clientCert := NewCert()
+	defer clientCert.Destroy()
+	clientCert.SavePublic("client_cert")
+
+	// create a new auth actor
+	auth := NewAuth()
+	defer auth.Destroy()
+
+	// set the client certificate as an allowed client
+	auth.Curve("client_cert")
+	defer func() { os.Remove("client_cert") }()
+
+	// create a server, set its auth domain to global
+	server := NewSock(PUSH)
+	defer server.Destroy()
+	server.SetZapDomain("global")
+
+	// assign the server cert to the server,
+	// make it use CURVE auth and bind it
+	serverCert.Apply(server)
+	server.SetCurveServer(1)
+
+	server.Bind("inproc://auth_example")
+
+	// create a client socket, apply the client
+	// certificate to it, and set the server's
+	// public key so it can connect
+	client := NewSock(PULL)
+	defer client.Destroy()
+
+	clientCert.Apply(client)
+	client.SetCurveServerkey(serverCert.PublicText())
+
+	client.Connect("inproc://auth_example")
 }

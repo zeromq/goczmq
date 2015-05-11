@@ -1,6 +1,6 @@
 # goczmq
 --
-    import "github.com/zeromq/goczmq"
+    import "github.com/taotetek/goczmq"
 
 Package goczmq is a go interface to CZMQ
 
@@ -473,41 +473,6 @@ zactor thread telling it to set up a socket bound to the endpoint.
 func (p *Proxy) Verbose() error
 ```
 Verbose sets the proxy to log information to stdout.
-
-#### type ReadChunker
-
-```go
-type ReadChunker struct {
-}
-```
-
-ReadChunker accepts a socket and a chunkSize, and implements the ReaderFrom
-interface.
-
-#### func  NewReadChunker
-
-```go
-func NewReadChunker(s *Sock, cs int64) *ReadChunker
-```
-NewReadChunker takes a socket and a chunkSize and returns a new ReadChunker
-instance
-
-#### func (*ReadChunker) Destroy
-
-```go
-func (c *ReadChunker) Destroy()
-```
-Destroy calls destroy on the underlying socket to clean it up
-
-#### func (*ReadChunker) ReadFrom
-
-```go
-func (c *ReadChunker) ReadFrom(r io.Reader) (int64, error)
-```
-ReadFrom reads from an io.Reader into a []byte of chunkSize. It writes each
-chunk of data as a two frame message. The first frame is used to indicate if
-this is the last message or if there are more messages containing file data to
-come.
 
 #### type Sock
 
@@ -1415,34 +1380,3 @@ Write provides an io.Writer interface to a zeromq socket
 func (s *Sock) ZapDomain() string
 ```
 ZapDomain returns the current value of the socket's zap_domain option
-
-#### type WriteChunker
-
-```go
-type WriteChunker struct {
-}
-```
-
-WriteChunker accepts a socket and implements the WriterTo interface
-
-#### func  NewWriteChunker
-
-```go
-func NewWriteChunker(s *Sock) *WriteChunker
-```
-NewWriteChunker takes a socket and returns a new WriteChunker instance
-
-#### func (*WriteChunker) Destroy
-
-```go
-func (c *WriteChunker) Destroy()
-```
-Destroy calls destroy on the underlying socket to clean it up
-
-#### func (*WriteChunker) WriteTo
-
-```go
-func (c *WriteChunker) WriteTo(w io.Writer) (int64, error)
-```
-WriteTo to reads each chunk message one at a time and writes them to an
-io.Writer.
