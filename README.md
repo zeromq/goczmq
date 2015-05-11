@@ -98,5 +98,7 @@ func main() {
 ## GoDoc
 [godoc](https://godoc.org/github.com/zeromq/goczmq)
 
+## See Also
+* [Peter Kleiweg's](https://github.com/pebbe) [zmq4](https://github.com/pebbe/zmq4) bindings
 ## License
 This project uses the MPL v2 license, see LICENSE
