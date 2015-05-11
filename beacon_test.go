@@ -40,11 +40,6 @@ func TestBeacon(t *testing.T) {
 	address := listener.Recv(500)
 	t.Logf("%v", address)
 
-	payload := listener.Recv(500)
-	if string(payload) != "HI" {
-		t.Errorf("expected '%s' received '%s'", "HI", payload)
-	}
-
 	listener.Destroy()
 	speaker.Destroy()
 }
