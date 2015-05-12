@@ -15,7 +15,9 @@ import (
 	"unsafe"
 )
 
-// Poller is a simple poller for Socks
+// Poller provides a simple wrapper to ZeroMQ's zmq_poll API,
+// for the common case of reading from a number of sockets.
+// Sockets can be added and removed from the running poller.
 type Poller struct {
 	zpollerT *C.struct__zpoller_t
 	socks    []*Sock

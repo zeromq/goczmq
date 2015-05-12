@@ -14,7 +14,10 @@ import (
 	"unsafe"
 )
 
-// Proxy actors switch messages between a frontend and backend socket.
+// Proxy wraps the CZMQ zproxy actor. A proxy actor switches
+// messages between a frontend and backend socket, and also
+// provides an optional capture socket messages can be
+// mirrored to.  The proxy can be paused and resumed.
 type Proxy struct {
 	zactorT *C.struct__zactor_t
 }

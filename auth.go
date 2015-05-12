@@ -13,7 +13,10 @@ import (
 	"unsafe"
 )
 
-// Auth wraps a CZMQ zauth zactor
+// Auth wraps the CZMQ zauth actor. It handles authentication
+// for all incoming connections. It allows whitelisting and
+// blackisting peers based on IP address and support
+// PLAIN and CURVE authentication policies.
 type Auth struct {
 	zactorT *C.struct__zactor_t
 }
