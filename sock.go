@@ -28,7 +28,7 @@ var (
 	ErrSliceFull = errors.New("goczmq: slice full")
 )
 
-// Sock wraps the zsock_t class in CZMQ.
+// Sock wraps the CZMQ zsock class.
 type Sock struct {
 	zsockT       *C.struct__zsock_t
 	file         string

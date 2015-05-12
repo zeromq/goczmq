@@ -14,7 +14,9 @@ import (
 	"unsafe"
 )
 
-// Beacon wraps a CZMQ zbeacon zactor
+// Beacon wraps the CZMQ beacon actor. It implements a
+// peer-to-peer discovery service for local networks.  Beacons
+// can broadcast and receive UDPv4 service broadcasts.
 type Beacon struct {
 	zactorT *C.struct__zactor_t
 }

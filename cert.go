@@ -12,7 +12,11 @@ import (
 	"unsafe"
 )
 
-// Cert holds a czmq zcert_t
+// Cert wraps the CZMQ zcert class. It provides tools for
+// creating and working with ZMQ CURVE security certs.
+// The certs can be used as a temporary object in memory
+// or persisted to disk. Certs are made up of a public
+// and secret keypair + metadata.
 type Cert struct {
 	zcertT *C.struct__zcert_t
 }

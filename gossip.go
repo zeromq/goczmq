@@ -12,10 +12,10 @@ import "C"
 
 import "unsafe"
 
-// Gossip actors use a gossip protocol for decentralized configuration management.
-// Gossip nodes form a loosely connected network that publishes and redistributed
-// name/value tuples.  A network of Gossip actors will eventually achieve
-// a consistent state
+// Gossip wraps the CZMQ gossip actor.  This actor speaks a
+// gossip protocol for decentralized configuration management.
+// Nodes form a loosely connected network and publish name / value
+// pair tuples.  Each node redistributes tuples it receives.
 type Gossip struct {
 	zactorT *C.struct__zactor_t
 }
