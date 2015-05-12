@@ -126,7 +126,7 @@ func TestGossip(t *testing.T) {
 	}
 }
 
-func GossipExample() {
+func ExampleGossip() {
 	gossiper := NewGossip("client")
 
 	err := gossiper.Bind("inproc://gossip_example")

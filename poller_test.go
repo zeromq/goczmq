@@ -103,7 +103,7 @@ func TestPoller(t *testing.T) {
 	}
 }
 
-func PollerExample() {
+func ExamplePoller() {
 	sock1, err := NewRouter("inproc://poller_example_1")
 	if err != nil {
 		panic(err)
