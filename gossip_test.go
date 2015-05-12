@@ -51,17 +51,17 @@ func TestGossip(t *testing.T) {
 
 	err = client1.Publish("client1-00", "0000")
 	if err != nil {
-		t.Errorf("PubLISH: %s", err)
+		t.Errorf("PUBLISH: %s", err)
 	}
 
 	err = client1.Publish("client1-11", "0000")
 	if err != nil {
-		t.Errorf("PubLISH: %s", err)
+		t.Errorf("PUBLISH: %s", err)
 	}
 
 	err = client1.Publish("client1-22", "0000")
 	if err != nil {
-		t.Errorf("PubLISH: %s", err)
+		t.Errorf("PUBLISH: %s", err)
 	}
 
 	err = client1.Connect("inproc://server1")

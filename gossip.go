@@ -59,7 +59,7 @@ func (g *Gossip) Connect(endpoint string) error {
 
 // Publish announces a key / value pair
 func (g *Gossip) Publish(key, value string) error {
-	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), C.CString("PubLISH"))
+	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), C.CString("PUBLISH"))
 	if rc == -1 {
 		return ErrActorCmd
 	}
