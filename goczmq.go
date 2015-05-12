@@ -1,4 +1,8 @@
-// Package goczmq is a go interface to CZMQ
+// Package goczmq is a golang binding for CZMQ 3. CZMQ is a high level binding
+// for ZeroMQ. Along with ZeroMQ socket support, CZMQ provides "actor" based
+// services for authentication, service discovery, and creating proxies.
+// GoCZMQ provides direct bindings to CZMQ along with higher level go
+// abstractions such as channels and io.ReadWriter interface support.
 package goczmq
 
 /*
