@@ -3,9 +3,9 @@ package goczmq
 import "testing"
 
 func TestPoller(t *testing.T) {
-	pullSock1, err := NewPULL("inproc://poller_pull1")
+	pullSock1, err := NewPull("inproc://poller_pull1")
 	if err != nil {
-		t.Errorf("NewPULL failed: %s", err)
+		t.Errorf("NewPull failed: %s", err)
 	}
 	defer pullSock1.Destroy()
 
@@ -19,9 +19,9 @@ func TestPoller(t *testing.T) {
 		t.Errorf("Expected number of socks to be 1, was %d", len(poller.socks))
 	}
 
-	pullSock2, err := NewPULL("inproc://poller_pull2")
+	pullSock2, err := NewPull("inproc://poller_pull2")
 	if err != nil {
-		t.Errorf("NewPULL failed: %s", err)
+		t.Errorf("NewPull failed: %s", err)
 	}
 	defer pullSock2.Destroy()
 
@@ -48,9 +48,9 @@ func TestPoller(t *testing.T) {
 		t.Error("Expected each passed zsock to be in the poller")
 	}
 
-	pushSock, err := NewPUSH("inproc://poller_pull1")
+	pushSock, err := NewPush("inproc://poller_pull1")
 	if err != nil {
-		t.Errorf("NewPUSH failed: %s", err)
+		t.Errorf("NewPush failed: %s", err)
 	}
 	defer pushSock.Destroy()
 
@@ -73,9 +73,9 @@ func TestPoller(t *testing.T) {
 		t.Errorf("Expected 'Hello', received %s", string(frame))
 	}
 
-	pushSock2, err := NewPUSH("inproc://poller_pull2")
+	pushSock2, err := NewPush("inproc://poller_pull2")
 	if err != nil {
-		t.Errorf("NewPUSH failed: %s", err)
+		t.Errorf("NewPush failed: %s", err)
 	}
 
 	err = pushSock2.SendFrame([]byte("World"), 0)
@@ -104,7 +104,7 @@ func TestPoller(t *testing.T) {
 }
 
 func PollerExample() {
-	sock1, err := NewROUTER("inproc://poller_example_1")
+	sock1, err := NewRouter("inproc://poller_example_1")
 	if err != nil {
 		panic(err)
 	}
@@ -115,7 +115,7 @@ func PollerExample() {
 		panic(err)
 	}
 
-	sock2, err := NewROUTER("inproc://poller_example_2")
+	sock2, err := NewRouter("inproc://poller_example_2")
 	if err != nil {
 		panic(err)
 	}

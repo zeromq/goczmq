@@ -6,14 +6,14 @@ import (
 )
 
 func TestChanneler(t *testing.T) {
-	d2 := NewSock(PAIR)
+	d2 := NewSock(Pair)
 	_, err := d2.Bind("inproc://channeler-test")
 	if err != nil {
 		t.Errorf("Error creating d2: %s", err)
 		return
 	}
 
-	d1 := NewSock(PAIR)
+	d1 := NewSock(Pair)
 	if err != nil {
 		t.Errorf("Error creating d1: %s", err)
 		return
@@ -77,7 +77,7 @@ func TestChanneler(t *testing.T) {
 }
 
 func ExampleChanneler() {
-	router := NewSock(ROUTER)
+	router := NewSock(Router)
 	routerChan := NewChanneler(router, false)
 	routerChan.AttachChan <- "inproc://channel_example"
 

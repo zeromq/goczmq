@@ -44,14 +44,14 @@ func init() {
 }
 
 // GetLastClientID returns the id of the last client you received
-// a message from if the underlying socket is a ROUTER or SERVER
+// a message from if the underlying socket is a Router or SERVER
 // socket
 func (s *Sock) GetLastClientID() []byte {
 	return []byte(s.lastClientID)
 }
 
 // SetLastClientID sets the client id that will be used when
-// sending from a ROUTER or SERVER socket
+// sending from a Router or SERVER socket
 func (s *Sock) SetLastClientID(id []byte) {
 	s.lastClientID = string(id)
 }
@@ -135,18 +135,18 @@ func (s *Sock) Attach(endpoints string, serverish bool) error {
 	return nil
 }
 
-// NewPUB creates a PUB socket and calls Attach.
+// NewPub creates a Pub socket and calls Attach.
 // The socket will Bind by default.
-func NewPUB(endpoints string) (*Sock, error) {
-	s := NewSock(PUB)
+func NewPub(endpoints string) (*Sock, error) {
+	s := NewSock(Pub)
 	return s, s.Attach(endpoints, true)
 }
 
-// NewSUB creates a SUB socket and calls Attach.
+// NewSub creates a Sub socket and calls Attach.
 // 'subscribe' is a comma delimited list of topics to subscribe to.
 // The socket will Connect by default.
-func NewSUB(endpoints string, subscribe string) (*Sock, error) {
-	s := NewSock(SUB)
+func NewSub(endpoints string, subscribe string) (*Sock, error) {
+	s := NewSock(Sub)
 	subscriptions := strings.Split(subscribe, ",")
 
 	for _, topic := range subscriptions {
@@ -156,91 +156,91 @@ func NewSUB(endpoints string, subscribe string) (*Sock, error) {
 	return s, s.Attach(endpoints, false)
 }
 
-// NewREP creates a REP socket and calls Attach.
+// NewRep creates a Rep socket and calls Attach.
 // The socket will Bind by default.
-func NewREP(endpoints string) (*Sock, error) {
-	s := NewSock(REP)
+func NewRep(endpoints string) (*Sock, error) {
+	s := NewSock(Rep)
 	return s, s.Attach(endpoints, true)
 }
 
-// NewREQ creates a REQ socket and calls Attach.
+// NewReq creates a Req socket and calls Attach.
 // The socket will Connect by default.
-func NewREQ(endpoints string) (*Sock, error) {
-	s := NewSock(REQ)
+func NewReq(endpoints string) (*Sock, error) {
+	s := NewSock(Req)
 	return s, s.Attach(endpoints, false)
 }
 
-// NewPULL creates a PULL socket and calls Attach.
+// NewPull creates a Pull socket and calls Attach.
 // The socket will Bind by default.
-func NewPULL(endpoints string) (*Sock, error) {
-	s := NewSock(PULL)
+func NewPull(endpoints string) (*Sock, error) {
+	s := NewSock(Pull)
 	return s, s.Attach(endpoints, true)
 }
 
-// NewPUSH creates a PUSH socket and calls Attach.
+// NewPush creates a Push socket and calls Attach.
 // The socket will Connect by default.
-func NewPUSH(endpoints string) (*Sock, error) {
-	s := NewSock(PUSH)
+func NewPush(endpoints string) (*Sock, error) {
+	s := NewSock(Push)
 	return s, s.Attach(endpoints, false)
 }
 
-// NewROUTER creates a ROUTER socket and calls Attach.
+// NewRouter creates a Router socket and calls Attach.
 // The socket will Bind by default.
-func NewROUTER(endpoints string) (*Sock, error) {
-	s := NewSock(ROUTER)
+func NewRouter(endpoints string) (*Sock, error) {
+	s := NewSock(Router)
 	return s, s.Attach(endpoints, true)
 }
 
-// NewDEALER creates a DEALER socket and calls Attach.
+// NewDealer creates a Dealer socket and calls Attach.
 // The socket will Connect by default.
-func NewDEALER(endpoints string) (*Sock, error) {
-	s := NewSock(DEALER)
+func NewDealer(endpoints string) (*Sock, error) {
+	s := NewSock(Dealer)
 	return s, s.Attach(endpoints, false)
 }
 
-// NewXPUB creates an XPUB socket and calls Attach.
+// NewXPub creates an XPub socket and calls Attach.
 // The socket will Bind by default.
-func NewXPUB(endpoints string) (*Sock, error) {
-	s := NewSock(XPUB)
+func NewXPub(endpoints string) (*Sock, error) {
+	s := NewSock(XPub)
 	return s, s.Attach(endpoints, true)
 }
 
-// NewXSUB creates an XSUB socket and calls Attach.
+// NewXSub creates an XSub socket and calls Attach.
 // The socket will Connect by default.
-func NewXSUB(endpoints string) (*Sock, error) {
-	s := NewSock(XSUB)
+func NewXSub(endpoints string) (*Sock, error) {
+	s := NewSock(XSub)
 	return s, s.Attach(endpoints, false)
 }
 
-// NewPAIR creates a PAIR socket and calls Attach.
+// NewPair creates a Pair socket and calls Attach.
 // The socket will Connect by default.
-func NewPAIR(endpoints string) (*Sock, error) {
-	s := NewSock(PAIR)
+func NewPair(endpoints string) (*Sock, error) {
+	s := NewSock(Pair)
 	return s, s.Attach(endpoints, false)
 }
 
-// NewSTREAM creates a STREAM socket and calls Attach.
+// NewStream creates a Stream socket and calls Attach.
 // The socket will Connect by default.
-func NewSTREAM(endpoints string) (*Sock, error) {
-	s := NewSock(STREAM)
+func NewStream(endpoints string) (*Sock, error) {
+	s := NewSock(Stream)
 	return s, s.Attach(endpoints, false)
 }
 
-// Pollin returns true if there is a POLLIN
+// Pollin returns true if there is a Pollin
 // event on the socket
 func (s *Sock) Pollin() bool {
-	return s.Events() == POLLIN
-	// return C.zsock_events(unsafe.Pointer(s.zsockT)) == C.ZMQ_POLLIN
+	return s.Events() == Pollin
+	// return C.zsock_events(unsafe.Pointer(s.zsockT)) == C.ZMQ_Pollin
 }
 
-// Pollout returns true if there is a POLLOUT
+// Pollout returns true if there is a Pollout
 // event on the socket
 func (s *Sock) Pollout() bool {
-	return s.Events() == POLLOUT
+	return s.Events() == Pollout
 }
 
 // SendFrame sends a byte array via the socket.  For the flags
-// value, use 0 for a single message, or SNDMORE if it is
+// value, use 0 for a single message, or SNDMore if it is
 // a multi-part message
 func (s *Sock) SendFrame(data []byte, flags int) error {
 	var rc C.int
@@ -297,7 +297,7 @@ func (s *Sock) SendMessage(parts [][]byte) error {
 		if i == numParts-1 {
 			f = 0
 		} else {
-			f = MORE
+			f = More
 		}
 
 		err := s.SendFrame(val, f)
@@ -319,7 +319,7 @@ func (s *Sock) RecvMessage() ([][]byte, error) {
 			return msg, err
 		}
 		msg = append(msg, frame)
-		if flag != MORE {
+		if flag != More {
 			break
 		}
 	}
@@ -334,14 +334,14 @@ func (s *Sock) Read(p []byte) (int, error) {
 		return total, err
 	}
 
-	if s.GetType() == ROUTER {
+	if s.GetType() == Router {
 		s.lastClientID = string(frame)
 	} else {
 		copy(p[:], frame[:])
 		total += len(frame)
 	}
 
-	for flag == MORE {
+	for flag == More {
 		frame, flag, err = s.RecvFrame()
 		if err != nil {
 			return total, err
@@ -362,8 +362,8 @@ func (s *Sock) Read(p []byte) (int, error) {
 // Write provides an io.Writer interface to a zeromq socket
 func (s *Sock) Write(p []byte) (int, error) {
 	var total int
-	if s.GetType() == ROUTER {
-		err := s.SendFrame(s.GetLastClientID(), MORE)
+	if s.GetType() == Router {
+		err := s.SendFrame(s.GetLastClientID(), More)
 		if err != nil {
 			return total, err
 		}
@@ -392,7 +392,7 @@ func (s *Sock) RecvMessageNoWait() ([][]byte, error) {
 			return msg, err
 		}
 		msg = append(msg, frame)
-		if flag != MORE {
+		if flag != More {
 			break
 		}
 	}

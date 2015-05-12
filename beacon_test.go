@@ -32,7 +32,7 @@ func TestBeacon(t *testing.T) {
 
 	err = listener.Subscribe("HI")
 	if err != nil {
-		t.Errorf("SUBSCRIBE error: %s", err)
+		t.Errorf("SubSCRIBE error: %s", err)
 	}
 
 	speaker.Publish("HI", 100)

@@ -73,7 +73,7 @@ func (p *Poller) Remove(reader *Sock) {
 	}
 }
 
-// Wait waits for the timeout period in milliseconds for a POLLIN
+// Wait waits for the timeout period in milliseconds for a Pollin
 // event, and returns the first socket that returns one
 func (p *Poller) Wait(millis int) *Sock {
 	s := C.zpoller_wait(p.zpollerT, C.int(millis))

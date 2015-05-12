@@ -47,7 +47,7 @@ func main() {
 	payload_size := len(payload)
 	count := 1000000
 	
-	pullSock, err := goczmq.NewPULL("inproc://test")
+	pullSock, err := goczmq.NewPull("inproc://test")
 	if err != nil {
 		panic(err)
 	}
@@ -55,7 +55,7 @@ func main() {
 	defer pullSock.Destroy()
 
 	go func() {
-		pushSock, err := goczmq.NewPUSH("inproc://test")
+		pushSock, err := goczmq.NewPush("inproc://test")
 		if err != nil {
 			panic(err)
 		}

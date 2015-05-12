@@ -25,7 +25,7 @@ func main() {
 		filter = string(os.Args[1])
 	}
 
-	subSock, err := czmq.NewSUB(pubEndpoint, filter)
+	subSock, err := czmq.NewSub(pubEndpoint, filter)
 	if err != nil {
 		panic(err)
 	}

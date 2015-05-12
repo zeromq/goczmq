@@ -83,17 +83,17 @@ func TestGossip(t *testing.T) {
 
 	err = client2.Publish("client2-00", "0000")
 	if err != nil {
-		t.Errorf("PUBLISH: %s", err)
+		t.Errorf("PubLISH: %s", err)
 	}
 
 	err = client2.Publish("client2-11", "0000")
 	if err != nil {
-		t.Errorf("PUBLISH: %s", err)
+		t.Errorf("PubLISH: %s", err)
 	}
 
 	err = client2.Publish("client2-22", "0000")
 	if err != nil {
-		t.Errorf("PUBLISH: %s", err)
+		t.Errorf("PubLISH: %s", err)
 	}
 
 	err = client2.Connect("inproc://server1")

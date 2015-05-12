@@ -8,10 +8,10 @@ import (
 )
 
 func TestSendFrame(t *testing.T) {
-	pushSock := NewSock(PUSH)
+	pushSock := NewSock(Push)
 	defer pushSock.Destroy()
 
-	pullSock := NewSock(PULL)
+	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
 	_, err := pullSock.Bind("inproc://test-sock")
@@ -67,10 +67,10 @@ func TestSendFrame(t *testing.T) {
 }
 
 func TestSendEmptyFrame(t *testing.T) {
-	pushSock := NewSock(PUSH)
+	pushSock := NewSock(Push)
 	defer pushSock.Destroy()
 
-	pullSock := NewSock(PULL)
+	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
 	_, err := pullSock.Bind("inproc://test-sock")
@@ -100,10 +100,10 @@ func TestSendEmptyFrame(t *testing.T) {
 }
 
 func TestSendMessage(t *testing.T) {
-	pushSock := NewSock(PUSH)
+	pushSock := NewSock(Push)
 	defer pushSock.Destroy()
 
-	pullSock := NewSock(PULL)
+	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
 	_, err := pullSock.Bind("inproc://test-sock")
@@ -142,26 +142,26 @@ func TestSendMessage(t *testing.T) {
 	}
 }
 
-func TestPUBSUB(t *testing.T) {
-	_, err := NewPUB("bogus://bogus")
+func TestPubSub(t *testing.T) {
+	_, err := NewPub("bogus://bogus")
 	if err == nil {
-		t.Error("NewPUB should have returned error and did not")
+		t.Error("NewPub should have returned error and did not")
 	}
 
-	_, err = NewSUB("bogus://bogus", "")
+	_, err = NewSub("bogus://bogus", "")
 	if err == nil {
-		t.Error("NewSUB should have returned error and did not")
+		t.Error("NewSub should have returned error and did not")
 	}
 
-	pub, err := NewPUB("inproc://pub1,inproc://pub2")
+	pub, err := NewPub("inproc://pub1,inproc://pub2")
 	if err != nil {
-		t.Errorf("NewPUB failed: %s", err)
+		t.Errorf("NewPub failed: %s", err)
 	}
 	defer pub.Destroy()
 
-	sub, err := NewSUB("inproc://pub1,inproc://pub2", "")
+	sub, err := NewSub("inproc://pub1,inproc://pub2", "")
 	if err != nil {
-		t.Errorf("NewSUB failed: %s", err)
+		t.Errorf("NewSub failed: %s", err)
 	}
 	defer sub.Destroy()
 
@@ -180,26 +180,26 @@ func TestPUBSUB(t *testing.T) {
 	}
 }
 
-func TestREQREP(t *testing.T) {
-	_, err := NewREQ("bogus://bogus")
+func TestReqRep(t *testing.T) {
+	_, err := NewReq("bogus://bogus")
 	if err == nil {
-		t.Error("NewREQ should have returned error and did not")
+		t.Error("NewReq should have returned error and did not")
 	}
 
-	_, err = NewREP("bogus://bogus")
+	_, err = NewRep("bogus://bogus")
 	if err == nil {
-		t.Error("NewREP should have returned error and did not")
+		t.Error("NewRep should have returned error and did not")
 	}
 
-	rep, err := NewREP("inproc://rep1,inproc://rep2")
+	rep, err := NewRep("inproc://rep1,inproc://rep2")
 	if err != nil {
-		t.Errorf("NewREP failed: %s", err)
+		t.Errorf("NewRep failed: %s", err)
 	}
 	defer rep.Destroy()
 
-	req, err := NewREQ("inproc://rep1,inproc://rep2")
+	req, err := NewReq("inproc://rep1,inproc://rep2")
 	if err != nil {
-		t.Errorf("NewREQ failed: %s", err)
+		t.Errorf("NewReq failed: %s", err)
 	}
 	defer req.Destroy()
 
@@ -233,26 +233,26 @@ func TestREQREP(t *testing.T) {
 
 }
 
-func TestPUSHPULL(t *testing.T) {
-	_, err := NewPUSH("bogus://bogus")
+func TestPushPull(t *testing.T) {
+	_, err := NewPush("bogus://bogus")
 	if err == nil {
-		t.Error("NewPUSH should have returned error and did not")
+		t.Error("NewPush should have returned error and did not")
 	}
 
-	_, err = NewPULL("bogus://bogus")
+	_, err = NewPull("bogus://bogus")
 	if err == nil {
-		t.Error("NewPULL should have returned error and did not")
+		t.Error("NewPull should have returned error and did not")
 	}
 
-	push, err := NewPUSH("inproc://push1,inproc://push2")
+	push, err := NewPush("inproc://push1,inproc://push2")
 	if err != nil {
-		t.Errorf("NewPUSH failed: %s", err)
+		t.Errorf("NewPush failed: %s", err)
 	}
 	defer push.Destroy()
 
-	pull, err := NewPULL("inproc://push1,inproc://push2")
+	pull, err := NewPull("inproc://push1,inproc://push2")
 	if err != nil {
-		t.Errorf("NewPULL failed: %s", err)
+		t.Errorf("NewPull failed: %s", err)
 	}
 	defer pull.Destroy()
 
@@ -280,26 +280,26 @@ func TestPUSHPULL(t *testing.T) {
 	}
 }
 
-func TestROUTERDEALER(t *testing.T) {
-	_, err := NewDEALER("bogus://bogus")
+func TestRouterDealer(t *testing.T) {
+	_, err := NewDealer("bogus://bogus")
 	if err == nil {
-		t.Error("NewDEALER should have returned error and did not")
+		t.Error("NewDealer should have returned error and did not")
 	}
 
-	_, err = NewROUTER("bogus://bogus")
+	_, err = NewRouter("bogus://bogus")
 	if err == nil {
-		t.Error("NewROUTER should have returned error and did not")
+		t.Error("NewRouter should have returned error and did not")
 	}
 
-	dealer, err := NewDEALER("inproc://router1,inproc://router2")
+	dealer, err := NewDealer("inproc://router1,inproc://router2")
 	if err != nil {
-		t.Errorf("NewDEALER failed: %s", err)
+		t.Errorf("NewDealer failed: %s", err)
 	}
 	defer dealer.Destroy()
 
-	router, err := NewROUTER("inproc://router1,inproc://router2")
+	router, err := NewRouter("inproc://router1,inproc://router2")
 	if err != nil {
-		t.Errorf("NewROUTER failed: %s", err)
+		t.Errorf("NewRouter failed: %s", err)
 	}
 	defer router.Destroy()
 
@@ -341,79 +341,79 @@ func TestROUTERDEALER(t *testing.T) {
 	}
 }
 
-func TestXSUBXPUB(t *testing.T) {
-	_, err := NewXPUB("bogus://bogus")
+func TestXSubXPub(t *testing.T) {
+	_, err := NewXPub("bogus://bogus")
 	if err == nil {
-		t.Error("NewXPUB should have returned error and did not")
+		t.Error("NewXPub should have returned error and did not")
 	}
 
-	_, err = NewXSUB("bogus://bogus")
+	_, err = NewXSub("bogus://bogus")
 	if err == nil {
-		t.Error("NewXSUB should have returned error and did not")
+		t.Error("NewXSub should have returned error and did not")
 	}
 
-	xpub, err := NewXPUB("inproc://xpub1,inproc://xpub2")
+	xpub, err := NewXPub("inproc://xpub1,inproc://xpub2")
 	if err != nil {
-		t.Errorf("NewXPUB failed: %s", err)
+		t.Errorf("NewXPub failed: %s", err)
 	}
 	defer xpub.Destroy()
 
-	xsub, err := NewXSUB("inproc://xpub1,inproc://xpub2")
+	xsub, err := NewXSub("inproc://xpub1,inproc://xpub2")
 	if err != nil {
-		t.Errorf("NewXSUB failed: %s", err)
+		t.Errorf("NewXSub failed: %s", err)
 	}
 	defer xsub.Destroy()
 }
 
-func TestPAIR(t *testing.T) {
-	_, err := NewPAIR("bogus://bogus")
+func TestPair(t *testing.T) {
+	_, err := NewPair("bogus://bogus")
 	if err == nil {
-		t.Error("NewPAIR should have returned error and did not")
+		t.Error("NewPair should have returned error and did not")
 	}
 
-	pair1, err := NewPAIR(">inproc://pair")
+	pair1, err := NewPair(">inproc://pair")
 	if err != nil {
-		t.Errorf("NewPAIR failed: %s", err)
+		t.Errorf("NewPair failed: %s", err)
 	}
 	defer pair1.Destroy()
 
-	pair2, err := NewPAIR("@inproc://pair")
+	pair2, err := NewPair("@inproc://pair")
 	if err != nil {
-		t.Errorf("NewPAIR failed: %s", err)
+		t.Errorf("NewPair failed: %s", err)
 	}
 	defer pair2.Destroy()
 }
 
-func TestSTREAM(t *testing.T) {
-	_, err := NewSTREAM("bogus://bogus")
+func TestStream(t *testing.T) {
+	_, err := NewStream("bogus://bogus")
 	if err == nil {
-		t.Error("NewSTREAM should have returned error and did not")
+		t.Error("NewStream should have returned error and did not")
 	}
 
-	stream1, err := NewSTREAM(">inproc://stream")
+	stream1, err := NewStream(">inproc://stream")
 	if err != nil {
-		t.Errorf("NewSTREAM failed: %s", err)
+		t.Errorf("NewStream failed: %s", err)
 	}
 	defer stream1.Destroy()
 
-	stream2, err := NewSTREAM("@inproc://stream")
+	stream2, err := NewStream("@inproc://stream")
 	if err != nil {
-		t.Errorf("NewSTREAM failed: %s", err)
+		t.Errorf("NewStream failed: %s", err)
 	}
 	defer stream2.Destroy()
 
 }
 
 func TestPollin(t *testing.T) {
-	push, err := NewPUSH("inproc://pollin")
+	push, err := NewPush("inproc://pollin")
 	if err != nil {
-		t.Errorf("NewPUSH failed: %s", err)
+		t.Errorf("NewPush failed: %s", err)
 	}
 	defer push.Destroy()
 
-	pull, err := NewPULL("inproc://pollin")
+	pull, err := NewPull("inproc://pollin")
 	if err != nil {
-		t.Errorf("NewPULL failed: %s", err)
+		t.Errorf("NewPull failed: %s", err)
 	}
 	defer pull.Destroy()
 
@@ -432,7 +432,7 @@ func TestPollin(t *testing.T) {
 }
 
 func TestPollout(t *testing.T) {
-	push := NewSock(PUSH)
+	push := NewSock(Push)
 	_, err := push.Bind("inproc://pollout")
 	if err != nil {
 		t.Errorf("failed binding test socket: %s", err)
@@ -443,7 +443,7 @@ func TestPollout(t *testing.T) {
 		t.Errorf("Pollout returned true should be false")
 	}
 
-	pull := NewSock(PULL)
+	pull := NewSock(Pull)
 	defer pull.Destroy()
 
 	err = pull.Connect("inproc://pollout")
@@ -457,10 +457,10 @@ func TestPollout(t *testing.T) {
 }
 
 func TestReader(t *testing.T) {
-	pushSock := NewSock(PUSH)
+	pushSock := NewSock(Push)
 	defer pushSock.Destroy()
 
-	pullSock := NewSock(PULL)
+	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
 	_, err := pullSock.Bind("inproc://test-read")
@@ -515,10 +515,10 @@ func TestReader(t *testing.T) {
 }
 
 func TestReaderWithRouterDealer(t *testing.T) {
-	dealerSock := NewSock(DEALER)
+	dealerSock := NewSock(Dealer)
 	defer dealerSock.Destroy()
 
-	routerSock := NewSock(ROUTER)
+	routerSock := NewSock(Router)
 	defer routerSock.Destroy()
 
 	_, err := routerSock.Bind("inproc://test-read")
@@ -590,13 +590,13 @@ func TestReaderWithRouterDealer(t *testing.T) {
 }
 
 func TestReaderWithRouterDealerAsync(t *testing.T) {
-	dealerSock1 := NewSock(DEALER)
+	dealerSock1 := NewSock(Dealer)
 	defer dealerSock1.Destroy()
 
-	dealerSock2 := NewSock(DEALER)
+	dealerSock2 := NewSock(Dealer)
 	defer dealerSock2.Destroy()
 
-	routerSock := NewSock(ROUTER)
+	routerSock := NewSock(Router)
 	defer routerSock.Destroy()
 
 	_, err := routerSock.Bind("inproc://test-read")
@@ -680,12 +680,12 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 }
 
 func ExampleSock_output() {
-	dealer, err := NewDEALER("inproc://example")
+	dealer, err := NewDealer("inproc://example")
 	if err != nil {
 		panic(err)
 	}
 
-	router, err := NewROUTER("inproc://example")
+	router, err := NewRouter("inproc://example")
 	if err != nil {
 		panic(err)
 	}
