@@ -18,28 +18,28 @@ import (
 )
 
 const (
-	REQ    = int(C.ZMQ_REQ)
-	REP    = int(C.ZMQ_REP)
-	DEALER = int(C.ZMQ_DEALER)
-	ROUTER = int(C.ZMQ_ROUTER)
-	PUB    = int(C.ZMQ_PUB)
-	SUB    = int(C.ZMQ_SUB)
-	XPUB   = int(C.ZMQ_XPUB)
-	XSUB   = int(C.ZMQ_XSUB)
-	PUSH   = int(C.ZMQ_PUSH)
-	PULL   = int(C.ZMQ_PULL)
-	PAIR   = int(C.ZMQ_PAIR)
-	STREAM = int(C.ZMQ_STREAM)
+	Req    = int(C.ZMQ_REQ)
+	Rep    = int(C.ZMQ_REP)
+	Dealer = int(C.ZMQ_DEALER)
+	Router = int(C.ZMQ_ROUTER)
+	Pub    = int(C.ZMQ_PUB)
+	Sub    = int(C.ZMQ_SUB)
+	XPub   = int(C.ZMQ_XPUB)
+	XSub   = int(C.ZMQ_XSUB)
+	Push   = int(C.ZMQ_PUSH)
+	Pull   = int(C.ZMQ_PULL)
+	Pair   = int(C.ZMQ_PAIR)
+	Stream = int(C.ZMQ_STREAM)
 
-	POLLIN  = int(C.ZMQ_POLLIN)
-	POLLOUT = int(C.ZMQ_POLLOUT)
+	Pollin  = int(C.ZMQ_POLLIN)
+	Pollout = int(C.ZMQ_POLLOUT)
 
-	ZMSG_TAG = 0x003cafe
-	MORE     = int(C.ZFRAME_MORE)
-	REUSE    = int(C.ZFRAME_REUSE)
-	DONTWAIT = int(C.ZFRAME_DONTWAIT)
+	ZmsgTag  = 0x003cafe
+	More     = int(C.ZFRAME_MORE)
+	Reuse    = int(C.ZFRAME_REUSE)
+	DontWait = int(C.ZFRAME_DONTWAIT)
 
-	CURVE_ALLOW_ANY = "*"
+	CurveAllowAny = "*"
 )
 
 var (
@@ -49,29 +49,29 @@ var (
 
 func getStringType(k int) string {
 	switch k {
-	case REQ:
+	case Req:
 		return "REQ"
-	case REP:
+	case Rep:
 		return "REP"
-	case DEALER:
+	case Dealer:
 		return "DEALER"
-	case ROUTER:
+	case Router:
 		return "ROUTER"
-	case PUB:
+	case Pub:
 		return "PUB"
-	case SUB:
+	case Sub:
 		return "SUB"
-	case XPUB:
+	case XPub:
 		return "XPUB"
-	case XSUB:
+	case XSub:
 		return "XSUB"
-	case PUSH:
+	case Push:
 		return "PUSH"
-	case PULL:
+	case Pull:
 		return "PULL"
-	case PAIR:
+	case Pair:
 		return "PAIR"
-	case STREAM:
+	case Stream:
 		return "STREAM"
 	default:
 		return ""

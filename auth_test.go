@@ -29,7 +29,7 @@ func TestAuthIPAllow(t *testing.T) {
 	}
 
 	// create a pull socket server
-	server := NewSock(PULL)
+	server := NewSock(Pull)
 	server.SetZapDomain("global")
 	defer server.Destroy()
 
@@ -40,7 +40,7 @@ func TestAuthIPAllow(t *testing.T) {
 	}
 
 	// create a push socket client
-	client := NewSock(PUSH)
+	client := NewSock(Push)
 	defer client.Destroy()
 
 	// connect the client to the server socket
@@ -120,7 +120,7 @@ func TestAuthPlain(t *testing.T) {
 	}
 
 	// create a pull socket server and set it to plain authentication
-	server := NewSock(PULL)
+	server := NewSock(Pull)
 	defer server.Destroy()
 	server.SetZapDomain("global")
 	server.SetPlainServer(1)
@@ -132,13 +132,13 @@ func TestAuthPlain(t *testing.T) {
 	}
 
 	// create a push client that will use the correct password
-	goodClient := NewSock(PUSH)
+	goodClient := NewSock(Push)
 	defer goodClient.Destroy()
 	goodClient.SetPlainUsername("admin")
 	goodClient.SetPlainPassword("Password")
 
 	// create a push client that will use a bad password
-	badClient := NewSock(PUSH)
+	badClient := NewSock(Push)
 	defer badClient.Destroy()
 	badClient.SetPlainUsername("admin")
 	badClient.SetPlainPassword("BadPassword")
@@ -206,7 +206,7 @@ func TestAuthCurveAllow(t *testing.T) {
 
 	// create server socket and a server cert pair,
 	// and apply the cert to the server
-	server := NewSock(PULL)
+	server := NewSock(Pull)
 	defer server.Destroy()
 	server.SetZapDomain("global")
 	serverCert := NewCert()
@@ -217,7 +217,7 @@ func TestAuthCurveAllow(t *testing.T) {
 	// create a client + cert, attach
 	// the cert to the client and set the
 	// clients server key
-	goodClient := NewSock(PUSH)
+	goodClient := NewSock(Push)
 	defer goodClient.Destroy()
 	goodClientCert := NewCert()
 	goodClientCert.Apply(goodClient)
@@ -226,11 +226,11 @@ func TestAuthCurveAllow(t *testing.T) {
 	// create a client, and don't assign a
 	// cert or server key. this client should
 	// be rejected.
-	badClient := NewSock(PUSH)
+	badClient := NewSock(Push)
 	defer badClient.Destroy()
 
 	// allow any cert
-	auth.Curve(CURVE_ALLOW_ANY)
+	auth.Curve(CurveAllowAny)
 
 	// bind the server
 	port, err := server.Bind("tcp://127.0.0.1:*")
@@ -308,7 +308,7 @@ func TestAuthCurveCertificate(t *testing.T) {
 	// create a server socket and server cert pair,
 	// get the public key, and apply to the cert
 	// to the server socket.
-	server := NewSock(PULL)
+	server := NewSock(Pull)
 	defer server.Destroy()
 	server.SetZapDomain("global")
 	serverCert := NewCert()
@@ -319,7 +319,7 @@ func TestAuthCurveCertificate(t *testing.T) {
 	// create a client push socket, create a cert
 	// for it and apply it, and add the server
 	// public key to the client.
-	goodClient := NewSock(PUSH)
+	goodClient := NewSock(Push)
 	defer goodClient.Destroy()
 	goodClientCert := NewCert()
 	defer goodClientCert.Destroy()
@@ -332,7 +332,7 @@ func TestAuthCurveCertificate(t *testing.T) {
 
 	// create a client push socket, and a cert for it.
 	// this cert will not be added to the auth list.
-	badClient := NewSock(PUSH)
+	badClient := NewSock(Push)
 	defer badClient.Destroy()
 	badClientCert := NewCert()
 	defer badClientCert.Destroy()
@@ -421,7 +421,7 @@ func ExampleAuth() {
 	defer func() { os.Remove("client_cert") }()
 
 	// create a server, set its auth domain to global
-	server := NewSock(PUSH)
+	server := NewSock(Push)
 	defer server.Destroy()
 	server.SetZapDomain("global")
 
@@ -435,7 +435,7 @@ func ExampleAuth() {
 	// create a client socket, apply the client
 	// certificate to it, and set the server's
 	// public key so it can connect
-	client := NewSock(PULL)
+	client := NewSock(Pull)
 	defer client.Destroy()
 
 	clientCert.Apply(client)

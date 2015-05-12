@@ -85,7 +85,7 @@ func (p *Proxy) SetBackend(sockType int, endpoint string) error {
 	return nil
 }
 
-// SetCapture accepts a socket endpoint and sets up a PUSH socket bound
+// SetCapture accepts a socket endpoint and sets up a Push socket bound
 // to that endpoint, that sends a copy of all messages passing through
 // the proxy.
 func (p *Proxy) SetCapture(endpoint string) error {

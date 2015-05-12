@@ -61,7 +61,7 @@ func (c *Channeler) Close() {
 }
 
 func (c *Channeler) loopSend(closeChan <-chan struct{}, sendChan <-chan [][]byte, attachChan <-chan string) {
-	push, err := NewPUSH(fmt.Sprintf(">inproc://goczmq-channeler-%d", c.id))
+	push, err := NewPush(fmt.Sprintf(">inproc://goczmq-channeler-%d", c.id))
 	if err != nil {
 		panic(err)
 	}
@@ -80,7 +80,7 @@ func (c *Channeler) loopSend(closeChan <-chan struct{}, sendChan <-chan [][]byte
 				if i == numFrames-1 {
 					f = 0
 				} else {
-					f = MORE
+					f = More
 				}
 
 				_ = push.SendFrame(val, f)
@@ -101,7 +101,7 @@ func (c *Channeler) loopMain(sendChan chan<- [][]byte, recvChan chan<- [][]byte,
 		defer close(errChan)
 	}
 
-	pull, err := NewPULL(fmt.Sprintf("@inproc://goczmq-channeler-%d", c.id))
+	pull, err := NewPull(fmt.Sprintf("@inproc://goczmq-channeler-%d", c.id))
 	if err != nil {
 		panic(err)
 	}
@@ -138,7 +138,7 @@ func (c *Channeler) loopMain(sendChan chan<- [][]byte, recvChan chan<- [][]byte,
 			case "attach":
 				var err error
 				switch int(c.sock.Type()) {
-				case PUB, REP, ROUTER, PUSH, XPUB:
+				case Pub, Rep, Router, Push, XPub:
 					err = c.sock.Attach(string(msg[1]), true)
 				default:
 					err = c.sock.Attach(string(msg[1]), false)

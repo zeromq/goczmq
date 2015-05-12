@@ -14,12 +14,12 @@ func TestZproxy(t *testing.T) {
 		t.Errorf("VERBOSE error: %s", err)
 	}
 
-	err = proxy.SetFrontend(PULL, "inproc://frontend")
+	err = proxy.SetFrontend(Pull, "inproc://frontend")
 	if err != nil {
 		t.Errorf("FRONTEND error: %s", err)
 	}
 
-	err = proxy.SetBackend(PUSH, "inproc://backend")
+	err = proxy.SetBackend(Push, "inproc://backend")
 	if err != nil {
 		t.Errorf("BACKEND error: %s", err)
 	}
@@ -30,21 +30,21 @@ func TestZproxy(t *testing.T) {
 	}
 
 	// connect application sockets to proxy
-	faucet := NewSock(PUSH)
+	faucet := NewSock(Push)
 	err = faucet.Connect("inproc://frontend")
 	if err != nil {
 		t.Error(err)
 	}
 	defer faucet.Destroy()
 
-	sink := NewSock(PULL)
+	sink := NewSock(Pull)
 	err = sink.Connect("inproc://backend")
 	if err != nil {
 		t.Error(err)
 	}
 	defer sink.Destroy()
 
-	tap := NewSock(PULL)
+	tap := NewSock(Pull)
 	_, err = tap.Bind("inproc://capture")
 	if err != nil {
 		t.Error(err)
@@ -61,8 +61,8 @@ func TestZproxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == MORE {
-		t.Error("MORE set and should not be")
+	if f == More {
+		t.Error("More set and should not be")
 	}
 
 	if string(b) != "Hello" {
@@ -74,8 +74,8 @@ func TestZproxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == MORE {
-		t.Error("MORE set and should not be")
+	if f == More {
+		t.Error("More set and should not be")
 	}
 
 	if string(b) != "World" {
@@ -88,8 +88,8 @@ func TestZproxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == MORE {
-		t.Error("MORE set and should not be")
+	if f == More {
+		t.Error("More set and should not be")
 	}
 
 	if string(b) != "Hello" {
@@ -101,8 +101,8 @@ func TestZproxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == MORE {
-		t.Error("MORE set and should not be")
+	if f == More {
+		t.Error("More set and should not be")
 	}
 
 	if string(b) != "World" {
@@ -135,8 +135,8 @@ func TestZproxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == MORE {
-		t.Error("MORE set and should not be")
+	if f == More {
+		t.Error("More set and should not be")
 	}
 
 	if string(b) != "Belated Hello" {
@@ -148,8 +148,8 @@ func TestZproxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == MORE {
-		t.Error("MORE set and should not be")
+	if f == More {
+		t.Error("More set and should not be")
 	}
 
 	if string(b) != "Belated Hello" {
@@ -164,13 +164,13 @@ func ProxyExample() {
 	defer proxy.Destroy()
 
 	// set front end address and socket type
-	err := proxy.SetFrontend(PULL, "inproc://frontend")
+	err := proxy.SetFrontend(Pull, "inproc://frontend")
 	if err != nil {
 		panic(err)
 	}
 
 	// set back end address and socket type
-	err = proxy.SetBackend(PUSH, "inproc://backend")
+	err = proxy.SetBackend(Push, "inproc://backend")
 	if err != nil {
 		panic(err)
 	}

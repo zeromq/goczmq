@@ -15,7 +15,7 @@ import (
 
 func main() {
 	pubEndpoint := "tcp://127.0.0.1:5556"
-	pubSock, err := czmq.NewPUB(pubEndpoint)
+	pubSock, err := czmq.NewPub(pubEndpoint)
 	if err != nil {
 		panic(err)
 	}

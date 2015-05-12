@@ -1,6 +1,5 @@
 //go:generate gsl sockopts.xml
 package goczmq
-
 /*  =========================================================================
     zsock_option - get/set 0MQ socket options
 
@@ -21,9 +20,8 @@ package goczmq
 import (
 	"testing"
 )
-
 func TestTos(t *testing.T) {
-	sock := NewSock(DEALER)
+	sock := NewSock(Dealer)
 	testval := 1
 	sock.SetTos(testval)
 	val := sock.Tos()
@@ -34,49 +32,49 @@ func TestTos(t *testing.T) {
 }
 
 func TestRouterHandover(t *testing.T) {
-	sock := NewSock(ROUTER)
+	sock := NewSock(Router)
 	testval := 1
 	sock.SetRouterHandover(testval)
 	sock.Destroy()
 }
 
 func TestRouterMandatory(t *testing.T) {
-	sock := NewSock(ROUTER)
+	sock := NewSock(Router)
 	testval := 1
 	sock.SetRouterMandatory(testval)
 	sock.Destroy()
 }
 
 func TestProbeRouter(t *testing.T) {
-	sock := NewSock(DEALER)
+	sock := NewSock(Dealer)
 	testval := 1
 	sock.SetProbeRouter(testval)
 	sock.Destroy()
 }
 
 func TestReqRelaxed(t *testing.T) {
-	sock := NewSock(REQ)
+	sock := NewSock(Req)
 	testval := 1
 	sock.SetReqRelaxed(testval)
 	sock.Destroy()
 }
 
 func TestReqCorrelate(t *testing.T) {
-	sock := NewSock(REQ)
+	sock := NewSock(Req)
 	testval := 1
 	sock.SetReqCorrelate(testval)
 	sock.Destroy()
 }
 
 func TestConflate(t *testing.T) {
-	sock := NewSock(PUSH)
+	sock := NewSock(Push)
 	testval := 1
 	sock.SetConflate(testval)
 	sock.Destroy()
 }
 
 func TestZapDomain(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := "test"
 	sock.SetZapDomain(testval)
 	val := sock.ZapDomain()
@@ -87,7 +85,7 @@ func TestZapDomain(t *testing.T) {
 }
 
 func TestPlainServer(t *testing.T) {
-	sock := NewSock(PUB)
+	sock := NewSock(Pub)
 	testval := 1
 	sock.SetPlainServer(testval)
 	val := sock.PlainServer()
@@ -98,7 +96,7 @@ func TestPlainServer(t *testing.T) {
 }
 
 func TestPlainUsername(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := "test"
 	sock.SetPlainUsername(testval)
 	val := sock.PlainUsername()
@@ -109,7 +107,7 @@ func TestPlainUsername(t *testing.T) {
 }
 
 func TestPlainPassword(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := "test"
 	sock.SetPlainPassword(testval)
 	val := sock.PlainPassword()
@@ -120,7 +118,7 @@ func TestPlainPassword(t *testing.T) {
 }
 
 func TestIpv6(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetIpv6(testval)
 	val := sock.Ipv6()
@@ -131,7 +129,7 @@ func TestIpv6(t *testing.T) {
 }
 
 func TestImmediate(t *testing.T) {
-	sock := NewSock(DEALER)
+	sock := NewSock(Dealer)
 	testval := 1
 	sock.SetImmediate(testval)
 	val := sock.Immediate()
@@ -142,14 +140,14 @@ func TestImmediate(t *testing.T) {
 }
 
 func TestRouterRaw(t *testing.T) {
-	sock := NewSock(ROUTER)
+	sock := NewSock(Router)
 	testval := 1
 	sock.SetRouterRaw(testval)
 	sock.Destroy()
 }
 
 func TestIpv4only(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetIpv4only(testval)
 	val := sock.Ipv4only()
@@ -160,14 +158,14 @@ func TestIpv4only(t *testing.T) {
 }
 
 func TestDelayAttachOnConnect(t *testing.T) {
-	sock := NewSock(PUB)
+	sock := NewSock(Pub)
 	testval := 1
 	sock.SetDelayAttachOnConnect(testval)
 	sock.Destroy()
 }
 
 func TestSndhwm(t *testing.T) {
-	sock := NewSock(PUB)
+	sock := NewSock(Pub)
 	testval := 1
 	sock.SetSndhwm(testval)
 	val := sock.Sndhwm()
@@ -178,7 +176,7 @@ func TestSndhwm(t *testing.T) {
 }
 
 func TestRcvhwm(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetRcvhwm(testval)
 	val := sock.Rcvhwm()
@@ -189,7 +187,7 @@ func TestRcvhwm(t *testing.T) {
 }
 
 func TestAffinity(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetAffinity(testval)
 	val := sock.Affinity()
@@ -200,21 +198,21 @@ func TestAffinity(t *testing.T) {
 }
 
 func TestSubscribe(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := "test"
 	sock.SetSubscribe(testval)
 	sock.Destroy()
 }
 
 func TestUnsubscribe(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := "test"
 	sock.SetUnsubscribe(testval)
 	sock.Destroy()
 }
 
 func TestIdentity(t *testing.T) {
-	sock := NewSock(DEALER)
+	sock := NewSock(Dealer)
 	testval := "test"
 	sock.SetIdentity(testval)
 	val := sock.Identity()
@@ -225,7 +223,7 @@ func TestIdentity(t *testing.T) {
 }
 
 func TestRate(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetRate(testval)
 	val := sock.Rate()
@@ -236,7 +234,7 @@ func TestRate(t *testing.T) {
 }
 
 func TestRecoveryIvl(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetRecoveryIvl(testval)
 	val := sock.RecoveryIvl()
@@ -247,7 +245,7 @@ func TestRecoveryIvl(t *testing.T) {
 }
 
 func TestSndbuf(t *testing.T) {
-	sock := NewSock(PUB)
+	sock := NewSock(Pub)
 	testval := 1
 	sock.SetSndbuf(testval)
 	val := sock.Sndbuf()
@@ -258,7 +256,7 @@ func TestSndbuf(t *testing.T) {
 }
 
 func TestRcvbuf(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetRcvbuf(testval)
 	val := sock.Rcvbuf()
@@ -269,7 +267,7 @@ func TestRcvbuf(t *testing.T) {
 }
 
 func TestLinger(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetLinger(testval)
 	val := sock.Linger()
@@ -280,7 +278,7 @@ func TestLinger(t *testing.T) {
 }
 
 func TestReconnectIvl(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetReconnectIvl(testval)
 	val := sock.ReconnectIvl()
@@ -291,7 +289,7 @@ func TestReconnectIvl(t *testing.T) {
 }
 
 func TestReconnectIvlMax(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetReconnectIvlMax(testval)
 	val := sock.ReconnectIvlMax()
@@ -302,7 +300,7 @@ func TestReconnectIvlMax(t *testing.T) {
 }
 
 func TestBacklog(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetBacklog(testval)
 	val := sock.Backlog()
@@ -313,7 +311,7 @@ func TestBacklog(t *testing.T) {
 }
 
 func TestMaxmsgsize(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetMaxmsgsize(testval)
 	val := sock.Maxmsgsize()
@@ -324,7 +322,7 @@ func TestMaxmsgsize(t *testing.T) {
 }
 
 func TestMulticastHops(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetMulticastHops(testval)
 	val := sock.MulticastHops()
@@ -335,7 +333,7 @@ func TestMulticastHops(t *testing.T) {
 }
 
 func TestRcvtimeo(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetRcvtimeo(testval)
 	val := sock.Rcvtimeo()
@@ -346,7 +344,7 @@ func TestRcvtimeo(t *testing.T) {
 }
 
 func TestSndtimeo(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetSndtimeo(testval)
 	val := sock.Sndtimeo()
@@ -357,14 +355,14 @@ func TestSndtimeo(t *testing.T) {
 }
 
 func TestXpubVerbose(t *testing.T) {
-	sock := NewSock(XPUB)
+	sock := NewSock(XPub)
 	testval := 1
 	sock.SetXpubVerbose(testval)
 	sock.Destroy()
 }
 
 func TestTcpKeepalive(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetTcpKeepalive(testval)
 	val := sock.TcpKeepalive()
@@ -375,7 +373,7 @@ func TestTcpKeepalive(t *testing.T) {
 }
 
 func TestTcpKeepaliveIdle(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetTcpKeepaliveIdle(testval)
 	val := sock.TcpKeepaliveIdle()
@@ -386,7 +384,7 @@ func TestTcpKeepaliveIdle(t *testing.T) {
 }
 
 func TestTcpKeepaliveCnt(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetTcpKeepaliveCnt(testval)
 	val := sock.TcpKeepaliveCnt()
@@ -397,7 +395,7 @@ func TestTcpKeepaliveCnt(t *testing.T) {
 }
 
 func TestTcpKeepaliveIntvl(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := 1
 	sock.SetTcpKeepaliveIntvl(testval)
 	val := sock.TcpKeepaliveIntvl()
@@ -408,7 +406,7 @@ func TestTcpKeepaliveIntvl(t *testing.T) {
 }
 
 func TestTcpAcceptFilter(t *testing.T) {
-	sock := NewSock(SUB)
+	sock := NewSock(Sub)
 	testval := "127.0.0.1"
 	sock.SetTcpAcceptFilter(testval)
 	val := sock.TcpAcceptFilter()
@@ -417,3 +415,4 @@ func TestTcpAcceptFilter(t *testing.T) {
 	}
 	sock.Destroy()
 }
+
