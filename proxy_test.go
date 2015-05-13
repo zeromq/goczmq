@@ -159,7 +159,7 @@ func TestZproxy(t *testing.T) {
 	proxy.Destroy()
 }
 
-func ProxyExample() {
+func ExampleProxy() {
 	proxy := NewProxy()
 	defer proxy.Destroy()
 
