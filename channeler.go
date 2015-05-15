@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"runtime"
+	"sync/atomic"
 )
 
 // Channeler serializes all access to a socket through a send, receive
@@ -14,8 +15,9 @@ import (
 // of the passed socket and will destroy it when the close channel
 // is closed.
 type Channeler struct {
-	sock *Sock
-	id   int64
+	sock   *Sock
+	id     int64
+	closed int
 
 	closeChan  chan<- struct{}
 	SendChan   chan<- [][]byte
@@ -57,7 +59,9 @@ func NewChanneler(sock *Sock, sendErrors bool) *Channeler {
 
 // Close closes the close channel sigaling the channeler to shut down
 func (c *Channeler) Close() {
-	close(c.closeChan)
+	if atomic.CompareAndSwapInt32(&c.closed, 0, 1) == 0 {
+		close(c.closeChan)
+	}
 }
 
 func (c *Channeler) loopSend(closeChan <-chan struct{}, sendChan <-chan [][]byte, attachChan <-chan string) {
