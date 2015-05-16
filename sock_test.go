@@ -14,12 +14,12 @@ func TestSendFrame(t *testing.T) {
 	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
-	_, err := pullSock.Bind("inproc://test-sock")
+	_, err := pullSock.Bind("inproc://test-send-frame")
 	if err != nil {
 		t.Errorf("repSock.Bind failed: %s", err)
 	}
 
-	err = pushSock.Connect("inproc://test-sock")
+	err = pushSock.Connect("inproc://test-send-frame")
 	if err != nil {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
@@ -73,12 +73,12 @@ func TestSendEmptyFrame(t *testing.T) {
 	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
-	_, err := pullSock.Bind("inproc://test-sock")
+	_, err := pullSock.Bind("inproc://test-send-empty")
 	if err != nil {
 		t.Errorf("repSock.Bind failed: %s", err)
 	}
 
-	err = pushSock.Connect("inproc://test-sock")
+	err = pushSock.Connect("inproc://test-send-empty")
 	if err != nil {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
@@ -106,12 +106,12 @@ func TestSendMessage(t *testing.T) {
 	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
-	_, err := pullSock.Bind("inproc://test-sock")
+	_, err := pullSock.Bind("inproc://test-send-msg")
 	if err != nil {
 		t.Errorf("repSock.Bind failed: %s", err)
 	}
 
-	err = pushSock.Connect("inproc://test-sock")
+	err = pushSock.Connect("inproc://test-send-msg")
 	if err != nil {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
@@ -521,12 +521,12 @@ func TestReaderWithRouterDealer(t *testing.T) {
 	routerSock := NewSock(Router)
 	defer routerSock.Destroy()
 
-	_, err := routerSock.Bind("inproc://test-read")
+	_, err := routerSock.Bind("inproc://test-read-router")
 	if err != nil {
 		t.Errorf("repSock.Bind failed: %s", err)
 	}
 
-	err = dealerSock.Connect("inproc://test-read")
+	err = dealerSock.Connect("inproc://test-read-router")
 	if err != nil {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
@@ -599,12 +599,12 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 	routerSock := NewSock(Router)
 	defer routerSock.Destroy()
 
-	_, err := routerSock.Bind("inproc://test-read")
+	_, err := routerSock.Bind("inproc://test-read-router-async")
 	if err != nil {
 		t.Errorf("repSock.Bind failed: %s", err)
 	}
 
-	err = dealerSock1.Connect("inproc://test-read")
+	err = dealerSock1.Connect("inproc://test-read-router-async")
 	if err != nil {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
@@ -614,7 +614,7 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 		t.Errorf("dealerSock.SendFrame failed: %s", err)
 	}
 
-	err = dealerSock2.Connect("inproc://test-read")
+	err = dealerSock2.Connect("inproc://test-read-router-async")
 	if err != nil {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
