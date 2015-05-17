@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestZproxy(t *testing.T) {
+func TestProxy(t *testing.T) {
 	// Create and configure our proxy
 	proxy := NewProxy()
 	defer proxy.Destroy()
@@ -195,3 +195,58 @@ func ExampleProxy() {
 
 	proxy.Destroy()
 }
+
+func benchmarkProxySendFrame(size int, b *testing.B) {
+	proxy := NewProxy()
+	defer proxy.Destroy()
+
+	err := proxy.SetFrontend(Pull, "inproc://benchProxyFront")
+	if err != nil {
+		panic(err)
+	}
+
+	err = proxy.SetBackend(Push, "inproc://benchProxyBack")
+	if err != nil {
+		panic(err)
+	}
+
+	pullSock := NewSock(Pull)
+	defer pullSock.Destroy()
+
+	err = pullSock.Connect("inproc://benchProxyBack")
+	if err != nil {
+		panic(err)
+	}
+
+	go func() {
+		pushSock := NewSock(Push)
+		defer pushSock.Destroy()
+		err := pushSock.Connect("inproc://benchProxyFront")
+		if err != nil {
+			panic(err)
+		}
+
+		payload := make([]byte, size)
+		for i := 0; i < b.N; i++ {
+			err = pushSock.SendFrame(payload, 0)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	for i := 0; i < b.N; i++ {
+		msg, _, err := pullSock.RecvFrame()
+		if err != nil {
+			panic(err)
+		}
+		if len(msg) != size {
+			panic("msg too small")
+		}
+	}
+}
+
+func BenchmarkProxySendFrame1k(b *testing.B)  { benchmarkProxySendFrame(1024, b) }
+func BenchmarkProxySendFrame4k(b *testing.B)  { benchmarkProxySendFrame(4096, b) }
+func BenchmarkProxySendFrame16k(b *testing.B) { benchmarkProxySendFrame(16384, b) }
+func BenchmarkProxySendFrame65k(b *testing.B) { benchmarkProxySendFrame(65536, b) }
