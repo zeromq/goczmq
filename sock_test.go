@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"sync"
 	"testing"
 )
 
@@ -714,17 +713,7 @@ func ExampleSock_output() {
 	// Output: Hello World
 }
 
-func newSyncPool(size int) *sync.Pool {
-	return &sync.Pool{
-		New: func() interface{} {
-			return make([]byte, size)
-		},
-	}
-}
-
 func benchmarkSendFrame(size int, b *testing.B) {
-	pool := newSyncPool(size)
-
 	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
@@ -741,13 +730,12 @@ func benchmarkSendFrame(size int, b *testing.B) {
 			panic(err)
 		}
 
+		payload := make([]byte, size)
 		for i := 0; i < b.N; i++ {
-			payload := pool.Get().([]byte)
 			err = pushSock.SendFrame(payload, 0)
 			if err != nil {
 				panic(err)
 			}
-			pool.Put(payload)
 		}
 	}()
 
