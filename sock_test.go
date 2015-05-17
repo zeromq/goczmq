@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"sync"
 	"testing"
 )
 
@@ -712,3 +713,56 @@ func ExampleSock_output() {
 	fmt.Printf("%s %s", string(reply[0]), string(reply[1]))
 	// Output: Hello World
 }
+
+func newSyncPool(size int) *sync.Pool {
+	return &sync.Pool{
+		New: func() interface{} {
+			return make([]byte, size)
+		},
+	}
+}
+
+func benchmarkSendFrame(size int, b *testing.B) {
+	pool := newSyncPool(size)
+
+	pullSock := NewSock(Pull)
+	defer pullSock.Destroy()
+
+	_, err := pullSock.Bind("inproc://benchDealerRouter")
+	if err != nil {
+		panic(err)
+	}
+
+	go func() {
+		pushSock := NewSock(Dealer)
+		defer pushSock.Destroy()
+		err := pushSock.Connect("inproc://benchDealerRouter")
+		if err != nil {
+			panic(err)
+		}
+
+		for i := 0; i < b.N; i++ {
+			payload := pool.Get().([]byte)
+			err = pushSock.SendFrame(payload, 0)
+			if err != nil {
+				panic(err)
+			}
+			pool.Put(payload)
+		}
+	}()
+
+	for i := 0; i < b.N; i++ {
+		msg, _, err := pullSock.RecvFrame()
+		if err != nil {
+			panic(err)
+		}
+		if len(msg) != size {
+			panic("msg too small")
+		}
+	}
+}
+
+func BenchmarkSendFrame1k(b *testing.B)  { benchmarkSendFrame(1024, b) }
+func BenchmarkSendFrame4k(b *testing.B)  { benchmarkSendFrame(4096, b) }
+func BenchmarkSendFrame16k(b *testing.B) { benchmarkSendFrame(16384, b) }
+func BenchmarkSendFrame65k(b *testing.B) { benchmarkSendFrame(65536, b) }
