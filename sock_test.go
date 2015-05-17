@@ -750,7 +750,7 @@ func benchmarkSockSendFrame(size int, b *testing.B) {
 	}
 }
 
-func BenchmarkSendFrame1k(b *testing.B)  { benchmarkSockSendFrame(1024, b) }
-func BenchmarkSendFrame4k(b *testing.B)  { benchmarkSockSendFrame(4096, b) }
-func BenchmarkSendFrame16k(b *testing.B) { benchmarkSockSendFrame(16384, b) }
-func BenchmarkSendFrame65k(b *testing.B) { benchmarkSockSendFrame(65536, b) }
+func BenchmarkSockSendFrame1k(b *testing.B)  { benchmarkSockSendFrame(1024, b) }
+func BenchmarkSockSendFrame4k(b *testing.B)  { benchmarkSockSendFrame(4096, b) }
+func BenchmarkSockSendFrame16k(b *testing.B) { benchmarkSockSendFrame(16384, b) }
+func BenchmarkSockSendFrame65k(b *testing.B) { benchmarkSockSendFrame(65536, b) }
