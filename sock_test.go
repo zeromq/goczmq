@@ -713,19 +713,19 @@ func ExampleSock_output() {
 	// Output: Hello World
 }
 
-func benchmarkSendFrame(size int, b *testing.B) {
+func benchmarkSockSendFrame(size int, b *testing.B) {
 	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
-	_, err := pullSock.Bind("inproc://benchDealerRouter")
+	_, err := pullSock.Bind("inproc://benchSock")
 	if err != nil {
 		panic(err)
 	}
 
 	go func() {
-		pushSock := NewSock(Dealer)
+		pushSock := NewSock(Push)
 		defer pushSock.Destroy()
-		err := pushSock.Connect("inproc://benchDealerRouter")
+		err := pushSock.Connect("inproc://benchSock")
 		if err != nil {
 			panic(err)
 		}
@@ -750,7 +750,7 @@ func benchmarkSendFrame(size int, b *testing.B) {
 	}
 }
 
-func BenchmarkSendFrame1k(b *testing.B)  { benchmarkSendFrame(1024, b) }
-func BenchmarkSendFrame4k(b *testing.B)  { benchmarkSendFrame(4096, b) }
-func BenchmarkSendFrame16k(b *testing.B) { benchmarkSendFrame(16384, b) }
-func BenchmarkSendFrame65k(b *testing.B) { benchmarkSendFrame(65536, b) }
+func BenchmarkSendFrame1k(b *testing.B)  { benchmarkSockSendFrame(1024, b) }
+func BenchmarkSendFrame4k(b *testing.B)  { benchmarkSockSendFrame(4096, b) }
+func BenchmarkSendFrame16k(b *testing.B) { benchmarkSockSendFrame(16384, b) }
+func BenchmarkSendFrame65k(b *testing.B) { benchmarkSockSendFrame(65536, b) }
