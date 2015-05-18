@@ -129,3 +129,52 @@ func ExamplePoller() {
 	// Poller.Wait(millis) returns first socket that has a waiting message
 	_ = poller.Wait(1)
 }
+
+func benchmarkPollerSendFrame(size int, b *testing.B) {
+	pullSock := NewSock(Pull)
+	defer pullSock.Destroy()
+
+	_, err := pullSock.Bind("inproc://benchSock")
+	if err != nil {
+		panic(err)
+	}
+
+	go func() {
+		pushSock := NewSock(Push)
+		defer pushSock.Destroy()
+		err := pushSock.Connect("inproc://benchSock")
+		if err != nil {
+			panic(err)
+		}
+
+		payload := make([]byte, size)
+		for i := 0; i < b.N; i++ {
+			err = pushSock.SendFrame(payload, 0)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	poller, err := NewPoller(pullSock)
+	if err != nil {
+		panic(err)
+	}
+	defer poller.Destroy()
+
+	for i := 0; i < b.N; i++ {
+		s := poller.Wait(-1)
+		msg, _, err := s.RecvFrame()
+		if err != nil {
+			panic(err)
+		}
+		if len(msg) != size {
+			panic("msg too small")
+		}
+	}
+}
+
+func BenchmarkPollerSendFrame1k(b *testing.B)  { benchmarkPollerSendFrame(1024, b) }
+func BenchmarkPollerSendFrame4k(b *testing.B)  { benchmarkPollerSendFrame(4096, b) }
+func BenchmarkPollerSendFrame16k(b *testing.B) { benchmarkPollerSendFrame(16384, b) }
+func BenchmarkPollerSendFrame65k(b *testing.B) { benchmarkPollerSendFrame(65536, b) }
