@@ -83,3 +83,39 @@ func ExampleChanneler() {
 
 	routerChan.Close()
 }
+
+func benchmarkChanneler(size int, b *testing.B) {
+	pullSock := NewSock(Pull)
+	pullSock.Bind("inproc://benchChan")
+	defer pullSock.Destroy()
+
+	channeler := NewChanneler(pullSock, false)
+	time.Sleep(10 * time.Millisecond)
+
+	go func() {
+		pushSock := NewSock(Push)
+		defer pushSock.Destroy()
+		err := pushSock.Connect("inproc://benchChan")
+		if err != nil {
+			panic(err)
+		}
+
+		payload := make([]byte, size)
+		for i := 0; i < b.N; i++ {
+			_, err = pushSock.Write(payload)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	for i := 0; i < b.N; i++ {
+		msg := <-channeler.RecvChan
+		if len(msg[0]) != size {
+			panic("msg too small")
+		}
+	}
+	channeler.Close()
+}
+
+func BenchmarkChanneler1k(b *testing.B) { benchmarkChanneler(1024, b) }
