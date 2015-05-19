@@ -9,9 +9,13 @@ func TestBeacon(t *testing.T) {
 	// Create a Beacon
 	speaker := NewBeacon()
 
-	err := speaker.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+	var err error
+
+	if testing.Verbose() {
+		err := speaker.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	_, err = speaker.Configure(9999)
@@ -20,9 +24,12 @@ func TestBeacon(t *testing.T) {
 	}
 
 	listener := NewBeacon()
-	err = listener.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+
+	if testing.Verbose() {
+		err = listener.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	_, err = listener.Configure(9999)

@@ -8,9 +8,13 @@ func TestGossip(t *testing.T) {
 	server1 := NewGossip("server1")
 	defer server1.Destroy()
 
-	err := server1.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+	var err error
+
+	if testing.Verbose() {
+		err = server1.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	err = server1.Bind("inproc://server1")
@@ -22,9 +26,11 @@ func TestGossip(t *testing.T) {
 	server2 := NewGossip("server2")
 	defer server2.Destroy()
 
-	err = server2.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+	if testing.Verbose() {
+		err = server2.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	err = server2.Bind("inproc://server2")
@@ -39,9 +45,12 @@ func TestGossip(t *testing.T) {
 
 	// client1
 	client1 := NewGossip("client1")
-	err = client1.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+
+	if testing.Verbose() {
+		err = client1.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	err = client1.Bind("inproc://client1")
@@ -71,9 +80,12 @@ func TestGossip(t *testing.T) {
 
 	// client2
 	client2 := NewGossip("client2")
-	err = client2.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+
+	if testing.Verbose() {
+		err = client2.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	err = client2.Bind("inproc://client2")
@@ -103,9 +115,12 @@ func TestGossip(t *testing.T) {
 
 	// client3
 	client3 := NewGossip("client3")
-	err = client3.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+
+	if testing.Verbose() {
+		err = client3.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	err = client3.Connect("inproc://server2")
@@ -115,9 +130,12 @@ func TestGossip(t *testing.T) {
 
 	// client4
 	client4 := NewGossip("client4")
-	err = client4.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+
+	if testing.Verbose() {
+		err = client4.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	err = client4.Connect("inproc://server2")

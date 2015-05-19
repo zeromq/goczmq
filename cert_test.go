@@ -49,7 +49,9 @@ func TestCert(t *testing.T) {
 		t.Error("Duplicated cert should be equal, is not.")
 	}
 
-	cert.Print()
+	if testing.Verbose() {
+		cert.Print()
+	}
 
 	cert.Save("./test_cert")
 	loaded, err := NewCertFromFile("./test_cert")
@@ -62,7 +64,9 @@ func TestCert(t *testing.T) {
 		t.Error("Loaded cert is not equal to saved cert")
 	}
 
-	loaded.Print()
+	if testing.Verbose() {
+		loaded.Print()
+	}
 
 	os.Remove("./test_cert")
 	os.Remove("./test_cert_secret")
