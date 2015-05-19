@@ -9,9 +9,13 @@ func TestProxy(t *testing.T) {
 	proxy := NewProxy()
 	defer proxy.Destroy()
 
-	err := proxy.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+	var err error
+
+	if testing.Verbose() {
+		err = proxy.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	err = proxy.SetFrontend(Pull, "inproc://frontend")

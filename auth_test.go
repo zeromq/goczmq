@@ -17,9 +17,13 @@ func TestAuthIPAllow(t *testing.T) {
 	auth := NewAuth()
 	defer auth.Destroy()
 
-	err := auth.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+	var err error
+
+	if testing.Verbose() {
+		err = auth.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	// set the auth actor to allow connections from localhost
@@ -101,9 +105,11 @@ func TestAuthPlain(t *testing.T) {
 	auth := NewAuth()
 	defer auth.Destroy()
 
-	err = auth.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+	if testing.Verbose() {
+		err = auth.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	// set the auth actor to allow connections from localhost
@@ -199,9 +205,13 @@ func TestAuthCurveAllow(t *testing.T) {
 	auth := NewAuth()
 	defer auth.Destroy()
 
-	err := auth.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+	var err error
+
+	if testing.Verbose() {
+		err = auth.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	// create server socket and a server cert pair,
@@ -299,10 +309,11 @@ func TestAuthCurveCertificate(t *testing.T) {
 	auth := NewAuth()
 	defer auth.Destroy()
 
-	// set verbose
-	err = auth.Verbose()
-	if err != nil {
-		t.Errorf("VERBOSE error: %s", err)
+	if testing.Verbose() {
+		err = auth.Verbose()
+		if err != nil {
+			t.Errorf("VERBOSE error: %s", err)
+		}
 	}
 
 	// create a server socket and server cert pair,
