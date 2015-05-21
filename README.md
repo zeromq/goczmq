@@ -1,7 +1,7 @@
 # goczmq [![Build Status](https://travis-ci.org/zeromq/goczmq.svg?branch=master)](https://travis-ci.org/zeromq/goczmq) [![Doc Status](https://godoc.org/github.com/zeromq/goczmq?status.png)](https://godoc.org/github.com/zeromq/goczmq)
 
 ## Introduction
-A golang interface to [CZMQ](http://czmq.zeromq.org)
+A golang interface to the [CZMQ](http://czmq.zeromq.org) ZeroMQ API.
 
 ## Installation
 
