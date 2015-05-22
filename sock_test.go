@@ -24,7 +24,7 @@ func TestSendFrame(t *testing.T) {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	err = pushSock.SendFrame([]byte("Hello"), 0)
+	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
 	if err != nil {
 		t.Errorf("pushSock.SendFrame failed: %s", err)
 	}
@@ -47,7 +47,7 @@ func TestSendFrame(t *testing.T) {
 		t.Errorf("flag shouled have been 0, is '%d'", flag)
 	}
 
-	err = pushSock.SendFrame([]byte("World"), 0)
+	err = pushSock.SendFrame([]byte("World"), FlagNone)
 	if err != nil {
 		t.Errorf("pushSock.SendFrame failed: %s", err)
 	}
@@ -84,7 +84,7 @@ func TestSendEmptyFrame(t *testing.T) {
 	}
 
 	empty := make([]byte, 0)
-	err = pushSock.SendFrame(empty, 0)
+	err = pushSock.SendFrame(empty, FlagNone)
 	if err != nil {
 		t.Errorf("pushSock.SendFrame failed: %s", err)
 	}
@@ -165,7 +165,7 @@ func TestPubSub(t *testing.T) {
 	}
 	defer sub.Destroy()
 
-	err = pub.SendFrame([]byte("test pub sub"), 0)
+	err = pub.SendFrame([]byte("test pub sub"), FlagNone)
 	if err != nil {
 		t.Errorf("SendFrame failed: %s", err)
 	}
@@ -203,7 +203,7 @@ func TestReqRep(t *testing.T) {
 	}
 	defer req.Destroy()
 
-	err = req.SendFrame([]byte("Hello"), 0)
+	err = req.SendFrame([]byte("Hello"), FlagNone)
 	if err != nil {
 		t.Errorf("SendFrame failed: %s", err)
 	}
@@ -217,7 +217,7 @@ func TestReqRep(t *testing.T) {
 		t.Errorf("Expected 'Hello', received '%s", string(reqframe))
 	}
 
-	err = rep.SendFrame([]byte("World"), 0)
+	err = rep.SendFrame([]byte("World"), FlagNone)
 	if err != nil {
 		t.Errorf("SendFrame failed: %s", err)
 	}
@@ -256,12 +256,12 @@ func TestPushPull(t *testing.T) {
 	}
 	defer pull.Destroy()
 
-	err = push.SendFrame([]byte("Hello"), 1)
+	err = push.SendFrame([]byte("Hello"), FlagMore)
 	if err != nil {
 		t.Errorf("SendFrame failed: %s", err)
 	}
 
-	err = push.SendFrame([]byte("World"), 0)
+	err = push.SendFrame([]byte("World"), FlagNone)
 	if err != nil {
 		t.Errorf("SendFrame failed: %s", err)
 	}
@@ -303,7 +303,7 @@ func TestRouterDealer(t *testing.T) {
 	}
 	defer router.Destroy()
 
-	err = dealer.SendFrame([]byte("Hello"), 0)
+	err = dealer.SendFrame([]byte("Hello"), FlagNone)
 	if err != nil {
 		t.Errorf("SendMessage failed: %s", err)
 	}
@@ -421,7 +421,7 @@ func TestPollin(t *testing.T) {
 		t.Errorf("Pollin returned true should be false")
 	}
 
-	err = push.SendFrame([]byte("Hello World"), 0)
+	err = push.SendFrame([]byte("Hello World"), FlagNone)
 	if err != nil {
 		t.Errorf("SendFrame failed: %s", err)
 	}
@@ -473,7 +473,7 @@ func TestReader(t *testing.T) {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	err = pushSock.SendFrame([]byte("Hello"), 0)
+	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
 	if err != nil {
 		t.Errorf("pushSock.SendFrame failed: %s", err)
 	}
@@ -493,12 +493,12 @@ func TestReader(t *testing.T) {
 		t.Errorf("expected 'Hello' received '%s'", b)
 	}
 
-	err = pushSock.SendFrame([]byte("Hello"), 1)
+	err = pushSock.SendFrame([]byte("Hello"), FlagMore)
 	if err != nil {
 		t.Errorf("pushSock.SendFrame: %s", err)
 	}
 
-	err = pushSock.SendFrame([]byte(" World"), 0)
+	err = pushSock.SendFrame([]byte(" World"), FlagNone)
 	if err != nil {
 		t.Errorf("pushSock.SendFrame: %s", err)
 	}
@@ -531,7 +531,7 @@ func TestReaderWithRouterDealer(t *testing.T) {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	err = dealerSock.SendFrame([]byte("Hello"), 0)
+	err = dealerSock.SendFrame([]byte("Hello"), FlagNone)
 	if err != nil {
 		t.Errorf("dealerSock.SendFrame failed: %s", err)
 	}
@@ -551,12 +551,12 @@ func TestReaderWithRouterDealer(t *testing.T) {
 		t.Errorf("expected 'Hello' received '%s'", b)
 	}
 
-	err = dealerSock.SendFrame([]byte("Hello"), 1)
+	err = dealerSock.SendFrame([]byte("Hello"), FlagMore)
 	if err != nil {
 		t.Errorf("dealerSock.SendFrame: %s", err)
 	}
 
-	err = dealerSock.SendFrame([]byte(" World"), 0)
+	err = dealerSock.SendFrame([]byte(" World"), FlagNone)
 	if err != nil {
 		t.Errorf("dealerSock.SendFrame: %s", err)
 	}
@@ -609,7 +609,7 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	err = dealerSock1.SendFrame([]byte("Hello From Client 1!"), 0)
+	err = dealerSock1.SendFrame([]byte("Hello From Client 1!"), FlagNone)
 	if err != nil {
 		t.Errorf("dealerSock.SendFrame failed: %s", err)
 	}
@@ -619,7 +619,7 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	err = dealerSock2.SendFrame([]byte("Hello From Client 2!"), 0)
+	err = dealerSock2.SendFrame([]byte("Hello From Client 2!"), FlagNone)
 	if err != nil {
 		t.Errorf("dealerSock.SendFrame failed: %s", err)
 	}
@@ -689,7 +689,7 @@ func ExampleSock_output() {
 	if err != nil {
 		panic(err)
 	}
-	dealer.SendFrame([]byte("Hello"), 0)
+	dealer.SendFrame([]byte("Hello"), FlagNone)
 
 	request, err := router.RecvMessage()
 	if err != nil {
@@ -732,7 +732,7 @@ func benchmarkSockSendFrame(size int, b *testing.B) {
 
 		payload := make([]byte, size)
 		for i := 0; i < b.N; i++ {
-			err = pushSock.SendFrame(payload, 0)
+			err = pushSock.SendFrame(payload, FlagNone)
 			if err != nil {
 				panic(err)
 			}

@@ -34,10 +34,10 @@ const (
 	Pollin  = int(C.ZMQ_POLLIN)
 	Pollout = int(C.ZMQ_POLLOUT)
 
-	ZmsgTag  = 0x003cafe
-	More     = int(C.ZFRAME_MORE)
-	Reuse    = int(C.ZFRAME_REUSE)
-	DontWait = int(C.ZFRAME_DONTWAIT)
+	FlagMore     = int(C.ZFRAME_MORE)
+	FlagReuse    = int(C.ZFRAME_REUSE)
+	FlagDontWait = int(C.ZFRAME_DONTWAIT)
+	FlagNone     = 0
 
 	CurveAllowAny = "*"
 )

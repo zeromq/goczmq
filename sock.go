@@ -240,7 +240,7 @@ func (s *Sock) Pollout() bool {
 }
 
 // SendFrame sends a byte array via the socket.  For the flags
-// value, use 0 for a single message, or SNDMore if it is
+// value, use 0 for a single message, or SNDFlagMore if it is
 // a multi-part message
 func (s *Sock) SendFrame(data []byte, flags int) error {
 	var rc C.int
@@ -297,7 +297,7 @@ func (s *Sock) SendMessage(parts [][]byte) error {
 		if i == numParts-1 {
 			f = 0
 		} else {
-			f = More
+			f = FlagMore
 		}
 
 		err := s.SendFrame(val, f)
@@ -319,7 +319,7 @@ func (s *Sock) RecvMessage() ([][]byte, error) {
 			return msg, err
 		}
 		msg = append(msg, frame)
-		if flag != More {
+		if flag != FlagMore {
 			break
 		}
 	}
@@ -341,7 +341,7 @@ func (s *Sock) Read(p []byte) (int, error) {
 		total += len(frame)
 	}
 
-	for flag == More {
+	for flag == FlagMore {
 		frame, flag, err = s.RecvFrame()
 		if err != nil {
 			return total, err
@@ -363,7 +363,7 @@ func (s *Sock) Read(p []byte) (int, error) {
 func (s *Sock) Write(p []byte) (int, error) {
 	var total int
 	if s.GetType() == Router {
-		err := s.SendFrame(s.GetLastClientID(), More)
+		err := s.SendFrame(s.GetLastClientID(), FlagMore)
 		if err != nil {
 			return total, err
 		}
@@ -392,7 +392,7 @@ func (s *Sock) RecvMessageNoWait() ([][]byte, error) {
 			return msg, err
 		}
 		msg = append(msg, frame)
-		if flag != More {
+		if flag != FlagMore {
 			break
 		}
 	}

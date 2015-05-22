@@ -84,7 +84,7 @@ func (c *Channeler) loopSend(closeChan <-chan struct{}, sendChan <-chan [][]byte
 				if i == numFrames-1 {
 					f = 0
 				} else {
-					f = More
+					f = FlagMore
 				}
 
 				_ = push.SendFrame(val, f)

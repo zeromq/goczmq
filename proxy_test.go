@@ -56,8 +56,8 @@ func TestProxy(t *testing.T) {
 	defer tap.Destroy()
 
 	// send some messages and check they arrived
-	faucet.SendFrame([]byte("Hello"), 0)
-	faucet.SendFrame([]byte("World"), 0)
+	faucet.SendFrame([]byte("Hello"), FlagNone)
+	faucet.SendFrame([]byte("World"), FlagNone)
 
 	// check the tap
 	b, f, err := tap.RecvFrame()
@@ -65,8 +65,8 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == More {
-		t.Error("More set and should not be")
+	if f == FlagMore {
+		t.Error("FlagMore set and should not be")
 	}
 
 	if string(b) != "Hello" {
@@ -78,8 +78,8 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == More {
-		t.Error("More set and should not be")
+	if f == FlagMore {
+		t.Error("FlagMore set and should not be")
 	}
 
 	if string(b) != "World" {
@@ -92,8 +92,8 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == More {
-		t.Error("More set and should not be")
+	if f == FlagMore {
+		t.Error("FlagMore set and should not be")
 	}
 
 	if string(b) != "Hello" {
@@ -105,8 +105,8 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == More {
-		t.Error("More set and should not be")
+	if f == FlagMore {
+		t.Error("FlagMore set and should not be")
 	}
 
 	if string(b) != "World" {
@@ -119,7 +119,7 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	faucet.SendFrame([]byte("Belated Hello"), 0)
+	faucet.SendFrame([]byte("Belated Hello"), FlagNone)
 
 	if sink.Pollin() {
 		t.Error("Paused proxy should not pass message but did")
@@ -139,8 +139,8 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == More {
-		t.Error("More set and should not be")
+	if f == FlagMore {
+		t.Error("FlagMore set and should not be")
 	}
 
 	if string(b) != "Belated Hello" {
@@ -152,8 +152,8 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == More {
-		t.Error("More set and should not be")
+	if f == FlagMore {
+		t.Error("FlagMore set and should not be")
 	}
 
 	if string(b) != "Belated Hello" {
@@ -232,7 +232,7 @@ func benchmarkProxySendFrame(size int, b *testing.B) {
 
 		payload := make([]byte, size)
 		for i := 0; i < b.N; i++ {
-			err = pushSock.SendFrame(payload, 0)
+			err = pushSock.SendFrame(payload, FlagNone)
 			if err != nil {
 				panic(err)
 			}

@@ -54,7 +54,7 @@ func TestPoller(t *testing.T) {
 	}
 	defer pushSock.Destroy()
 
-	err = pushSock.SendFrame([]byte("Hello"), 0)
+	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
 	if err != nil {
 		t.Errorf("SendMessage failed: %s", err)
 	}
@@ -78,7 +78,7 @@ func TestPoller(t *testing.T) {
 		t.Errorf("NewPush failed: %s", err)
 	}
 
-	err = pushSock2.SendFrame([]byte("World"), 0)
+	err = pushSock2.SendFrame([]byte("World"), FlagNone)
 	if err != nil {
 		t.Errorf("SendMessage failed: %s", err)
 	}
@@ -149,7 +149,7 @@ func benchmarkPollerSendFrame(size int, b *testing.B) {
 
 		payload := make([]byte, size)
 		for i := 0; i < b.N; i++ {
-			err = pushSock.SendFrame(payload, 0)
+			err = pushSock.SendFrame(payload, FlagNone)
 			if err != nil {
 				panic(err)
 			}

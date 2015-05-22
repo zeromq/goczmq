@@ -63,7 +63,7 @@ func main() {
 		defer pushSock.Destroy()
 		
 		for i := 0; i < count; i++ {
-			err = pushSock.SendFrame([]byte("Hello"), 0)
+			err = pushSock.SendFrame([]byte("Hello"), FlagNone)
 			if err != nil {
 				panic(err)
 			}
