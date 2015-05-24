@@ -2,6 +2,7 @@ package goczmq
 
 import (
 	"bytes"
+	"encoding/gob"
 	"fmt"
 	"io"
 	"testing"
@@ -485,8 +486,8 @@ func TestReader(t *testing.T) {
 		t.Errorf("pullSock.Read expected 5 bytes read %d", n)
 	}
 
-	if err != io.EOF {
-		t.Errorf("pullSock.Read expected io.EOF got %s", err)
+	if err != nil {
+		t.Errorf("pullSock.Read error: %s", err)
 	}
 
 	if bytes.Compare(b, []byte("Hello")) != 0 {
@@ -543,7 +544,7 @@ func TestReaderWithRouterDealer(t *testing.T) {
 		t.Errorf("routerSock.Read expected 5 bytes read %d", n)
 	}
 
-	if err != io.EOF {
+	if err != nil {
 		t.Errorf("routerSock.Read expected io.EOF got %s", err)
 	}
 
@@ -676,6 +677,217 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 
 	if bytes.Compare(frame, []byte("Hello Client 2!")) != 0 {
 		t.Errorf("expected 'World' received '%s'", frame)
+	}
+}
+
+type encodeMessage struct {
+	Foo string
+	Bar []byte
+	Bat int
+}
+
+func TestBufferEncodeDecode(t *testing.T) {
+	var buf bytes.Buffer
+	encoder := gob.NewEncoder(&buf)
+	decoder := gob.NewDecoder(&buf)
+
+	sent := encodeMessage{
+		Foo: "the answer",
+		Bar: []byte("is"),
+		Bat: 42,
+	}
+
+	err := encoder.Encode(sent)
+	if err != nil {
+		t.Errorf("could not encode test message to buffer: %s", err)
+	}
+
+	var received encodeMessage
+	err = decoder.Decode(&received)
+	if err != nil {
+		t.Errorf("could node decode test message from buffer: %s", err)
+	}
+
+	if received.Foo != sent.Foo {
+		t.Errorf("expected '%s', got '%s'", sent.Foo, received.Foo)
+	}
+
+	if string(received.Bar) != string(sent.Bar) {
+		t.Errorf("expected '%s', got '%s'", string(sent.Bar), string(received.Bar))
+	}
+
+	if received.Bat != sent.Bat {
+		t.Errorf("expected '%d', got '%d'", sent.Bat, received.Bat)
+	}
+}
+
+func TestRouterDealerEncodeDecode(t *testing.T) {
+	push, err := NewPush("inproc://pushpullencode")
+	if err != nil {
+		t.Error(err)
+	}
+	defer push.Destroy()
+
+	pull, err := NewPull("inproc://pushpullencode")
+	if err != nil {
+		t.Error(err)
+	}
+	defer pull.Destroy()
+
+	encoder := gob.NewEncoder(push)
+	decoder := gob.NewDecoder(pull)
+
+	sent := encodeMessage{
+		Foo: "the answer",
+		Bar: []byte("is"),
+		Bat: 42,
+	}
+
+	err = encoder.Encode(sent)
+	if err != nil {
+		t.Errorf("could not encode test message to buffer: %s", err)
+	}
+
+	var received encodeMessage
+	err = decoder.Decode(&received)
+	if err != nil {
+		t.Errorf("could node decode test message from buffer: %s", err)
+	}
+
+	if received.Foo != sent.Foo {
+		t.Errorf("expected '%s', got '%s'", sent.Foo, received.Foo)
+	}
+
+	if string(received.Bar) != string(sent.Bar) {
+		t.Errorf("expected '%s', got '%s'", string(sent.Bar), string(received.Bar))
+	}
+
+	if received.Bat != sent.Bat {
+		t.Errorf("expected '%d', got '%d'", sent.Bat, received.Bat)
+	}
+}
+
+func TestPushPullEncodeDecode(t *testing.T) {
+	push, err := NewPush("inproc://pushpullencode")
+	if err != nil {
+		t.Error(err)
+	}
+	defer push.Destroy()
+
+	pull, err := NewPull("inproc://pushpullencode")
+	if err != nil {
+		t.Error(err)
+	}
+	defer pull.Destroy()
+
+	encoder := gob.NewEncoder(push)
+	decoder := gob.NewDecoder(pull)
+
+	sent := encodeMessage{
+		Foo: "the answer",
+		Bar: []byte("is"),
+		Bat: 42,
+	}
+
+	err = encoder.Encode(sent)
+	if err != nil {
+		t.Errorf("could not encode test message: %s", err)
+	}
+
+	var received encodeMessage
+	err = decoder.Decode(&received)
+	if err != nil {
+		t.Errorf("could node decode test message: %s", err)
+	}
+
+	if received.Foo != sent.Foo {
+		t.Errorf("expected '%s', got '%s'", sent.Foo, received.Foo)
+	}
+
+	if string(received.Bar) != string(sent.Bar) {
+		t.Errorf("expected '%s', got '%s'", string(sent.Bar), string(received.Bar))
+	}
+
+	if received.Bat != sent.Bat {
+		t.Errorf("expected '%d', got '%d'", sent.Bat, received.Bat)
+	}
+}
+
+func TestDealerRouterEncodeDecode(t *testing.T) {
+	router, err := NewRouter("inproc://dealerrouterencode")
+	if err != nil {
+		t.Error(err)
+	}
+	defer router.Destroy()
+
+	dealer, err := NewDealer("inproc://dealerrouterencode")
+	if err != nil {
+		t.Error(err)
+	}
+	defer dealer.Destroy()
+
+	rencoder := gob.NewEncoder(router)
+	rdecoder := gob.NewDecoder(router)
+
+	dencoder := gob.NewEncoder(dealer)
+	ddecoder := gob.NewDecoder(dealer)
+
+	question := encodeMessage{
+		Foo: "what is",
+		Bar: []byte("the answer"),
+		Bat: 0,
+	}
+
+	err = dencoder.Encode(question)
+	if err != nil {
+		t.Errorf("could not encode test message: %s", err)
+	}
+
+	var received encodeMessage
+	err = rdecoder.Decode(&received)
+	if err != nil {
+		t.Errorf("could not decode: %s", err)
+	}
+
+	if received.Foo != question.Foo {
+		t.Errorf("expected '%s', got '%s'", question.Foo, received.Foo)
+	}
+
+	if string(received.Bar) != string(question.Bar) {
+		t.Errorf("expected '%s', got '%s'", string(question.Bar), string(received.Bar))
+	}
+
+	if received.Bat != question.Bat {
+		t.Errorf("expected '%d', got '%d'", question.Bat, received.Bat)
+	}
+
+	sent := encodeMessage{
+		Foo: "the answer",
+		Bar: []byte("is"),
+		Bat: 42,
+	}
+
+	err = rencoder.Encode(sent)
+	if err != nil {
+		t.Errorf("could not encode test message: %s", err)
+	}
+
+	var answer encodeMessage
+	err = ddecoder.Decode(&answer)
+	if err != nil {
+		t.Errorf("could not decode: %s", err)
+	}
+
+	if answer.Foo != sent.Foo {
+		t.Errorf("expected '%s', got '%s'", sent.Foo, answer.Foo)
+	}
+
+	if string(answer.Bar) != string(sent.Bar) {
+		t.Errorf("expected '%s', got '%s'", string(sent.Bar), string(answer.Bar))
+	}
+
+	if answer.Bat != sent.Bat {
+		t.Errorf("expected '%d', got '%d'", sent.Bat, answer.Bat)
 	}
 }
 
