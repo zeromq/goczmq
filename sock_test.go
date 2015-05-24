@@ -686,87 +686,6 @@ type encodeMessage struct {
 	Bat int
 }
 
-func TestBufferEncodeDecode(t *testing.T) {
-	var buf bytes.Buffer
-	encoder := gob.NewEncoder(&buf)
-	decoder := gob.NewDecoder(&buf)
-
-	sent := encodeMessage{
-		Foo: "the answer",
-		Bar: []byte("is"),
-		Bat: 42,
-	}
-
-	err := encoder.Encode(sent)
-	if err != nil {
-		t.Errorf("could not encode test message to buffer: %s", err)
-	}
-
-	var received encodeMessage
-	err = decoder.Decode(&received)
-	if err != nil {
-		t.Errorf("could node decode test message from buffer: %s", err)
-	}
-
-	if received.Foo != sent.Foo {
-		t.Errorf("expected '%s', got '%s'", sent.Foo, received.Foo)
-	}
-
-	if string(received.Bar) != string(sent.Bar) {
-		t.Errorf("expected '%s', got '%s'", string(sent.Bar), string(received.Bar))
-	}
-
-	if received.Bat != sent.Bat {
-		t.Errorf("expected '%d', got '%d'", sent.Bat, received.Bat)
-	}
-}
-
-func TestRouterDealerEncodeDecode(t *testing.T) {
-	push, err := NewPush("inproc://pushpullencode")
-	if err != nil {
-		t.Error(err)
-	}
-	defer push.Destroy()
-
-	pull, err := NewPull("inproc://pushpullencode")
-	if err != nil {
-		t.Error(err)
-	}
-	defer pull.Destroy()
-
-	encoder := gob.NewEncoder(push)
-	decoder := gob.NewDecoder(pull)
-
-	sent := encodeMessage{
-		Foo: "the answer",
-		Bar: []byte("is"),
-		Bat: 42,
-	}
-
-	err = encoder.Encode(sent)
-	if err != nil {
-		t.Errorf("could not encode test message to buffer: %s", err)
-	}
-
-	var received encodeMessage
-	err = decoder.Decode(&received)
-	if err != nil {
-		t.Errorf("could node decode test message from buffer: %s", err)
-	}
-
-	if received.Foo != sent.Foo {
-		t.Errorf("expected '%s', got '%s'", sent.Foo, received.Foo)
-	}
-
-	if string(received.Bar) != string(sent.Bar) {
-		t.Errorf("expected '%s', got '%s'", string(sent.Bar), string(received.Bar))
-	}
-
-	if received.Bat != sent.Bat {
-		t.Errorf("expected '%d', got '%d'", sent.Bat, received.Bat)
-	}
-}
-
 func TestPushPullEncodeDecode(t *testing.T) {
 	push, err := NewPush("inproc://pushpullencode")
 	if err != nil {
@@ -791,13 +710,13 @@ func TestPushPullEncodeDecode(t *testing.T) {
 
 	err = encoder.Encode(sent)
 	if err != nil {
-		t.Errorf("could not encode test message: %s", err)
+		t.Errorf("could not encode test message to buffer: %s", err)
 	}
 
 	var received encodeMessage
 	err = decoder.Decode(&received)
 	if err != nil {
-		t.Errorf("could node decode test message: %s", err)
+		t.Errorf("could node decode test message from buffer: %s", err)
 	}
 
 	if received.Foo != sent.Foo {
@@ -1009,3 +928,47 @@ func BenchmarkSockReadWriter1k(b *testing.B)  { benchmarkSockReadWriter(1024, b)
 func BenchmarkSockReadWriter4k(b *testing.B)  { benchmarkSockReadWriter(4096, b) }
 func BenchmarkSockReadWriter16k(b *testing.B) { benchmarkSockReadWriter(16384, b) }
 func BenchmarkSockReadWriter65k(b *testing.B) { benchmarkSockReadWriter(65536, b) }
+
+func BenchmarkEncodeDecode(b *testing.B) {
+	pullSock := NewSock(Pull)
+	defer pullSock.Destroy()
+
+	decoder := gob.NewDecoder(pullSock)
+
+	_, err := pullSock.Bind("inproc://benchSock")
+	if err != nil {
+		panic(err)
+	}
+
+	go func() {
+		pushSock := NewSock(Push)
+		defer pushSock.Destroy()
+		err := pushSock.Connect("inproc://benchSock")
+		if err != nil {
+			panic(err)
+		}
+
+		encoder := gob.NewEncoder(pushSock)
+
+		sent := encodeMessage{
+			Foo: "the answer",
+			Bar: make([]byte, 1024),
+			Bat: 42,
+		}
+
+		for i := 0; i < b.N; i++ {
+			err := encoder.Encode(sent)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}()
+
+	var received encodeMessage
+	for i := 0; i < b.N; i++ {
+		err := decoder.Decode(&received)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
