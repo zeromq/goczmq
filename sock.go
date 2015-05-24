@@ -15,7 +15,6 @@ import "C"
 import (
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"runtime"
 	"strings"
@@ -353,7 +352,7 @@ func (s *Sock) Read(p []byte) (int, error) {
 	if total > len(p) {
 		err = ErrSliceFull
 	} else {
-		err = io.EOF
+		err = nil
 	}
 
 	return total, err
