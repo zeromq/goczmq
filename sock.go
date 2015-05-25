@@ -29,11 +29,11 @@ var (
 
 // Sock wraps the CZMQ zsock class.
 type Sock struct {
-	zsockT       *C.struct__zsock_t
-	file         string
-	line         int
-	zType        int
-	lastClientID string
+	zsockT    *C.struct__zsock_t
+	file      string
+	line      int
+	zType     int
+	clientIDs []string
 }
 
 func init() {
@@ -46,13 +46,13 @@ func init() {
 // a message from if the underlying socket is a Router or SERVER
 // socket
 func (s *Sock) GetLastClientID() []byte {
-	return []byte(s.lastClientID)
+	id := []byte(s.clientIDs[0])
+	s.clientIDs = s.clientIDs[1:]
+	return id
 }
 
-// SetLastClientID sets the client id that will be used when
-// sending from a Router or SERVER socket
 func (s *Sock) SetLastClientID(id []byte) {
-	s.lastClientID = string(id)
+	s.clientIDs = append(s.clientIDs, string(id))
 }
 
 // NewSock creates a new socket.  The caller source and
@@ -64,15 +64,17 @@ func NewSock(t int) *Sock {
 
 	if ok {
 		s = &Sock{
-			file:  file,
-			line:  line,
-			zType: t,
+			file:      file,
+			line:      line,
+			zType:     t,
+			clientIDs: make([]string, 0),
 		}
 	} else {
 		s = &Sock{
-			file:  "",
-			line:  0,
-			zType: t,
+			file:      "",
+			line:      0,
+			zType:     t,
+			clientIDs: make([]string, 0),
 		}
 	}
 
@@ -334,7 +336,7 @@ func (s *Sock) Read(p []byte) (int, error) {
 	}
 
 	if s.GetType() == Router {
-		s.lastClientID = string(frame)
+		s.clientIDs = append(s.clientIDs, string(frame))
 	} else {
 		copy(p[:], frame[:])
 		total += len(frame)
