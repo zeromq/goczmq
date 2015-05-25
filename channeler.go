@@ -1,117 +1,73 @@
 package goczmq
 
 import (
+	"encoding/gob"
 	"fmt"
 	"math/rand"
-	"runtime"
-	"sync/atomic"
+	"strings"
 )
 
-// Channeler serializes all access to a socket through a send, receive
-// and close channel.  It starts two threads, on is used for receiving
-// from the zeromq socket.  The other is used to listen to the receive
-// channel, and send everything back to the socket thrad for sending
-// using an additional inproc socket.  The channeler takes ownership
-// of the passed socket and will destroy it when the close channel
-// is closed.
 type Channeler struct {
-	sock   *Sock
-	id     int64
-	closed int32
-
-	closeChan  chan<- struct{}
-	SendChan   chan<- [][]byte
-	RecvChan   <-chan [][]byte
-	AttachChan chan<- string
-	ErrChan    <-chan error
+	id           int64
+	subscribe    string
+	commandAddr  string
+	proxyAddr    string
+	sendCommand  *gob.Encoder
+	recvResponse *gob.Decoder
+	commandChan  chan<- string
+	SendChan     chan<- [][]byte
+	RecvChan     <-chan [][]byte
 }
 
-// NewChanneler initialized a new channeler for the passed socket
-// If sendErrors is true, errors will be sent on the error channel
-// If it is false, any error will cause a panic
-func NewChanneler(sock *Sock, sendErrors bool) *Channeler {
-	closeChan := make(chan struct{})
-	sendChan := make(chan [][]byte)
-	recvChan := make(chan [][]byte)
-	attachChan := make(chan string)
-
-	var errChan chan error
-	if sendErrors {
-		errChan = make(chan error)
-	}
-
-	c := &Channeler{
-		sock:       sock,
-		id:         rand.Int63(),
-		closeChan:  closeChan,
-		SendChan:   sendChan,
-		RecvChan:   recvChan,
-		AttachChan: attachChan,
-		ErrChan:    errChan,
-	}
-
-	go c.loopSend(closeChan, sendChan, attachChan)
-	go c.loopMain(sendChan, recvChan, attachChan, errChan)
-
-	runtime.SetFinalizer(c, func(c *Channeler) { c.Close() })
-	return c
+func (c *Channeler) Destroy() {
+	c.commandChan <- "destroy"
 }
 
-// Close closes the close channel sigaling the channeler to shut down
-func (c *Channeler) Close() {
-	if atomic.CompareAndSwapInt32(&c.closed, 0, 1) {
-		close(c.closeChan)
-	}
-}
-
-func (c *Channeler) loopSend(closeChan <-chan struct{}, sendChan <-chan [][]byte, attachChan <-chan string) {
-	push, err := NewPush(fmt.Sprintf(">inproc://goczmq-channeler-%d", c.id))
+func (c *Channeler) actor(recvChan chan<- [][]byte, t int, endpoints string) {
+	pipe, err := NewPair(fmt.Sprintf(">%s", c.commandAddr))
 	if err != nil {
 		panic(err)
 	}
-	defer push.Destroy()
+	defer pipe.Destroy()
 
-	for {
-		select {
-		case <-closeChan:
-			_ = push.SendFrame([]byte("close"), 0)
-			return
-		case msg := <-sendChan:
-			push.SendFrame([]byte("msg"), 1)
-			var f int
-			numFrames := len(msg)
-			for i, val := range msg {
-				if i == numFrames-1 {
-					f = 0
-				} else {
-					f = FlagMore
-				}
-
-				_ = push.SendFrame(val, f)
-			}
-		case endpoint := <-attachChan:
-			_ = push.SendFrame([]byte("attach"), 1)
-			_ = push.SendFrame([]byte(endpoint), 0)
-		}
-	}
-}
-
-func (c *Channeler) loopMain(sendChan chan<- [][]byte, recvChan chan<- [][]byte, attachChan chan<- string, errChan chan<- error) {
-	// Close all channels when we exit
-	defer close(recvChan)
-	defer close(sendChan)
-	defer close(attachChan)
-	if errChan != nil {
-		defer close(errChan)
-	}
-
-	pull, err := NewPull(fmt.Sprintf("@inproc://goczmq-channeler-%d", c.id))
+	pull, err := NewPull(c.proxyAddr)
 	if err != nil {
 		panic(err)
 	}
 	defer pull.Destroy()
 
-	poller, err := NewPoller(pull, c.sock)
+	sock := NewSock(t)
+	defer sock.Destroy()
+	switch t {
+	case Pub, Rep, Pull, Router, XPub:
+		err = sock.Attach(endpoints, true)
+		if err != nil {
+			panic(fmt.Sprintf("error attaching %d to %s with serverish", t, endpoints))
+		}
+		fmt.Printf("ATTACHED %s\n", endpoints)
+
+	case Req, Push, Dealer, Pair, Stream:
+		err = sock.Attach(endpoints, false)
+		if err != nil {
+			panic(fmt.Sprintf("error attaching %d to %s without serverish", t, endpoints))
+		}
+		fmt.Printf("ATTACHED %s\n", endpoints)
+	case Sub, XSub:
+		subscriptions := strings.Split(c.subscribe, ",")
+		for _, topic := range subscriptions {
+			sock.SetSubscribe(topic)
+		}
+
+		err = sock.Attach(endpoints, false)
+		if err != nil {
+			panic(fmt.Sprintf("error attaching to %s without serverish", endpoints))
+		}
+
+	default:
+		panic(ErrInvalidSockType)
+	}
+
+	poller, err := NewPoller(sock, pull, pipe)
 	if err != nil {
 		panic(err)
 	}
@@ -119,42 +75,142 @@ func (c *Channeler) loopMain(sendChan chan<- [][]byte, recvChan chan<- [][]byte,
 
 	for {
 		s := poller.Wait(-1)
-		if s == nil {
-			continue
-		}
-
-		msg, err := s.RecvMessage()
-		if err != nil {
-			panic(err)
-		}
-
 		switch s {
-		case pull:
-			switch string(msg[0]) {
-			case "close":
-				return
-			case "msg":
-				if err := c.sock.SendMessage(msg[1:]); err != nil {
-					if errChan != nil {
-						errChan <- err
-					}
-				}
-			case "attach":
-				var err error
-				switch int(c.sock.Type()) {
-				case Pub, Rep, Router, Push, XPub:
-					err = c.sock.Attach(string(msg[1]), true)
-				default:
-					err = c.sock.Attach(string(msg[1]), false)
-				}
-
-				if errChan != nil {
-					errChan <- err
-				}
+		case pipe:
+			cmd, err := pipe.RecvMessage()
+			if err != nil {
+				panic(err)
 			}
 
-		case c.sock:
+			switch string(cmd[0]) {
+			case "destroy":
+				fmt.Println("DESTROY")
+				pipe.SendMessage([][]byte{[]byte("ok")})
+				goto Exit
+			}
+		case sock:
+			msg, err := s.RecvMessage()
+			if err != nil {
+				panic(err)
+			}
 			recvChan <- msg
+		case pull:
+			msg, err := pull.RecvMessage()
+			if err != nil {
+				panic(err)
+			}
+
+			err = sock.SendMessage(msg)
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
+Exit:
+}
+
+func (c *Channeler) channeler(commandChan <-chan string, sendChan <-chan [][]byte) {
+	push, err := NewPush(c.proxyAddr)
+	if err != nil {
+		panic(err)
+	}
+	defer push.Destroy()
+
+	pipe, err := NewPair(fmt.Sprintf("@%s", c.commandAddr))
+	if err != nil {
+		panic(err)
+	}
+	defer pipe.Destroy()
+
+	for {
+		select {
+		case cmd := <-commandChan:
+			switch cmd {
+			case "destroy":
+				err = pipe.SendFrame([]byte("destroy"), FlagNone)
+				if err != nil {
+					panic(err)
+				}
+				_, err = pipe.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+			}
+		case msg := <-sendChan:
+			err := push.SendMessage(msg)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+}
+
+func newChanneler(t int, endpoints, subscribe string) *Channeler {
+	commandChan := make(chan string)
+	sendChan := make(chan [][]byte)
+	recvChan := make(chan [][]byte)
+
+	c := &Channeler{
+		id:          rand.Int63(),
+		subscribe:   subscribe,
+		commandChan: commandChan,
+		SendChan:    sendChan,
+		RecvChan:    recvChan,
+	}
+
+	c.commandAddr = fmt.Sprintf("inproc://actorcontrol%d", c.id)
+	c.proxyAddr = fmt.Sprintf("inproc://proxy%d", c.id)
+
+	go c.channeler(commandChan, sendChan)
+	go c.actor(recvChan, t, endpoints)
+
+	return c
+}
+
+func NewPubChanneler(endpoints string) *Channeler {
+	return newChanneler(Pub, endpoints, "")
+}
+
+func NewSubChanneler(endpoints, subscribe string) *Channeler {
+	return newChanneler(Sub, endpoints, subscribe)
+}
+
+func NewRepChanneler(endpoints string) *Channeler {
+	return newChanneler(Rep, endpoints, "")
+}
+
+func NewReqChanneler(endpoints string) *Channeler {
+	return newChanneler(Req, endpoints, "")
+}
+
+func NewPullChanneler(endpoints string) *Channeler {
+	return newChanneler(Pull, endpoints, "")
+}
+
+func NewPushChanneler(endpoints string) *Channeler {
+	return newChanneler(Push, endpoints, "")
+}
+
+func NewRouterChanneler(endpoints string) *Channeler {
+	return newChanneler(Router, endpoints, "")
+}
+
+func NewDealerChanneler(endpoints string) *Channeler {
+	return newChanneler(Dealer, endpoints, "")
+}
+
+func NewXPubChanneler(endpoints string) *Channeler {
+	return newChanneler(XPub, endpoints, "")
+}
+
+func NewXSubChanneler(endpoints, subscribe string) *Channeler {
+	return newChanneler(XSub, endpoints, subscribe)
+}
+
+func NewPairChanneler(endpoints string) *Channeler {
+	return newChanneler(Pair, endpoints, "")
+}
+
+func NewStreamChanneler(endpoints string) *Channeler {
+	return newChanneler(Stream, endpoints, "")
 }
