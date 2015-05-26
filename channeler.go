@@ -1,22 +1,19 @@
 package goczmq
 
 import (
-	"encoding/gob"
 	"fmt"
 	"math/rand"
 	"strings"
 )
 
 type Channeler struct {
-	id           int64
-	subscribe    string
-	commandAddr  string
-	proxyAddr    string
-	sendCommand  *gob.Encoder
-	recvResponse *gob.Decoder
-	commandChan  chan<- string
-	SendChan     chan<- [][]byte
-	RecvChan     <-chan [][]byte
+	id          int64
+	subscribe   string
+	commandAddr string
+	proxyAddr   string
+	commandChan chan<- string
+	SendChan    chan<- [][]byte
+	RecvChan    <-chan [][]byte
 }
 
 func (c *Channeler) Destroy() {
@@ -42,16 +39,14 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, t int, endpoints string) {
 	case Pub, Rep, Pull, Router, XPub:
 		err = sock.Attach(endpoints, true)
 		if err != nil {
-			panic(fmt.Sprintf("error attaching %d to %s with serverish", t, endpoints))
+			panic(err)
 		}
-		fmt.Printf("ATTACHED %s\n", endpoints)
 
 	case Req, Push, Dealer, Pair, Stream:
 		err = sock.Attach(endpoints, false)
 		if err != nil {
-			panic(fmt.Sprintf("error attaching %d to %s without serverish", t, endpoints))
+			panic(err)
 		}
-		fmt.Printf("ATTACHED %s\n", endpoints)
 	case Sub, XSub:
 		subscriptions := strings.Split(c.subscribe, ",")
 		for _, topic := range subscriptions {
@@ -60,7 +55,7 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, t int, endpoints string) {
 
 		err = sock.Attach(endpoints, false)
 		if err != nil {
-			panic(fmt.Sprintf("error attaching to %s without serverish", endpoints))
+			panic(err)
 		}
 
 	default:
@@ -84,9 +79,12 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, t int, endpoints string) {
 
 			switch string(cmd[0]) {
 			case "destroy":
-				fmt.Println("DESTROY")
+				disconnect := strings.Split(endpoints, ",")
+				for _, endpoint := range disconnect {
+					sock.Disconnect(endpoint)
+				}
 				pipe.SendMessage([][]byte{[]byte("ok")})
-				goto Exit
+				goto ExitActor
 			}
 		case sock:
 			msg, err := s.RecvMessage()
@@ -106,7 +104,7 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, t int, endpoints string) {
 			}
 		}
 	}
-Exit:
+ExitActor:
 }
 
 func (c *Channeler) channeler(commandChan <-chan string, sendChan <-chan [][]byte) {
@@ -135,6 +133,7 @@ func (c *Channeler) channeler(commandChan <-chan string, sendChan <-chan [][]byt
 				if err != nil {
 					panic(err)
 				}
+				goto ExitChanneler
 			}
 		case msg := <-sendChan:
 			err := push.SendMessage(msg)
@@ -143,6 +142,7 @@ func (c *Channeler) channeler(commandChan <-chan string, sendChan <-chan [][]byt
 			}
 		}
 	}
+ExitChanneler:
 }
 
 func newChanneler(t int, endpoints, subscribe string) *Channeler {
