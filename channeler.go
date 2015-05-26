@@ -58,6 +58,7 @@ func (c *Channeler) actor(recvChan chan<- [][]byte) {
 		if err != nil {
 			panic(err)
 		}
+
 	case Sub, XSub:
 		subscriptions := strings.Split(c.subscribe, ",")
 		for _, topic := range subscriptions {
@@ -97,12 +98,14 @@ func (c *Channeler) actor(recvChan chan<- [][]byte) {
 				pipe.SendMessage([][]byte{[]byte("ok")})
 				goto ExitActor
 			}
+
 		case sock:
 			msg, err := s.RecvMessage()
 			if err != nil {
 				panic(err)
 			}
 			recvChan <- msg
+
 		case pull:
 			msg, err := pull.RecvMessage()
 			if err != nil {
@@ -148,6 +151,7 @@ func (c *Channeler) channeler(commandChan <-chan string, sendChan <-chan [][]byt
 				}
 				goto ExitChanneler
 			}
+
 		case msg := <-sendChan:
 			err := push.SendMessage(msg)
 			if err != nil {

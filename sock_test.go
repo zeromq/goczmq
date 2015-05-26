@@ -811,17 +811,22 @@ func TestDealerRouterEncodeDecode(t *testing.T) {
 }
 
 func ExampleSock_output() {
+	// create dealer socket
 	dealer, err := NewDealer("inproc://example")
 	if err != nil {
 		panic(err)
 	}
 
+	// create router socket
 	router, err := NewRouter("inproc://example")
 	if err != nil {
 		panic(err)
 	}
+
+	// send hello message
 	dealer.SendFrame([]byte("Hello"), FlagNone)
 
+	// receive hello message
 	request, err := router.RecvMessage()
 	if err != nil {
 		panic(err)
@@ -830,11 +835,14 @@ func ExampleSock_output() {
 	// first frame is identify of client - let's append 'World'
 	// to the message and route it back.
 	request = append(request, []byte("World"))
+
+	// send reply
 	err = router.SendMessage(request)
 	if err != nil {
 		panic(err)
 	}
 
+	// receive reply
 	reply, err := dealer.RecvMessage()
 	if err != nil {
 		panic(err)
