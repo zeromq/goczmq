@@ -1,6 +1,9 @@
 package goczmq
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestPushPullChanneler(t *testing.T) {
 	push := NewPushChanneler("inproc://channelerpushpull")
@@ -42,6 +45,35 @@ func TestDealerRouterChanneler(t *testing.T) {
 	if string(resp[0]) != "world" {
 		t.Errorf("failed")
 	}
+}
+
+func ExampleChanneler_output() {
+	// create a dealer channeler
+	dealer := NewDealerChanneler("inproc://channelerdealerrouter")
+	defer dealer.Destroy()
+
+	// create a router channeler
+	router := NewRouterChanneler("inproc://channelerdealerrouter")
+	defer router.Destroy()
+
+	// send a hello message
+	dealer.SendChan <- [][]byte{[]byte("Hello")}
+
+	// receive the hello message
+	request := <-router.RecvChan
+
+	// first frame is identity of client - let's append 'World'
+	// to the message and route it back
+	request = append(request, []byte("World"))
+
+	// send the reply
+	router.SendChan <- request
+
+	// receive the reply
+	reply := <-dealer.RecvChan
+
+	fmt.Printf("%s %s", string(reply[0]), string(reply[1]))
+	// Output: Hello World
 }
 
 func BenchmarkChanneler(b *testing.B) {
