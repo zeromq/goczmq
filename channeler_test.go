@@ -45,9 +45,11 @@ func TestDealerRouterChanneler(t *testing.T) {
 }
 
 func BenchmarkChanneler(b *testing.B) {
+	pull := NewPullChanneler("inproc://benchchanneler")
+	defer pull.Destroy()
 
 	go func() {
-		push := NewPushChanneler("inproc://channelerbench")
+		push := NewPushChanneler("inproc://benchchanneler")
 		defer push.Destroy()
 
 		payload := make([]byte, 1024)
@@ -56,9 +58,6 @@ func BenchmarkChanneler(b *testing.B) {
 			push.SendChan <- [][]byte{payload}
 		}
 	}()
-
-	pull := NewPullChanneler("inproc://channelerbench")
-	defer pull.Destroy()
 
 	for i := 0; i < b.N; i++ {
 		msg := <-pull.RecvChan

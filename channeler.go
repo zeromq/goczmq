@@ -6,8 +6,15 @@ import (
 	"strings"
 )
 
+// Channeler serializes all access to a socket through a send
+// and receive channel.  It starts two threads, on is used for receiving
+// from the zeromq socket.  The other is used to listen to the receive
+// channel, and send everything back to the socket thrad for sending
+// using an additional inproc socket.
 type Channeler struct {
 	id          int64
+	sockType    int
+	endpoints   string
 	subscribe   string
 	commandAddr string
 	proxyAddr   string
@@ -16,11 +23,15 @@ type Channeler struct {
 	RecvChan    <-chan [][]byte
 }
 
+// Destroy sends a message to the Channeler to shut it down
+// and clean it up.
 func (c *Channeler) Destroy() {
 	c.commandChan <- "destroy"
 }
 
-func (c *Channeler) actor(recvChan chan<- [][]byte, t int, endpoints string) {
+// actor is a routine that handles communication with
+// the zeromq socket.
+func (c *Channeler) actor(recvChan chan<- [][]byte) {
 	pipe, err := NewPair(fmt.Sprintf(">%s", c.commandAddr))
 	if err != nil {
 		panic(err)
@@ -33,17 +44,17 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, t int, endpoints string) {
 	}
 	defer pull.Destroy()
 
-	sock := NewSock(t)
+	sock := NewSock(c.sockType)
 	defer sock.Destroy()
-	switch t {
+	switch c.sockType {
 	case Pub, Rep, Pull, Router, XPub:
-		err = sock.Attach(endpoints, true)
+		err = sock.Attach(c.endpoints, true)
 		if err != nil {
 			panic(err)
 		}
 
 	case Req, Push, Dealer, Pair, Stream:
-		err = sock.Attach(endpoints, false)
+		err = sock.Attach(c.endpoints, false)
 		if err != nil {
 			panic(err)
 		}
@@ -53,7 +64,7 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, t int, endpoints string) {
 			sock.SetSubscribe(topic)
 		}
 
-		err = sock.Attach(endpoints, false)
+		err = sock.Attach(c.endpoints, false)
 		if err != nil {
 			panic(err)
 		}
@@ -79,7 +90,7 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, t int, endpoints string) {
 
 			switch string(cmd[0]) {
 			case "destroy":
-				disconnect := strings.Split(endpoints, ",")
+				disconnect := strings.Split(c.endpoints, ",")
 				for _, endpoint := range disconnect {
 					sock.Disconnect(endpoint)
 				}
@@ -107,6 +118,8 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, t int, endpoints string) {
 ExitActor:
 }
 
+// channeler is a routine that handles the channel select loop
+// and sends commands to the zeromq socket.
 func (c *Channeler) channeler(commandChan <-chan string, sendChan <-chan [][]byte) {
 	push, err := NewPush(c.proxyAddr)
 	if err != nil {
@@ -145,7 +158,9 @@ func (c *Channeler) channeler(commandChan <-chan string, sendChan <-chan [][]byt
 ExitChanneler:
 }
 
-func newChanneler(t int, endpoints, subscribe string) *Channeler {
+// newChanneler accepts arguments from the socket type based
+// constructors and creates a new Channeler instance
+func newChanneler(sockType int, endpoints, subscribe string) *Channeler {
 	commandChan := make(chan string)
 	sendChan := make(chan [][]byte)
 	recvChan := make(chan [][]byte)
@@ -153,6 +168,8 @@ func newChanneler(t int, endpoints, subscribe string) *Channeler {
 	c := &Channeler{
 		id:          rand.Int63(),
 		subscribe:   subscribe,
+		endpoints:   endpoints,
+		sockType:    sockType,
 		commandChan: commandChan,
 		SendChan:    sendChan,
 		RecvChan:    recvChan,
@@ -162,55 +179,83 @@ func newChanneler(t int, endpoints, subscribe string) *Channeler {
 	c.proxyAddr = fmt.Sprintf("inproc://proxy%d", c.id)
 
 	go c.channeler(commandChan, sendChan)
-	go c.actor(recvChan, t, endpoints)
+	go c.actor(recvChan)
 
 	return c
 }
 
+// NewPubChanneler creats a new Channeler wrapping
+// a Pub socket.  The socket will bind by default.
 func NewPubChanneler(endpoints string) *Channeler {
 	return newChanneler(Pub, endpoints, "")
 }
 
+// NewSubChanneler creates a new Channeler wrapping
+// a Sub socket. Along with an endpoint list
+// it accepts a comma delimited list of topics.
+// The socket will connect by default.
 func NewSubChanneler(endpoints, subscribe string) *Channeler {
 	return newChanneler(Sub, endpoints, subscribe)
 }
 
+// NewRepChanneler creates a new Channeler wrapping
+// a Rep socket. The socket will bind by default.
 func NewRepChanneler(endpoints string) *Channeler {
 	return newChanneler(Rep, endpoints, "")
 }
 
+// NewReqChanneler creates a new Channeler wrapping
+// a Req socket. The socket will connect by default.
 func NewReqChanneler(endpoints string) *Channeler {
 	return newChanneler(Req, endpoints, "")
 }
 
+// NewPullChanneler creates a new Channeler wrapping
+// a Pull socket. The socket will bind by default.
 func NewPullChanneler(endpoints string) *Channeler {
 	return newChanneler(Pull, endpoints, "")
 }
 
+// NewPushChanneler creates a new Channeler wrapping
+// a Push socket. The socket will connect by default.
 func NewPushChanneler(endpoints string) *Channeler {
 	return newChanneler(Push, endpoints, "")
 }
 
+// NewRouterChanneler creates a new Channeler wrapping
+// a Router socket. The socket will Bind by default.
 func NewRouterChanneler(endpoints string) *Channeler {
 	return newChanneler(Router, endpoints, "")
 }
 
+// NewDealerChanneler creates a new Channeler wrapping
+// a Dealer socket. The socket will connect by default.
 func NewDealerChanneler(endpoints string) *Channeler {
 	return newChanneler(Dealer, endpoints, "")
 }
 
+// NewXPubChanneler creates a new Channeler wrapping
+// an XPub socket. The socket will Bind by default.
 func NewXPubChanneler(endpoints string) *Channeler {
 	return newChanneler(XPub, endpoints, "")
 }
 
+// NewXSubChanneler creates a new Channeler wrapping
+// a XSub socket. Along with an endpoint list
+// it accepts a comma delimited list of topics.
+// The socket will connect by default.
 func NewXSubChanneler(endpoints, subscribe string) *Channeler {
 	return newChanneler(XSub, endpoints, subscribe)
 }
 
+// NewPairChanneler creates a new Channeler wrapping
+// a Pair socket. The socket will connect by default.
 func NewPairChanneler(endpoints string) *Channeler {
 	return newChanneler(Pair, endpoints, "")
 }
 
+// NewStreamChanneler creates a new Channeler wrapping
+// a Pair socket. The socket will connect by default.
 func NewStreamChanneler(endpoints string) *Channeler {
 	return newChanneler(Stream, endpoints, "")
 }
