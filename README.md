@@ -34,7 +34,7 @@ go get github.com/zeromq/goczmq
 ```
 
 ## Usage
-### ZeroMQ like API
+### Direct ZeroMQ API
 ```go
 package main
 
@@ -113,7 +113,7 @@ func main() {
 }
 ```
 ### io.ReadWriter support
-```
+```go
 package main
 
 import (
@@ -183,7 +183,7 @@ func main() {
 }
 ```
 ### Thread safe channel interface
-```
+```go
 package main
 
 import (
