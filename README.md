@@ -35,6 +35,7 @@ go get github.com/zeromq/goczmq
 
 ## Usage
 ### Direct ZeroMQ API
+#### Example
 ```go
 package main
 
@@ -112,7 +113,17 @@ func main() {
 	log.Printf("dealer received '%s'", string(reply[0]))
 }
 ```
+#### Output
+```
+2015/05/26 21:52:52 router created and bound
+2015/05/26 21:52:52 dealer created and bound
+2015/05/26 21:52:52 dealer sent 'Hello'
+2015/05/26 21:52:52 router received 'Hello' from '[0 103 84 189 175]'
+2015/05/26 21:52:52 router sent 'World'
+2015/05/26 21:52:52 dealer received 'World'
+```
 ### io.ReadWriter support
+#### Example
 ```go
 package main
 
@@ -182,7 +193,17 @@ func main() {
 	log.Printf("dealer received '%s'", string(buf[:n]))
 }
 ```
+#### Output
+```
+2015/05/26 21:54:10 router created and bound
+2015/05/26 21:54:10 dealer created and bound
+2015/05/26 21:54:10 dealer sent 5 byte message 'Hello'
+2015/05/26 21:54:10 router received 'Hello'
+2015/05/26 21:54:10 router sent 5 byte message 'World'
+2015/05/26 21:54:10 dealer received 'World'
+```
 ### Thread safe channel interface
+#### Example
 ```go
 package main
 
@@ -226,6 +247,15 @@ func main() {
 	reply := <-dealer.RecvChan
 	log.Printf("dealer received '%s'", string(reply[0]))
 }
+```
+#### Output
+```
+2015/05/26 21:56:43 router created and bound
+2015/05/26 21:56:43 dealer created and bound
+2015/05/26 21:56:43 dealer sent 'Hello'
+2015/05/26 21:56:43 received 'Hello' from '[0 12 109 153 35]'
+2015/05/26 21:56:43 router sent 'World'
+2015/05/26 21:56:43 dealer received 'World'
 ```
 ## GoDoc
 [godoc](https://godoc.org/github.com/zeromq/goczmq)
