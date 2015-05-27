@@ -62,7 +62,7 @@ func main() {
 	}
 	defer dealer.Destroy()
 
-	log.Println("dealer created and bound")
+	log.Println("dealer created and connected")
 
 	// Send a 'Hello' message from the dealer to the router.
 	// Here we send it as a frame ([]byte), with a FlagNone
@@ -116,7 +116,7 @@ func main() {
 #### Output
 ```
 2015/05/26 21:52:52 router created and bound
-2015/05/26 21:52:52 dealer created and bound
+2015/05/26 21:52:52 dealer created and connected
 2015/05/26 21:52:52 dealer sent 'Hello'
 2015/05/26 21:52:52 router received 'Hello' from '[0 103 84 189 175]'
 2015/05/26 21:52:52 router sent 'World'
@@ -150,7 +150,7 @@ func main() {
 	}
 	defer dealer.Destroy()
 
-	log.Println("dealer created and bound")
+	log.Println("dealer created and connected")
 
 	// Send a 'Hello' message from the dealer to the router,
 	// using the io.Write interface
@@ -196,7 +196,7 @@ func main() {
 #### Output
 ```
 2015/05/26 21:54:10 router created and bound
-2015/05/26 21:54:10 dealer created and bound
+2015/05/26 21:54:10 dealer created and connected
 2015/05/26 21:54:10 dealer sent 5 byte message 'Hello'
 2015/05/26 21:54:10 router received 'Hello'
 2015/05/26 21:54:10 router sent 5 byte message 'World'
@@ -226,7 +226,7 @@ func main() {
 	dealer := goczmq.NewDealerChanneler("tcp://127.0.0.1:5555")
 	defer dealer.Destroy()
 
-	log.Println("dealer created and bound")
+	log.Println("dealer created and connected")
 
 	// Send a 'Hello' message from the dealer to the router.
 	dealer.SendChan <- [][]byte{[]byte("Hello")}
@@ -251,7 +251,7 @@ func main() {
 #### Output
 ```
 2015/05/26 21:56:43 router created and bound
-2015/05/26 21:56:43 dealer created and bound
+2015/05/26 21:56:43 dealer created and connected
 2015/05/26 21:56:43 dealer sent 'Hello'
 2015/05/26 21:56:43 received 'Hello' from '[0 12 109 153 35]'
 2015/05/26 21:56:43 router sent 'World'
