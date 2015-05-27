@@ -34,7 +34,7 @@ go get github.com/zeromq/goczmq
 ```
 
 ## Usage
-### Direct ZeroMQ API
+### Direct CZMQ Sock API
 #### Example
 ```go
 package main
