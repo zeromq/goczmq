@@ -66,7 +66,7 @@ func main() {
 
 	// Send a 'Hello' message from the dealer to the router.
 	// Here we send it as a frame ([]byte), with a FlagNone
-	// flag to indicate there are now more frames following.
+	// flag to indicate there are no more frames following.
 	err = dealer.SendFrame([]byte("Hello"), goczmq.FlagNone)
 	if err != nil {
 		log.Fatal(err)
@@ -87,7 +87,7 @@ func main() {
 	log.Printf("router received '%s' from '%v'", request[1], request[0])
 
 	// Send a reply. First we send the routing frame, which
-	// let's the dealer know which client to send the message.
+	// lets the dealer know which client to send the message.
 	// The FlagMore flag tells the router there will be more
 	// frames in this message.
 	err = router.SendFrame(request[0], goczmq.FlagMore)
@@ -239,7 +239,7 @@ func main() {
 	log.Printf("router received '%s' from '%v'", request[1], request[0])
 
 	// Send a reply. First we send the routing frame, which
-	// let's the dealer know which client to send the message.
+	// lets the dealer know which client to send the message.
 	router.SendChan <- [][]byte{request[0], []byte("World")}
 	log.Printf("router sent 'World'")
 
