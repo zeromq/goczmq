@@ -2,6 +2,7 @@ package goczmq
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
 )
 
@@ -77,11 +78,12 @@ func ExampleChanneler_output() {
 }
 
 func BenchmarkChanneler(b *testing.B) {
-	pull := NewPullChanneler("inproc://benchchanneler")
+	r := rand.Int63()
+	pull := NewPullChanneler("inproc://benchchanneler-%d", r)
 	defer pull.Destroy()
 
 	go func() {
-		push := NewPushChanneler("inproc://benchchanneler")
+		push := NewPushChanneler("inproc://benchchanneler-%d", r)
 		defer push.Destroy()
 
 		payload := make([]byte, 1024)
