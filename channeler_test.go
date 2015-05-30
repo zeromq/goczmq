@@ -79,11 +79,11 @@ func ExampleChanneler_output() {
 
 func BenchmarkChanneler(b *testing.B) {
 	r := rand.Int63()
-	pull := NewPullChanneler("inproc://benchchanneler-%d", r)
+	pull := NewPullChanneler(fmt.Sprintf("inproc://benchchanneler-%d", r))
 	defer pull.Destroy()
 
 	go func() {
-		push := NewPushChanneler("inproc://benchchanneler-%d", r)
+		push := NewPushChanneler(fmt.Sprintf("inproc://benchchanneler-%d", r))
 		defer push.Destroy()
 
 		payload := make([]byte, 1024)
