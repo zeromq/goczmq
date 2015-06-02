@@ -1,30 +1,46 @@
 # goczmq [![Build Status](https://travis-ci.org/zeromq/goczmq.svg?branch=master)](https://travis-ci.org/zeromq/goczmq) [![Doc Status](https://godoc.org/github.com/zeromq/goczmq?status.png)](https://godoc.org/github.com/zeromq/goczmq)
 
 ## Introduction
-A golang interface to the [CZMQ](http://czmq.zeromq.org) ZeroMQ API.
+A golang interface to the [CZMQ v3](http://czmq.zeromq.org) API.
+
+## Update 2015-06-02
+With the releases of zeromq 4.1 and czmq 3, we are declaring a stable release.
+What does "stable release" mean in the world of go getting projects off of git 
+master? It means our exported API is finalized and we will, to the absolute
+best of our ability, make no breaking changes to it. We may make additive
+changes, and we may refactor internals in order to improve performance. 
 
 ## Installation
 
+### Building From Source (Linux)
+
 ```
-git clone git@github.com:jedisct1/libsodium.git
-cd libsodium
-./autogen.sh; ./configure; make; make check
+wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.3.tar.gz
+wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.3.tar.gz.sig
+wget https://download.libsodium.org/jedi.gpg.asc
+gpg --import jedi.gpg.asci
+gpg --verify libsodium-1.0.3.tar.gz.sig libsodium-1.0.3.tar.gz
+tar zxvf libsodium-1.0.3.tar.gz
+cd libsodium-1.0.3
+./configure; make check
 sudo make install
 sudo ldconfig
 ```
 
 ```
-git clone git@github.com:zeromq/libzmq.git
-cd libzmq
-./autogen.sh; ./configure --with-libsodium; make; make check
+wget http://download.zeromq.org/zeromq-4.1.1.tar.gz
+tar zxvf zeromq-4.1.1.tar.gz
+cd zeromq-4.1.1
+./configure --with-libsodium; make; make check
 sudo make install
 sudo ldconfig
 ```
 
 ```
-git clone git@github.com:zeromq/czmq.git
-cd czmq
-./autogen.sh; ./configure; make; make check
+wget http://download.zeromq.org/czmq-3.0.1.tar.gz
+tar zxvf czmq-3.0.1.tar.gz
+cd czmq-3.0.1
+./configure; make check
 sudo make install
 sudo ldconfig
 ```
