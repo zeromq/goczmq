@@ -18,7 +18,7 @@ changes, and we may refactor internals in order to improve performance.
 wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.3.tar.gz
 wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.3.tar.gz.sig
 wget https://download.libsodium.org/jedi.gpg.asc
-gpg --import jedi.gpg.asci
+gpg --import jedi.gpg.asc
 gpg --verify libsodium-1.0.3.tar.gz.sig libsodium-1.0.3.tar.gz
 tar zxvf libsodium-1.0.3.tar.gz
 cd libsodium-1.0.3
