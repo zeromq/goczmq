@@ -2,6 +2,50 @@ package goczmq
 
 import "testing"
 
+func TestPollerNewNoSocks(t *testing.T) {
+	poller, err := NewPoller()
+	if err != nil {
+		t.Errorf("NewPoller failed: %s", err)
+	}
+	defer poller.Destroy()
+
+	pullSock1, err := NewPull("inproc://poller_pull1")
+	if err != nil {
+		t.Errorf("NewPull failed: %s", err)
+	}
+	defer pullSock1.Destroy()
+
+	err = poller.Add(pullSock1)
+	if err != nil {
+		t.Errorf("poller Add failed: %s", err)
+	}
+
+	pushSock, err := NewPush("inproc://poller_pull1")
+	if err != nil {
+		t.Errorf("NewPush failed: %s", err)
+	}
+	defer pushSock.Destroy()
+
+	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
+	if err != nil {
+		t.Errorf("SendMessage failed: %s", err)
+	}
+
+	s := poller.Wait(0)
+	if s == nil {
+		t.Errorf("Wait did not return waiting socket")
+	}
+
+	frame, _, err := s.RecvFrame()
+	if err != nil {
+		t.Errorf("RecvMessage failed: %s", err)
+	}
+
+	if string(frame) != "Hello" {
+		t.Errorf("Expected 'Hello', received %s", string(frame))
+	}
+}
+
 func TestPoller(t *testing.T) {
 	pullSock1, err := NewPull("inproc://poller_pull1")
 	if err != nil {
