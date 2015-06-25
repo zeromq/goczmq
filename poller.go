@@ -26,24 +26,28 @@ type Poller struct {
 // NewPoller creates a new Poller instance.
 // It accepts one or more readers to poll.
 func NewPoller(readers ...*Sock) (*Poller, error) {
+	var p *Poller
 	if len(readers) == 0 {
-		return nil, fmt.Errorf("requires at least one reader")
-	}
+		p = &Poller{
+			zpollerT: C.Poller_new(nil),
+			socks:    make([]*Sock, 0),
+		}
+	} else {
+		p = &Poller{
+			zpollerT: C.Poller_new(unsafe.Pointer(readers[0].zsockT)),
+			socks:    make([]*Sock, 0),
+		}
 
-	p := &Poller{
-		zpollerT: C.Poller_new(unsafe.Pointer(readers[0].zsockT)),
-		socks:    make([]*Sock, 0),
-	}
+		p.socks = append(p.socks, readers[0])
+		if len(readers) == 1 {
+			return p, nil
+		}
 
-	p.socks = append(p.socks, readers[0])
-	if len(readers) == 1 {
-		return p, nil
-	}
-
-	for _, reader := range readers[1:] {
-		err := p.Add(reader)
-		if err != nil {
-			return nil, err
+		for _, reader := range readers[1:] {
+			err := p.Add(reader)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return p, nil
