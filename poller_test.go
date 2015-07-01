@@ -9,7 +9,7 @@ func TestPollerNewNoSocks(t *testing.T) {
 	}
 	defer poller.Destroy()
 
-	pullSock1, err := NewPull("inproc://poller_pull1")
+	pullSock1, err := NewPull("inproc://poller_new_no_socks")
 	if err != nil {
 		t.Errorf("NewPull failed: %s", err)
 	}
@@ -20,7 +20,7 @@ func TestPollerNewNoSocks(t *testing.T) {
 		t.Errorf("poller Add failed: %s", err)
 	}
 
-	pushSock, err := NewPush("inproc://poller_pull1")
+	pushSock, err := NewPush("inproc://poller_new_no_socks")
 	if err != nil {
 		t.Errorf("NewPush failed: %s", err)
 	}
