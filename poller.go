@@ -15,6 +15,8 @@ import (
 	"unsafe"
 )
 
+const WaitAfterDestroyPanicMessage = "Wait() is invalid on Poller after Destroy() is called."
+
 // Poller provides a simple wrapper to ZeroMQ's zmq_poll API,
 // for the common case of reading from a number of sockets.
 // Sockets can be added and removed from the running poller.
@@ -80,6 +82,10 @@ func (p *Poller) Remove(reader *Sock) {
 // Wait waits for the timeout period in milliseconds for a Pollin
 // event, and returns the first socket that returns one
 func (p *Poller) Wait(millis int) *Sock {
+	if p.zpollerT == nil {
+		// Null pointer. Something is wrong or we've already had `Destroy` invoked on us.
+		panic(WaitAfterDestroyPanicMessage)
+	}
 	s := C.zpoller_wait(p.zpollerT, C.int(millis))
 	s = unsafe.Pointer(s)
 	if s == nil {

@@ -147,6 +147,34 @@ func TestPoller(t *testing.T) {
 	}
 }
 
+func TestPollerAfterDestroy(t *testing.T) {
+	pullSock, err := NewPull("inproc://poller_pull")
+	if err != nil {
+		t.Errorf("NewPull failed: %s", err)
+	}
+	defer pullSock.Destroy()
+
+	poller, err := NewPoller(pullSock)
+	if err != nil {
+		t.Errorf("NewPoller failed: %s", err)
+	}
+	poller.Wait(0)
+
+	// https://github.com/zeromq/goczmq/issues/145
+	// Verify expected panic behavior if Wait() is invoked after a Destroy()
+	poller.Destroy()
+	defer func() {
+		if r := recover(); r != nil {
+			if r != WaitAfterDestroyPanicMessage {
+				t.Errorf("Expected a specific panic, `%s`,\n  but got `%s`", WaitAfterDestroyPanicMessage, r)
+			}
+		} else {
+			t.Errorf("Expected panic, but did not panic.")
+		}
+	}()
+	poller.Wait(0)
+}
+
 func ExamplePoller() {
 	sock1, err := NewRouter("inproc://poller_example_1")
 	if err != nil {
