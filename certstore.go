@@ -31,8 +31,12 @@ func (c *CertStore) Insert(cert *Cert) {
 // Lookup looks up a certificate in the store by public key and
 // returns it.
 func (c *CertStore) Lookup(key string) *Cert {
+	ptr := C.zcertstore_lookup(c.zcertstoreT, C.CString(key))
+	if ptr == nil {
+		return nil
+	}
 	return &Cert{
-		zcertT: C.zcertstore_lookup(c.zcertstoreT, C.CString(key)),
+		zcertT: ptr,
 	}
 }
 

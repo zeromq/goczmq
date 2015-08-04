@@ -12,6 +12,14 @@ func TestCertStore(t *testing.T) {
 	certstore := NewCertStore(testDir)
 	defer certstore.Destroy()
 
+	client0 := NewCert()
+	client0Key := client0.PublicText()
+	client0.Destroy()
+	client0Loaded := certstore.Lookup(client0Key)
+	if client0Loaded != nil {
+		t.Errorf("A Lookup of a cert that doesn't exist should return nil.")
+	}
+
 	client1 := NewCert()
 	client1.SetMeta("name", "Brian")
 	client1Key := client1.PublicText()
