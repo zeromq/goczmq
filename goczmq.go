@@ -43,6 +43,11 @@ const (
 	FlagNone     = 0
 
 	CurveAllowAny = "*"
+
+	ZMQVersionMajor  = int(C.ZMQ_VERSION_MAJOR)
+	ZMQVersionMinor  = int(C.ZMQ_VERSION_MINOR)
+	CZMQVersionMajor = int(C.CZMQ_VERSION_MAJOR)
+	CZMQVersionMinor = int(C.CZMQ_VERSION_MINOR)
 )
 
 var (
