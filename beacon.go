@@ -95,20 +95,9 @@ func (b *Beacon) Subscribe(filter string) error {
 // Recv waits for the specific timeout in milliseconds to receive a beacon
 func (b *Beacon) Recv(timeout int) [][]byte {
 	C.zsock_set_rcvtimeo(unsafe.Pointer(b.zactorT), C.int(timeout))
-	frame := C.zframe_recv(unsafe.Pointer(b.zactorT))
-	dataSize := C.zframe_size(frame)
-	dataPtr := C.zframe_data(frame)
-	ipBytes := C.GoBytes(unsafe.Pointer(dataPtr), C.int(dataSize))
-	C.zframe_destroy(&frame)
-
-	C.zsock_set_rcvtimeo(unsafe.Pointer(b.zactorT), C.int(timeout))
-	frame = C.zframe_recv(unsafe.Pointer(b.zactorT))
-	dataSize = C.zframe_size(frame)
-	dataPtr = C.zframe_data(frame)
-	msgBytes := C.GoBytes(unsafe.Pointer(dataPtr), C.int(dataSize))
-	C.zframe_destroy(&frame)
-
-	return [][]byte{ipBytes, msgBytes}
+	addrStr := C.zstr_recv(unsafe.Pointer(b.zactorT))
+	beaconStr := C.zstr_recv(unsafe.Pointer(b.zactorT))
+	return [][]byte{[]byte(C.GoString(addrStr)), []byte(C.GoString(beaconStr))}
 }
 
 // Destroy destroys the beacon.
