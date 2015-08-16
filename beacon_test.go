@@ -44,8 +44,9 @@ func TestBeacon(t *testing.T) {
 
 	speaker.Publish("HI", 100)
 
-	address := listener.Recv(500)
-	t.Logf("%v", address)
+	msg := listener.Recv(500)
+	t.Logf("Address: %s", string(msg[0]))
+	t.Logf("Beacon: %s", string(msg[1]))
 
 	listener.Destroy()
 	speaker.Destroy()
