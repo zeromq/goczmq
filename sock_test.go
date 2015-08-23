@@ -144,15 +144,17 @@ func TestSendMessage(t *testing.T) {
 }
 
 func TestPubSub(t *testing.T) {
-	_, err := NewPub("bogus://bogus")
+	bogusPub, err := NewPub("bogus://bogus")
 	if err == nil {
 		t.Error("NewPub should have returned error and did not")
 	}
+	defer bogusPub.Destroy()
 
-	_, err = NewSub("bogus://bogus", "")
+	bogusSub, err := NewSub("bogus://bogus", "")
 	if err == nil {
 		t.Error("NewSub should have returned error and did not")
 	}
+	defer bogusSub.Destroy()
 
 	pub, err := NewPub("inproc://pub1,inproc://pub2")
 	if err != nil {
@@ -182,15 +184,17 @@ func TestPubSub(t *testing.T) {
 }
 
 func TestReqRep(t *testing.T) {
-	_, err := NewReq("bogus://bogus")
+	bogusReq, err := NewReq("bogus://bogus")
 	if err == nil {
 		t.Error("NewReq should have returned error and did not")
 	}
+	defer bogusReq.Destroy()
 
-	_, err = NewRep("bogus://bogus")
+	bogusRep, err := NewRep("bogus://bogus")
 	if err == nil {
 		t.Error("NewRep should have returned error and did not")
 	}
+	defer bogusRep.Destroy()
 
 	rep, err := NewRep("inproc://rep1,inproc://rep2")
 	if err != nil {
@@ -235,15 +239,17 @@ func TestReqRep(t *testing.T) {
 }
 
 func TestPushPull(t *testing.T) {
-	_, err := NewPush("bogus://bogus")
+	bogusPush, err := NewPush("bogus://bogus")
 	if err == nil {
 		t.Error("NewPush should have returned error and did not")
 	}
+	defer bogusPush.Destroy()
 
-	_, err = NewPull("bogus://bogus")
+	bogusPull, err := NewPull("bogus://bogus")
 	if err == nil {
 		t.Error("NewPull should have returned error and did not")
 	}
+	defer bogusPull.Destroy()
 
 	push, err := NewPush("inproc://push1,inproc://push2")
 	if err != nil {
@@ -282,15 +288,17 @@ func TestPushPull(t *testing.T) {
 }
 
 func TestRouterDealer(t *testing.T) {
-	_, err := NewDealer("bogus://bogus")
+	bogusDealer, err := NewDealer("bogus://bogus")
 	if err == nil {
 		t.Error("NewDealer should have returned error and did not")
 	}
+	defer bogusDealer.Destroy()
 
-	_, err = NewRouter("bogus://bogus")
+	bogusRouter, err := NewRouter("bogus://bogus")
 	if err == nil {
 		t.Error("NewRouter should have returned error and did not")
 	}
+	defer bogusRouter.Destroy()
 
 	dealer, err := NewDealer("inproc://router1,inproc://router2")
 	if err != nil {
@@ -343,15 +351,17 @@ func TestRouterDealer(t *testing.T) {
 }
 
 func TestXSubXPub(t *testing.T) {
-	_, err := NewXPub("bogus://bogus")
+	bogusXPub, err := NewXPub("bogus://bogus")
 	if err == nil {
 		t.Error("NewXPub should have returned error and did not")
 	}
+	defer bogusXPub.Destroy()
 
-	_, err = NewXSub("bogus://bogus")
+	bogusXSub, err := NewXSub("bogus://bogus")
 	if err == nil {
 		t.Error("NewXSub should have returned error and did not")
 	}
+	defer bogusXSub.Destroy()
 
 	xpub, err := NewXPub("inproc://xpub1,inproc://xpub2")
 	if err != nil {
@@ -367,10 +377,11 @@ func TestXSubXPub(t *testing.T) {
 }
 
 func TestPair(t *testing.T) {
-	_, err := NewPair("bogus://bogus")
+	bogusPair, err := NewPair("bogus://bogus")
 	if err == nil {
 		t.Error("NewPair should have returned error and did not")
 	}
+	defer bogusPair.Destroy()
 
 	pair1, err := NewPair(">inproc://pair")
 	if err != nil {
@@ -386,10 +397,11 @@ func TestPair(t *testing.T) {
 }
 
 func TestStream(t *testing.T) {
-	_, err := NewStream("bogus://bogus")
+	bogusStream, err := NewStream("bogus://bogus")
 	if err == nil {
 		t.Error("NewStream should have returned error and did not")
 	}
+	defer bogusStream.Destroy()
 
 	stream1, err := NewStream(">inproc://stream")
 	if err != nil {
@@ -816,12 +828,14 @@ func ExampleSock_output() {
 	if err != nil {
 		panic(err)
 	}
+	defer dealer.Destroy()
 
 	// create router socket
 	router, err := NewRouter("inproc://example")
 	if err != nil {
 		panic(err)
 	}
+	defer router.Destroy()
 
 	// send hello message
 	dealer.SendFrame([]byte("Hello"), FlagNone)

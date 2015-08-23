@@ -45,6 +45,7 @@ func TestGossip(t *testing.T) {
 
 	// client1
 	client1 := NewGossip("client1")
+	defer client1.Destroy()
 
 	if testing.Verbose() {
 		err = client1.Verbose()
@@ -80,6 +81,7 @@ func TestGossip(t *testing.T) {
 
 	// client2
 	client2 := NewGossip("client2")
+	defer client2.Destroy()
 
 	if testing.Verbose() {
 		err = client2.Verbose()
@@ -115,6 +117,7 @@ func TestGossip(t *testing.T) {
 
 	// client3
 	client3 := NewGossip("client3")
+	defer client3.Destroy()
 
 	if testing.Verbose() {
 		err = client3.Verbose()
@@ -130,6 +133,7 @@ func TestGossip(t *testing.T) {
 
 	// client4
 	client4 := NewGossip("client4")
+	defer client4.Destroy()
 
 	if testing.Verbose() {
 		err = client4.Verbose()

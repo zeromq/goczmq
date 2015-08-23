@@ -121,6 +121,7 @@ func TestPoller(t *testing.T) {
 	if err != nil {
 		t.Errorf("NewPush failed: %s", err)
 	}
+	defer pushSock2.Destroy()
 
 	err = pushSock2.SendFrame([]byte("World"), FlagNone)
 	if err != nil {
