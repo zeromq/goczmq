@@ -21,39 +21,117 @@ import (
 )
 
 const (
-	Req    = int(C.ZMQ_REQ)
-	Rep    = int(C.ZMQ_REP)
+	// Req is a ZMQ_REQ socket type
+	Req = int(C.ZMQ_REQ)
+
+	// Rep is a ZMQ_REP socket type
+	Rep = int(C.ZMQ_REP)
+
+	// Dealer is a ZMQ_DEALER socket type
 	Dealer = int(C.ZMQ_DEALER)
+
+	// Router is a ZMQ_ROUTER socket type
 	Router = int(C.ZMQ_ROUTER)
-	Pub    = int(C.ZMQ_PUB)
-	Sub    = int(C.ZMQ_SUB)
-	XPub   = int(C.ZMQ_XPUB)
-	XSub   = int(C.ZMQ_XSUB)
-	Push   = int(C.ZMQ_PUSH)
-	Pull   = int(C.ZMQ_PULL)
-	Pair   = int(C.ZMQ_PAIR)
+
+	// Pub is a ZMQ_PUB socket type
+	Pub = int(C.ZMQ_PUB)
+
+	// Sub is a ZMQ_SUB socket type
+	Sub = int(C.ZMQ_SUB)
+
+	// XPub is a ZMQ_XPUB socket type
+	XPub = int(C.ZMQ_XPUB)
+
+	// XSub is a ZMQ_XSUB socket type
+	XSub = int(C.ZMQ_XSUB)
+
+	// Push is a ZMQ_PUSH socket type
+	Push = int(C.ZMQ_PUSH)
+
+	// Pull is a ZMQ_PULL socket type
+	Pull = int(C.ZMQ_PULL)
+
+	// Pair is a ZMQ_PAIR socket type
+	Pair = int(C.ZMQ_PAIR)
+
+	// Stream is a ZMQ_STREAM socket type
 	Stream = int(C.ZMQ_STREAM)
 
-	Pollin  = int(C.ZMQ_POLLIN)
+	// Pollin is the ZMQ_POLLIN constant
+	Pollin = int(C.ZMQ_POLLIN)
+
+	// Pollout is the ZMQ_POLLOUT constant
 	Pollout = int(C.ZMQ_POLLOUT)
 
-	FlagMore     = int(C.ZFRAME_MORE)
-	FlagReuse    = int(C.ZFRAME_REUSE)
-	FlagDontWait = int(C.ZFRAME_DONTWAIT)
-	FlagNone     = 0
+	// FlagMore is the ZFRAME_MORE flag
+	FlagMore = int(C.ZFRAME_MORE)
 
+	// FlagReuse is the ZFRAME_REUSE flag
+	FlagReuse = int(C.ZFRAME_REUSE)
+
+	//FlagDontWait is the ZFRAME_DONTWAIT flag
+	FlagDontWait = int(C.ZFRAME_DONTWAIT)
+
+	//FlagNone means there are no flags
+	FlagNone = 0
+
+	// CurveAllowAny is a semantic convenience for allowing
+	// any Curve clients
 	CurveAllowAny = "*"
 
-	ZMQVersionMajor  = int(C.ZMQ_VERSION_MAJOR)
-	ZMQVersionMinor  = int(C.ZMQ_VERSION_MINOR)
+	//ZMQVersionMajor is the major version of the underlying ZeroMQ library
+	ZMQVersionMajor = int(C.ZMQ_VERSION_MAJOR)
+
+	//ZMQVersionMinor is the minor version of the underlying ZeroMQ library
+	ZMQVersionMinor = int(C.ZMQ_VERSION_MINOR)
+
+	//CZMQVersionMajor is the major version of the underlying CZMQ library
 	CZMQVersionMajor = int(C.CZMQ_VERSION_MAJOR)
+
+	// CZMQVersionMinor is the minor version of the underlying CZMQ library
 	CZMQVersionMinor = int(C.CZMQ_VERSION_MINOR)
 )
 
 var (
-	ErrActorCmd        = errors.New("error sending actor command")
-	ErrSockAttach      = errors.New("error attaching zsock")
+	// ErrActorCmd is returned when there is an error sending
+	// a command to an actor
+	ErrActorCmd = errors.New("error sending actor command")
+
+	// ErrSockAttach is returned when an attach call to a socket fails
+	ErrSockAttach = errors.New("error attaching zsock")
+
+	// ErrInvalidSockType is returned when a function is called
+	// against a socket type that is not applicable for that socket type
 	ErrInvalidSockType = errors.New("invalid socket type")
+
+	// ErrSliceFull is returned if a []byte passed to Read was not
+	// large enough to hold the contents of a message
+	ErrSliceFull = errors.New("slice full")
+
+	// ErrConnect is returned if Connect on a socket fails
+	ErrConnect = errors.New("connect error")
+
+	// ErrDisconnect is returned if Disconnect on a socket fails
+	ErrDisconnect = errors.New("disconnect error")
+
+	// ErrBind is returned if Bind on a socket fails
+	ErrBind = errors.New("bind error")
+
+	// ErrUnbind is returned if Unbind on a socket fails
+	ErrUnbind = errors.New("unbind error")
+
+	// ErrSendFrame is returned if SendFrame on a socket fails
+	ErrSendFrame = errors.New("send frame error")
+
+	// ErrRecvFrame is returned if RecvFrame on a socket fails
+	ErrRecvFrame = errors.New("recv frame error")
+
+	// ErrRecvMessage is returned if RecvMessage on a socket fails
+	ErrRecvMessage = errors.New("recv message error")
+
+	// ErrWaitAfterDestroy is returned by a Poller if there is an error
+	// accessing the underlying socket pointer when Wait is called
+	ErrWaitAfterDestroy = errors.New("Wait() is invalid on Poller after Destroy() is called.")
 )
 
 func getStringType(k int) string {

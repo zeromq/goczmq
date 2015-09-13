@@ -13,18 +13,10 @@ int Sock_unbind(zsock_t *self, const char *format) {return zsock_unbind(self, fo
 import "C"
 
 import (
-	"errors"
-	"fmt"
 	"os"
 	"runtime"
 	"strings"
 	"unsafe"
-)
-
-var (
-	// ErrSliceFull is returned if a []byte passed to Read was not
-	// large enough to hold the contents of a message
-	ErrSliceFull = errors.New("goczmq: slice full")
 )
 
 // Sock wraps the CZMQ zsock class.
@@ -43,14 +35,16 @@ func init() {
 }
 
 // GetLastClientID returns the id of the last client you received
-// a message from if the underlying socket is a Router or SERVER
-// socket
+// a message from if the underlying socket is a Router socket
 func (s *Sock) GetLastClientID() []byte {
 	id := []byte(s.clientIDs[0])
 	s.clientIDs = s.clientIDs[1:]
 	return id
 }
 
+// SetLastClientID lets you manually set the id of the client
+// you last received a message from if the underlying socket
+// is a Router socket
 func (s *Sock) SetLastClientID(id []byte) {
 	s.clientIDs = append(s.clientIDs, string(id))
 }
@@ -87,7 +81,7 @@ func NewSock(t int) *Sock {
 func (s *Sock) Connect(endpoint string) error {
 	rc := C.Sock_connect(s.zsockT, C.CString(endpoint))
 	if rc != C.int(0) {
-		return errors.New("failed")
+		return ErrConnect
 	}
 	return nil
 }
@@ -97,7 +91,7 @@ func (s *Sock) Connect(endpoint string) error {
 func (s *Sock) Disconnect(endpoint string) error {
 	rc := C.Sock_disconnect(s.zsockT, C.CString(endpoint))
 	if int(rc) == -1 {
-		return fmt.Errorf("endopint was not bound")
+		return ErrDisconnect
 	}
 	return nil
 }
@@ -108,7 +102,7 @@ func (s *Sock) Disconnect(endpoint string) error {
 func (s *Sock) Bind(endpoint string) (int, error) {
 	port := C.Sock_bind(s.zsockT, C.CString(endpoint))
 	if port == C.int(-1) {
-		return -1, errors.New("failed")
+		return -1, ErrBind
 	}
 	return int(port), nil
 }
@@ -118,7 +112,7 @@ func (s *Sock) Bind(endpoint string) (int, error) {
 func (s *Sock) Unbind(endpoint string) error {
 	rc := C.Sock_unbind(s.zsockT, C.CString(endpoint))
 	if int(rc) == -1 {
-		return fmt.Errorf("endopint was not bound")
+		return ErrUnbind
 	}
 	return nil
 }
@@ -255,7 +249,7 @@ func (s *Sock) SendFrame(data []byte, flags int) error {
 	}
 
 	if rc == C.int(-1) {
-		return errors.New("failed")
+		return ErrSendFrame
 	}
 
 	return nil
@@ -267,7 +261,7 @@ func (s *Sock) SendFrame(data []byte, flags int) error {
 func (s *Sock) RecvFrame() ([]byte, int, error) {
 	frame := C.zframe_recv(unsafe.Pointer(s.zsockT))
 	if frame == nil {
-		return []byte{0}, 0, errors.New("failed")
+		return []byte{0}, 0, ErrRecvFrame
 	}
 	dataSize := C.zframe_size(frame)
 	dataPtr := C.zframe_data(frame)
@@ -283,7 +277,7 @@ func (s *Sock) RecvFrame() ([]byte, int, error) {
 // if one is not immediately available
 func (s *Sock) RecvFrameNoWait() ([]byte, int, error) {
 	if !s.Pollin() {
-		return []byte{0}, 0, fmt.Errorf("no frame")
+		return []byte{0}, 0, ErrRecvFrame
 	}
 
 	return s.RecvFrame()
@@ -384,7 +378,7 @@ func (s *Sock) Write(p []byte) (int, error) {
 func (s *Sock) RecvMessageNoWait() ([][]byte, error) {
 	var msg [][]byte
 	if !s.Pollin() {
-		return msg, fmt.Errorf("no message")
+		return msg, ErrRecvMessage
 	}
 
 	for {
