@@ -323,35 +323,37 @@ func (s *Sock) RecvMessage() ([][]byte, error) {
 
 // Read provides an io.Reader interface to a zeromq socket
 func (s *Sock) Read(p []byte) (int, error) {
-	var total int
+	var totalRead int
+	var totalFrame int
+
 	frame, flag, err := s.RecvFrame()
 	if err != nil {
-		return total, err
+		return totalRead, err
 	}
 
 	if s.GetType() == Router {
 		s.clientIDs = append(s.clientIDs, string(frame))
 	} else {
-		copy(p[:], frame[:])
-		total += len(frame)
+		totalRead += copy(p[:], frame[:])
+		totalFrame += len(frame)
 	}
 
 	for flag == FlagMore {
 		frame, flag, err = s.RecvFrame()
 		if err != nil {
-			return total, err
+			return totalRead, err
 		}
-		copy(p[total:], frame[:])
-		total += len(frame)
+		totalRead += copy(p[totalRead:], frame[:])
+		totalFrame += len(frame)
 	}
 
-	if total > len(p) {
+	if totalFrame > len(p) {
 		err = ErrSliceFull
 	} else {
 		err = nil
 	}
 
-	return total, err
+	return totalRead, err
 }
 
 // Write provides an io.Writer interface to a zeromq socket

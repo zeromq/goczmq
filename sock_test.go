@@ -527,6 +527,44 @@ func TestReader(t *testing.T) {
 	}
 }
 
+func TestReaderWithBufferSmallerThanFrame(t *testing.T) {
+	dealerSock := NewSock(Dealer)
+	defer dealerSock.Destroy()
+
+	routerSock := NewSock(Router)
+	defer routerSock.Destroy()
+
+	_, err := routerSock.Bind("inproc://test-read-small-buf")
+	if err != nil {
+		t.Errorf("repSock.Bind failed: %s", err)
+	}
+
+	err = dealerSock.Connect("inproc://test-read-small-buf")
+	if err != nil {
+		t.Errorf("reqSock.Connect failed: %s", err)
+	}
+
+	err = dealerSock.SendFrame([]byte("Hello"), FlagNone)
+	if err != nil {
+		t.Errorf("dealerSock.SendFrame failed: %s", err)
+	}
+
+	b := make([]byte, 2)
+
+	n, err := routerSock.Read(b)
+	if n != 2 {
+		t.Errorf("routerSock.Read expected 2 bytes read %d", n)
+	}
+
+	if err != ErrSliceFull {
+		t.Errorf("routerSock.Read expected io.EOF got %s", err)
+	}
+
+	if bytes.Compare(b, []byte("He")) != 0 {
+		t.Errorf("expected 'Hello' received '%s'", b)
+	}
+}
+
 func TestReaderWithRouterDealer(t *testing.T) {
 	dealerSock := NewSock(Dealer)
 	defer dealerSock.Destroy()
