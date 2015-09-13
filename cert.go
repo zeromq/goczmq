@@ -3,7 +3,7 @@ package goczmq
 /*
 #include "czmq.h"
 
-int Set_meta(zcert_t *self, const char *key, const char *value) {zcert_set_meta(self, key, value);}
+void Set_meta(zcert_t *self, const char *key, const char *value) {zcert_set_meta(self, key, value);}
 */
 import "C"
 
