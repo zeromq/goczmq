@@ -166,8 +166,8 @@ func TestPollerAfterDestroy(t *testing.T) {
 	poller.Destroy()
 	defer func() {
 		if r := recover(); r != nil {
-			if r != WaitAfterDestroyPanicMessage {
-				t.Errorf("Expected a specific panic, `%s`,\n  but got `%s`", WaitAfterDestroyPanicMessage, r)
+			if r != ErrWaitAfterDestroy {
+				t.Errorf("Expected a specific panic, `%s`,\n  but got `%s`", ErrWaitAfterDestroy.Error(), r)
 			}
 		} else {
 			t.Errorf("Expected panic, but did not panic.")
