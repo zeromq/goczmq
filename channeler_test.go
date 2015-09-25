@@ -98,5 +98,6 @@ func BenchmarkChanneler(b *testing.B) {
 		if len(msg[0]) != 1024 {
 			panic("message is corrupt")
 		}
+		b.SetBytes(1024)
 	}
 }

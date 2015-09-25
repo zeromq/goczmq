@@ -1,6 +1,9 @@
 package goczmq
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestPollerNewNoSocks(t *testing.T) {
 	poller, err := NewPoller()
@@ -207,7 +210,7 @@ func benchmarkPollerSendFrame(size int, b *testing.B) {
 	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
-	_, err := pullSock.Bind("inproc://benchSock")
+	_, err := pullSock.Bind(fmt.Sprintf("inproc://benchSockPoller%d", size))
 	if err != nil {
 		panic(err)
 	}
@@ -215,7 +218,7 @@ func benchmarkPollerSendFrame(size int, b *testing.B) {
 	go func() {
 		pushSock := NewSock(Push)
 		defer pushSock.Destroy()
-		err := pushSock.Connect("inproc://benchSock")
+		err := pushSock.Connect(fmt.Sprintf("inproc://benchSockPoller%d", size))
 		if err != nil {
 			panic(err)
 		}
@@ -244,10 +247,10 @@ func benchmarkPollerSendFrame(size int, b *testing.B) {
 		if len(msg) != size {
 			panic("msg too small")
 		}
+		b.SetBytes(int64(size))
 	}
 }
 
 func BenchmarkPollerSendFrame1k(b *testing.B)  { benchmarkPollerSendFrame(1024, b) }
 func BenchmarkPollerSendFrame4k(b *testing.B)  { benchmarkPollerSendFrame(4096, b) }
 func BenchmarkPollerSendFrame16k(b *testing.B) { benchmarkPollerSendFrame(16384, b) }
-func BenchmarkPollerSendFrame65k(b *testing.B) { benchmarkPollerSendFrame(65536, b) }
