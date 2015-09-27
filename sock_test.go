@@ -908,7 +908,7 @@ func benchmarkSockSendFrame(size int, b *testing.B) {
 	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
-	_, err := pullSock.Bind("inproc://benchSock")
+	_, err := pullSock.Bind(fmt.Sprintf("inproc://benchSockSendFrame%d", size))
 	if err != nil {
 		panic(err)
 	}
@@ -916,7 +916,7 @@ func benchmarkSockSendFrame(size int, b *testing.B) {
 	go func() {
 		pushSock := NewSock(Push)
 		defer pushSock.Destroy()
-		err := pushSock.Connect("inproc://benchSock")
+		err := pushSock.Connect(fmt.Sprintf("inproc://benchSockSendFrame%d", size))
 		if err != nil {
 			panic(err)
 		}
@@ -938,19 +938,20 @@ func benchmarkSockSendFrame(size int, b *testing.B) {
 		if len(msg) != size {
 			panic("msg too small")
 		}
+
+		b.SetBytes(int64(size))
 	}
 }
 
 func BenchmarkSockSendFrame1k(b *testing.B)  { benchmarkSockSendFrame(1024, b) }
 func BenchmarkSockSendFrame4k(b *testing.B)  { benchmarkSockSendFrame(4096, b) }
 func BenchmarkSockSendFrame16k(b *testing.B) { benchmarkSockSendFrame(16384, b) }
-func BenchmarkSockSendFrame65k(b *testing.B) { benchmarkSockSendFrame(65536, b) }
 
 func benchmarkSockReadWriter(size int, b *testing.B) {
 	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
-	_, err := pullSock.Bind("inproc://benchSock")
+	_, err := pullSock.Bind(fmt.Sprintf("inproc://benchSockReadWriter%d", size))
 	if err != nil {
 		panic(err)
 	}
@@ -958,7 +959,7 @@ func benchmarkSockReadWriter(size int, b *testing.B) {
 	go func() {
 		pushSock := NewSock(Push)
 		defer pushSock.Destroy()
-		err := pushSock.Connect("inproc://benchSock")
+		err := pushSock.Connect(fmt.Sprintf("inproc://benchSockReadWriter%d", size))
 		if err != nil {
 			panic(err)
 		}
@@ -981,13 +982,13 @@ func benchmarkSockReadWriter(size int, b *testing.B) {
 		if n != size {
 			panic("msg too small")
 		}
+		b.SetBytes(int64(size))
 	}
 }
 
 func BenchmarkSockReadWriter1k(b *testing.B)  { benchmarkSockReadWriter(1024, b) }
 func BenchmarkSockReadWriter4k(b *testing.B)  { benchmarkSockReadWriter(4096, b) }
 func BenchmarkSockReadWriter16k(b *testing.B) { benchmarkSockReadWriter(16384, b) }
-func BenchmarkSockReadWriter65k(b *testing.B) { benchmarkSockReadWriter(65536, b) }
 
 func BenchmarkEncodeDecode(b *testing.B) {
 	pullSock := NewSock(Pull)
@@ -995,7 +996,7 @@ func BenchmarkEncodeDecode(b *testing.B) {
 
 	decoder := gob.NewDecoder(pullSock)
 
-	_, err := pullSock.Bind("inproc://benchSock")
+	_, err := pullSock.Bind("inproc://benchSockEncodeDecode")
 	if err != nil {
 		panic(err)
 	}
@@ -1003,7 +1004,7 @@ func BenchmarkEncodeDecode(b *testing.B) {
 	go func() {
 		pushSock := NewSock(Push)
 		defer pushSock.Destroy()
-		err := pushSock.Connect("inproc://benchSock")
+		err := pushSock.Connect("inproc://benchSockEncodeDecode")
 		if err != nil {
 			panic(err)
 		}

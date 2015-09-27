@@ -1,6 +1,7 @@
 package goczmq
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -204,12 +205,12 @@ func benchmarkProxySendFrame(size int, b *testing.B) {
 	proxy := NewProxy()
 	defer proxy.Destroy()
 
-	err := proxy.SetFrontend(Pull, "inproc://benchProxyFront")
+	err := proxy.SetFrontend(Pull, fmt.Sprintf("inproc://benchProxyFront%d", size))
 	if err != nil {
 		panic(err)
 	}
 
-	err = proxy.SetBackend(Push, "inproc://benchProxyBack")
+	err = proxy.SetBackend(Push, fmt.Sprintf("inproc://benchProxyBack%d", size))
 	if err != nil {
 		panic(err)
 	}
@@ -217,7 +218,7 @@ func benchmarkProxySendFrame(size int, b *testing.B) {
 	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
-	err = pullSock.Connect("inproc://benchProxyBack")
+	err = pullSock.Connect(fmt.Sprintf("inproc://benchProxyBack%d", size))
 	if err != nil {
 		panic(err)
 	}
@@ -225,7 +226,7 @@ func benchmarkProxySendFrame(size int, b *testing.B) {
 	go func() {
 		pushSock := NewSock(Push)
 		defer pushSock.Destroy()
-		err := pushSock.Connect("inproc://benchProxyFront")
+		err := pushSock.Connect(fmt.Sprintf("inproc://benchProxyFront%d", size))
 		if err != nil {
 			panic(err)
 		}
@@ -247,10 +248,10 @@ func benchmarkProxySendFrame(size int, b *testing.B) {
 		if len(msg) != size {
 			panic("msg too small")
 		}
+		b.SetBytes(int64(size))
 	}
 }
 
 func BenchmarkProxySendFrame1k(b *testing.B)  { benchmarkProxySendFrame(1024, b) }
 func BenchmarkProxySendFrame4k(b *testing.B)  { benchmarkProxySendFrame(4096, b) }
 func BenchmarkProxySendFrame16k(b *testing.B) { benchmarkProxySendFrame(16384, b) }
-func BenchmarkProxySendFrame65k(b *testing.B) { benchmarkProxySendFrame(65536, b) }
