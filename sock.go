@@ -225,7 +225,6 @@ func NewStream(endpoints string) (*Sock, error) {
 // event on the socket
 func (s *Sock) Pollin() bool {
 	return s.Events() == Pollin
-	// return C.zsock_events(unsafe.Pointer(s.zsockT)) == C.ZMQ_Pollin
 }
 
 // Pollout returns true if there is a Pollout
