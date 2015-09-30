@@ -84,7 +84,7 @@ func TestSendEmptyFrame(t *testing.T) {
 		t.Errorf("reqSock.Connect failed: %s", err)
 	}
 
-	empty := make([]byte, 0)
+	var empty []byte
 	err = pushSock.SendFrame(empty, FlagNone)
 	if err != nil {
 		t.Errorf("pushSock.SendFrame failed: %s", err)
