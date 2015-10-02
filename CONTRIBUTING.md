@@ -5,7 +5,7 @@ The contributors are listed in AUTHORS (add yourself). This project uses the MPL
 # Our Process
 Before you send a pull request, please familiarize yourself with the [C4.1 Collective Code Construction Contract](http://rfc.zeromq.org/spec:22) process. A quick summary (but please, do read the process document):
 * A Pull Request should be described in the form of a problem statement.
-* The code included with the pull request should be proposed solution to that problem.
+* The code included with the pull request should be a proposed solution to that problem.
 * The submitted code should adhere to our style guidelines (described below).
 * The submitted code should include tests.
 * The submitted code should not break any existing tests.
