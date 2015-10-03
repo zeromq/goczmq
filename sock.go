@@ -36,6 +36,7 @@ func init() {
 
 // GetLastClientID returns the id of the last client you received
 // a message from if the underlying socket is a Router socket
+// DEPRECATED: See goczmq.ReadWriter
 func (s *Sock) GetLastClientID() []byte {
 	id := []byte(s.clientIDs[0])
 	s.clientIDs = s.clientIDs[1:]
@@ -45,6 +46,7 @@ func (s *Sock) GetLastClientID() []byte {
 // SetLastClientID lets you manually set the id of the client
 // you last received a message from if the underlying socket
 // is a Router socket
+// DEPRECATED: See goczmq.ReadWriter
 func (s *Sock) SetLastClientID(id []byte) {
 	s.clientIDs = append(s.clientIDs, string(id))
 }
@@ -321,6 +323,7 @@ func (s *Sock) RecvMessage() ([][]byte, error) {
 }
 
 // Read provides an io.Reader interface to a zeromq socket
+// DEPRECATED: see goczmq.ReadWriter
 func (s *Sock) Read(p []byte) (int, error) {
 	var totalRead int
 	var totalFrame int
@@ -356,6 +359,7 @@ func (s *Sock) Read(p []byte) (int, error) {
 }
 
 // Write provides an io.Writer interface to a zeromq socket
+// DEPRECATED: See goczmq.ReadWriter
 func (s *Sock) Write(p []byte) (int, error) {
 	var total int
 	if s.GetType() == Router {
