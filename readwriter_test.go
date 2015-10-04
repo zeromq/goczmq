@@ -2,6 +2,7 @@ package goczmq
 
 import (
 	"bytes"
+	"io"
 	"testing"
 )
 
@@ -19,7 +20,10 @@ func TestReadWriter(t *testing.T) {
 		t.Errorf("NewPull failed: %s", err)
 	}
 
-	pullReadWriter := NewReadWriter(pullSock)
+	pullReadWriter, err := NewReadWriter(pullSock)
+	if err != nil {
+		t.Errorf("NewReadWriter failed: %s", err)
+	}
 	defer pullReadWriter.Destroy()
 
 	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
@@ -53,6 +57,29 @@ func TestReadWriter(t *testing.T) {
 	if bytes.Compare(b, []byte("Hello Wo")) != 0 {
 		t.Errorf("expected 'Hello Wo' received '%s'", b)
 	}
+
+	n, err = pullReadWriter.Read(b)
+	if n != 3 {
+		t.Errorf("expected to read 3 bytes, read %d", n)
+	}
+
+	if err != nil {
+		t.Errorf("pullReadWriter.Read: %s", err)
+	}
+
+	if bytes.Compare(b[:n], []byte("rld")) != 0 {
+		t.Errorf("expected 'Hello Wo' received '%s'", b)
+	}
+
+	pullReadWriter.SetTimeout(1)
+	n, err = pullReadWriter.Read(b)
+	if n != 0 {
+		t.Errorf("expected to read 0 bytes, read %d", n)
+	}
+
+	if err != io.EOF {
+		t.Errorf("expected io.EOF on timeout, got %v", err)
+	}
 }
 
 func TestReadWriterWithBufferSmallerThanFrame(t *testing.T) {
@@ -69,7 +96,11 @@ func TestReadWriterWithBufferSmallerThanFrame(t *testing.T) {
 		t.Errorf("NewPull failed: %s", err)
 	}
 
-	pullReadWriter := NewReadWriter(pullSock)
+	pullReadWriter, err := NewReadWriter(pullSock)
+	if err != nil {
+		t.Errorf("NewReadWriter failed: %s", err)
+	}
+
 	defer pullReadWriter.Destroy()
 
 	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
@@ -117,7 +148,10 @@ func TestReadWriterWithRouterDealer(t *testing.T) {
 	}
 	defer routerSock.Destroy()
 
-	routerReadWriter := NewReadWriter(routerSock)
+	routerReadWriter, err := NewReadWriter(routerSock)
+	if err != nil {
+		t.Errorf("NewReadWriter failed: %s", err)
+	}
 	defer routerReadWriter.Destroy()
 
 	err = dealerSock.SendFrame([]byte("Hello"), FlagNone)
@@ -208,7 +242,10 @@ func TestReadWriterWithRouterDealerAsync(t *testing.T) {
 		t.Errorf("NewRouter failed: %s", err)
 	}
 
-	routerReadWriter := NewReadWriter(routerSock)
+	routerReadWriter, err := NewReadWriter(routerSock)
+	if err != nil {
+		t.Errorf("NewReadWriter failed: %s", err)
+	}
 	defer routerReadWriter.Destroy()
 
 	err = dealerSock1.SendFrame([]byte("Hello From Client 1!"), FlagNone)

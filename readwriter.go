@@ -1,24 +1,39 @@
 package goczmq
 
 import "C"
+import
 
 // ReadWriter provides an io.ReadWriter compatible
 // interface for goczmq.Sock
+"io"
 
 type ReadWriter struct {
-	sock         *Sock
-	clientIDs    []string
-	frame        []byte
-	currentIndex int
+	sock          *Sock
+	poller        *Poller
+	clientIDs     []string
+	frame         []byte
+	currentIndex  int
+	timeoutMillis int
 }
 
 // NewReadWriter accepts a sock and returns a goczmq.ReadWriter. The
 // io.ReadWriter should now be considered responsible for this
 // Sock.
-func NewReadWriter(sock *Sock) *ReadWriter {
-	return &ReadWriter{
+func NewReadWriter(sock *Sock) (*ReadWriter, error) {
+	rw := &ReadWriter{
 		sock: sock,
 	}
+
+	var err error
+	rw.poller, err = NewPoller(rw.sock)
+	return rw, err
+}
+
+// SetTimeout sets the timeout on Read in millisecond. If no new
+// data is received within the timeout period, Read will return
+// an io.EOF
+func (r *ReadWriter) SetTimeout(ms int) {
+	r.timeoutMillis = ms
 }
 
 // Read satisifies io.Read
@@ -30,27 +45,34 @@ func (r *ReadWriter) Read(p []byte) (int, error) {
 	var err error
 
 	if r.currentIndex == 0 {
-		r.frame, flag, err = r.sock.RecvFrame()
+		s := r.poller.Wait(r.timeoutMillis)
+		if s == nil {
+			return totalRead, io.EOF
+		}
+		r.frame, flag, err = s.RecvFrame()
 
-		if r.sock.GetType() == Router && r.currentIndex == 0 {
+		if s.GetType() == Router && r.currentIndex == 0 {
+			s := r.poller.Wait(r.timeoutMillis)
+			if s == nil {
+				return totalRead, io.EOF
+			}
 			r.clientIDs = append(r.clientIDs, string(r.frame))
-			r.frame = []byte{0}
-			r.frame, flag, err = r.sock.RecvFrame()
+			r.frame, flag, err = s.RecvFrame()
 		}
 
-		if flag == FlagMore && r.sock.GetType() != Router {
+		if flag == FlagMore && s.GetType() != Router {
 			return totalRead, ErrMultiPartUnsupported
 		}
 
 		if err != nil {
-			return totalRead, err
+			return totalRead, io.EOF
 		}
 	}
 
 	totalRead += copy(p[:], r.frame[r.currentIndex:])
 	totalFrame += len(r.frame)
 
-	if totalFrame > len(p) {
+	if totalFrame-r.currentIndex > len(p) {
 		r.currentIndex = totalRead
 	} else {
 		r.currentIndex = 0
@@ -95,4 +117,5 @@ func (r *ReadWriter) SetLastClientID(id []byte) {
 // Destroy destroys both the ReadWriter and the underlying Sock
 func (r *ReadWriter) Destroy() {
 	r.sock.Destroy()
+	r.poller.Destroy()
 }
