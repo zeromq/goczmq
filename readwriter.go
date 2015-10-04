@@ -4,9 +4,12 @@ import "C"
 
 // ReadWriter provides an io.ReadWriter compatible
 // interface for goczmq.Sock
+
 type ReadWriter struct {
-	sock      *Sock
-	clientIDs []string
+	sock         *Sock
+	clientIDs    []string
+	frame        []byte
+	currentIndex int
 }
 
 // NewReadWriter accepts a sock and returns a goczmq.ReadWriter. The
@@ -14,8 +17,7 @@ type ReadWriter struct {
 // Sock.
 func NewReadWriter(sock *Sock) *ReadWriter {
 	return &ReadWriter{
-		sock:      sock,
-		clientIDs: make([]string, 0),
+		sock: sock,
 	}
 }
 
@@ -24,31 +26,34 @@ func (r *ReadWriter) Read(p []byte) (int, error) {
 	var totalRead int
 	var totalFrame int
 
-	frame, flag, err := r.sock.RecvFrame()
-	if err != nil {
-		return totalRead, err
-	}
+	var flag int
+	var err error
 
-	if r.sock.GetType() == Router {
-		r.clientIDs = append(r.clientIDs, string(frame))
-	} else {
-		totalRead += copy(p[:], frame[:])
-		totalFrame += len(frame)
-	}
+	if r.currentIndex == 0 {
+		r.frame, flag, err = r.sock.RecvFrame()
 
-	for flag == FlagMore {
-		frame, flag, err = r.sock.RecvFrame()
+		if r.sock.GetType() == Router && r.currentIndex == 0 {
+			r.clientIDs = append(r.clientIDs, string(r.frame))
+			r.frame = []byte{0}
+			r.frame, flag, err = r.sock.RecvFrame()
+		}
+
+		if flag == FlagMore && r.sock.GetType() != Router {
+			return totalRead, ErrMultiPartUnsupported
+		}
+
 		if err != nil {
 			return totalRead, err
 		}
-		totalRead += copy(p[totalRead:], frame[:])
-		totalFrame += len(frame)
 	}
 
+	totalRead += copy(p[:], r.frame[r.currentIndex:])
+	totalFrame += len(r.frame)
+
 	if totalFrame > len(p) {
-		err = ErrSliceFull
+		r.currentIndex = totalRead
 	} else {
-		err = nil
+		r.currentIndex = 0
 	}
 
 	return totalRead, err

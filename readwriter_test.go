@@ -42,21 +42,13 @@ func TestReadWriter(t *testing.T) {
 		t.Errorf("expected 'Hello' received '%s'", b)
 	}
 
-	err = pushSock.SendFrame([]byte("Hello"), FlagMore)
-	if err != nil {
-		t.Errorf("pushSock.SendFrame: %s", err)
-	}
-
-	err = pushSock.SendFrame([]byte(" World"), FlagNone)
+	err = pushSock.SendFrame([]byte("Hello World"), FlagNone)
 	if err != nil {
 		t.Errorf("pushSock.SendFrame: %s", err)
 	}
 
 	b = make([]byte, 8)
 	n, err = pullReadWriter.Read(b)
-	if err != ErrSliceFull {
-		t.Errorf("expected %s error, got %s", ErrSliceFull, err)
-	}
 
 	if bytes.Compare(b, []byte("Hello Wo")) != 0 {
 		t.Errorf("expected 'Hello Wo' received '%s'", b)
@@ -66,54 +58,64 @@ func TestReadWriter(t *testing.T) {
 func TestReadWriterWithBufferSmallerThanFrame(t *testing.T) {
 	endpoint := "inproc://testReadWriterSmallBuf"
 
-	dealerSock, err := NewDealer(endpoint)
+	pushSock, err := NewPush(endpoint)
 	if err != nil {
-		t.Errorf("NewDealer failed: %s", err)
+		t.Errorf("NewPush failed: %s", err)
 	}
-	defer dealerSock.Destroy()
+	defer pushSock.Destroy()
 
-	routerSock, err := NewRouter(endpoint)
+	pullSock, err := NewPull(endpoint)
 	if err != nil {
-		t.Errorf("NewRouter failed: %s", err)
-	}
-
-	routerReadWriter := NewReadWriter(routerSock)
-	defer routerReadWriter.Destroy()
-
-	err = dealerSock.SendFrame([]byte("Hello"), FlagNone)
-	if err != nil {
-		t.Errorf("dealerSock.SendFrame failed: %s", err)
+		t.Errorf("NewPull failed: %s", err)
 	}
 
-	b := make([]byte, 2)
+	pullReadWriter := NewReadWriter(pullSock)
+	defer pullReadWriter.Destroy()
 
-	n, err := routerReadWriter.Read(b)
+	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
+	if err != nil {
+		t.Errorf("pushSock.SendFrame failed: %s", err)
+	}
+
+	b := make([]byte, 3)
+
+	n, err := pullReadWriter.Read(b)
+	if n != 3 {
+		t.Errorf("pullReadWriter.Read expected 3 bytes read %d", n)
+	}
+
+	if err != nil {
+		t.Errorf("pullReadWriter.Read: %s", err)
+	}
+
+	if bytes.Compare(b, []byte("Hel")) != 0 {
+		t.Errorf("expected 'Hel' received '%s'", b)
+	}
+
+	n, err = pullReadWriter.Read(b)
 	if n != 2 {
-		t.Errorf("routerReadWriter.Read expected 2 bytes read %d", n)
+		t.Errorf("pullReadWriter.Read expected 3 bytes read %d", n)
 	}
 
-	if err != ErrSliceFull {
-		t.Errorf("routerReadWriter.Read expected io.EOF got %s", err)
-	}
-
-	if bytes.Compare(b, []byte("He")) != 0 {
-		t.Errorf("expected 'Hello' received '%s'", b)
+	if bytes.Compare(b[:n], []byte("lo")) != 0 {
+		t.Errorf("expected 'lo' received '%s'", b)
 	}
 }
 
 func TestReadWriterWithRouterDealer(t *testing.T) {
-	endpoint := "inproc://testReadWriterWithRouterDealer"
+	endpoint := "inproc://testReaderWithRouterDealer"
 
 	dealerSock, err := NewDealer(endpoint)
 	if err != nil {
-		t.Errorf("NewDealer failed: %s", err)
+		t.Errorf("NewDealer failure: %s", err)
 	}
 	defer dealerSock.Destroy()
 
 	routerSock, err := NewRouter(endpoint)
 	if err != nil {
-		t.Errorf("NewRouter failed: %s", err)
+		t.Errorf("NewDealer failure: %s", err)
 	}
+	defer routerSock.Destroy()
 
 	routerReadWriter := NewReadWriter(routerSock)
 	defer routerReadWriter.Destroy()
@@ -125,13 +127,13 @@ func TestReadWriterWithRouterDealer(t *testing.T) {
 
 	b := make([]byte, 5)
 
-	n, err := routerReadWriter.Read(b)
+	n, err := routerSock.Read(b)
 	if n != 5 {
-		t.Errorf("routerReadWriter.Read expected 5 bytes read %d", n)
+		t.Errorf("routerSock.Read expected 5 bytes read %d", n)
 	}
 
 	if err != nil {
-		t.Errorf("routerReadWriter.Read expected io.EOF got %s", err)
+		t.Errorf("routerSock.Read expected io.EOF got %s", err)
 	}
 
 	if bytes.Compare(b, []byte("Hello")) != 0 {
@@ -149,7 +151,7 @@ func TestReadWriterWithRouterDealer(t *testing.T) {
 	}
 
 	b = make([]byte, 8)
-	n, err = routerReadWriter.Read(b)
+	n, err = routerSock.Read(b)
 	if err != ErrSliceFull {
 		t.Errorf("expected %s error, got %s", ErrSliceFull, err)
 	}
@@ -158,9 +160,9 @@ func TestReadWriterWithRouterDealer(t *testing.T) {
 		t.Errorf("expected 'Hello Wo' received '%s'", b)
 	}
 
-	n, err = routerReadWriter.Write([]byte("World"))
+	n, err = routerSock.Write([]byte("World"))
 	if err != nil {
-		t.Errorf("routerReadWriter.Write: %s", err)
+		t.Errorf("routerSock.Write: %s", err)
 	}
 	if n != 5 {
 		t.Errorf("expected 5 bytes sent got %d", n)
@@ -185,11 +187,21 @@ func TestReadWriterWithRouterDealerAsync(t *testing.T) {
 	}
 	defer dealerSock1.Destroy()
 
+	err = dealerSock1.Connect("inproc://test-read-router-async")
+	if err != nil {
+		t.Errorf("reqSock.Connect failed: %s", err)
+	}
+
 	dealerSock2, err := NewDealer(endpoint)
 	if err != nil {
 		t.Errorf("NewDealer failed: %s", err)
 	}
 	defer dealerSock2.Destroy()
+
+	err = dealerSock2.Connect("inproc://test-read-router-async")
+	if err != nil {
+		t.Errorf("reqSock.Connect failed: %s", err)
+	}
 
 	routerSock, err := NewRouter(endpoint)
 	if err != nil {
