@@ -132,6 +132,10 @@ var (
 	// ErrWaitAfterDestroy is returned by a Poller if there is an error
 	// accessing the underlying socket pointer when Wait is called
 	ErrWaitAfterDestroy = errors.New("Wait() is invalid on Poller after Destroy() is called.")
+
+	// ErrMultiPartUnsupported is returned when a function that does
+	// not support multi-part messages encounters a multi-part message
+	ErrMultiPartUnsupported = errors.New("function does not support multi part messages")
 )
 
 func getStringType(k int) string {
