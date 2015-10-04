@@ -52,10 +52,6 @@ func (r *ReadWriter) Read(p []byte) (int, error) {
 		r.frame, flag, err = s.RecvFrame()
 
 		if s.GetType() == Router && r.currentIndex == 0 {
-			s := r.poller.Wait(r.timeoutMillis)
-			if s == nil {
-				return totalRead, io.EOF
-			}
 			r.clientIDs = append(r.clientIDs, string(r.frame))
 			r.frame, flag, err = s.RecvFrame()
 		}
