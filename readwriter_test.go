@@ -140,6 +140,50 @@ func TestReadWriterWithBufferSmallerThanFrame(t *testing.T) {
 	}
 }
 
+func TestReadWriterDoesNotSupportMultiPart(t *testing.T) {
+	endpoint := "inproc://testReadWriterDoesNotSupportMultiPart"
+
+	pushSock, err := NewPush(endpoint)
+	if err != nil {
+		t.Error(err)
+	}
+	defer pushSock.Destroy()
+
+	pullSock, err := NewPull(endpoint)
+	if err != nil {
+		t.Error(err)
+	}
+
+	pullReadWriter, err := NewReadWriter(pullSock)
+	if err != nil {
+		t.Error(err)
+	}
+	defer pullReadWriter.Destroy()
+
+	err = pushSock.SendFrame([]byte("Hello"), FlagMore)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = pushSock.SendFrame([]byte("World"), FlagNone)
+	if err != nil {
+		t.Error(err)
+	}
+
+	b := make([]byte, 5)
+
+	n, err := pullReadWriter.Read(b)
+
+	if want, got := ErrMultiPartUnsupported, err; want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
+	}
+
+	if want, got := 0, n; want != got {
+		t.Errorf("want '%d', got '%d'", want, got)
+	}
+
+}
+
 func benchmarkReadWriter(size int, b *testing.B) {
 	endpoint := fmt.Sprintf("inproc://benchSockReadWriter%d", size)
 
