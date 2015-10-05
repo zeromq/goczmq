@@ -8,159 +8,164 @@ import (
 func TestPollerNewNoSocks(t *testing.T) {
 	poller, err := NewPoller()
 	if err != nil {
-		t.Errorf("NewPoller failed: %s", err)
+		t.Error(err)
 	}
 	defer poller.Destroy()
 
 	pullSock1, err := NewPull("inproc://poller_new_no_socks")
 	if err != nil {
-		t.Errorf("NewPull failed: %s", err)
+		t.Error(err)
 	}
 	defer pullSock1.Destroy()
 
 	err = poller.Add(pullSock1)
 	if err != nil {
-		t.Errorf("poller Add failed: %s", err)
+		t.Error(err)
 	}
 
 	pushSock, err := NewPush("inproc://poller_new_no_socks")
 	if err != nil {
-		t.Errorf("NewPush failed: %s", err)
+		t.Error(err)
 	}
 	defer pushSock.Destroy()
 
 	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
 	if err != nil {
-		t.Errorf("SendMessage failed: %s", err)
+		t.Error(err)
 	}
 
 	s := poller.Wait(0)
-	if s == nil {
-		t.Errorf("Wait did not return waiting socket")
+	if want, got := pullSock1, s; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	frame, _, err := s.RecvFrame()
 	if err != nil {
-		t.Errorf("RecvMessage failed: %s", err)
+		t.Error(err)
 	}
 
-	if string(frame) != "Hello" {
-		t.Errorf("Expected 'Hello', received %s", string(frame))
+	if want, got := "Hello", string(frame); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 }
 
 func TestPoller(t *testing.T) {
 	pullSock1, err := NewPull("inproc://poller_pull1")
 	if err != nil {
-		t.Errorf("NewPull failed: %s", err)
+		t.Error(err)
 	}
 	defer pullSock1.Destroy()
 
 	poller, err := NewPoller(pullSock1)
 	if err != nil {
-		t.Errorf("NewPoller failed: %s", err)
+		t.Error(err)
 	}
 	defer poller.Destroy()
 
-	if len(poller.socks) != 1 {
-		t.Errorf("Expected number of socks to be 1, was %d", len(poller.socks))
+	if want, got := 1, len(poller.socks); want != got {
+		t.Errorf("want '%d', got '%d'", want, got)
 	}
 
 	pullSock2, err := NewPull("inproc://poller_pull2")
 	if err != nil {
-		t.Errorf("NewPull failed: %s", err)
+		t.Error(err)
 	}
 	defer pullSock2.Destroy()
 
 	err = poller.Add(pullSock2)
 	if err != nil {
-		t.Errorf("poller Add failed: %s", err)
+		t.Error(err)
 	}
 
-	if len(poller.socks) != 2 {
-		t.Errorf("Expected number of socks to be 2, was %d", len(poller.socks))
+	if want, got := 2, len(poller.socks); want != got {
+		t.Errorf("want '%d', got '%d'", want, got)
 	}
 
 	poller.Destroy()
+
 	poller, err = NewPoller(pullSock1, pullSock2)
 	if err != nil {
-		t.Errorf("NewPoller failed: %s", err)
+		t.Error(err)
 	}
 
-	if len(poller.socks) != 2 {
-		t.Errorf("Expected number of zsocks to be 2, was %d", len(poller.socks))
+	if want, got := 2, len(poller.socks); want != got {
+		t.Errorf("want '%d', got '%d'", want, got)
 	}
 
-	if poller.socks[0].zsockT != pullSock1.zsockT || poller.socks[1].zsockT != pullSock2.zsockT {
-		t.Error("Expected each passed zsock to be in the poller")
+	if want, got := pullSock1.zsockT, poller.socks[0].zsockT; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
+	}
+
+	if want, got := pullSock2.zsockT, poller.socks[1].zsockT; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	pushSock, err := NewPush("inproc://poller_pull1")
 	if err != nil {
-		t.Errorf("NewPush failed: %s", err)
+		t.Error(err)
 	}
 	defer pushSock.Destroy()
 
 	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
 	if err != nil {
-		t.Errorf("SendMessage failed: %s", err)
+		t.Error(err)
 	}
 
 	s := poller.Wait(0)
-	if s == nil {
-		t.Errorf("Wait did not return waiting socket")
+	if want, got := pullSock1, s; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	frame, _, err := s.RecvFrame()
 	if err != nil {
-		t.Errorf("RecvMessage failed: %s", err)
+		t.Error(err)
 	}
 
-	if string(frame) != "Hello" {
-		t.Errorf("Expected 'Hello', received %s", string(frame))
+	if want, got := "Hello", string(frame); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
 	pushSock2, err := NewPush("inproc://poller_pull2")
 	if err != nil {
-		t.Errorf("NewPush failed: %s", err)
+		t.Error(err)
 	}
 	defer pushSock2.Destroy()
 
 	err = pushSock2.SendFrame([]byte("World"), FlagNone)
 	if err != nil {
-		t.Errorf("SendMessage failed: %s", err)
+		t.Error(err)
 	}
 
 	s = poller.Wait(0)
-	if s == nil {
-		t.Errorf("Wait did not return waiting socket")
+	if want, got := pullSock2, s; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	frame, _, err = s.RecvFrame()
 	if err != nil {
-		t.Errorf("RecvMessage failed: %s", err)
+		t.Error(err)
 	}
 
-	if string(frame) != "World" {
-		t.Errorf("Expected 'World', received %s", string(frame))
+	if want, got := "World", string(frame); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
 	poller.Remove(pullSock2)
-	if len(poller.socks) != 1 {
-		t.Errorf("socks len should be 1 after removing pushsock, is %d", len(poller.socks))
+	if want, got := 1, len(poller.socks); want != got {
+		t.Errorf("want '%d', got '%d'", want, got)
 	}
 }
 
 func TestPollerAfterDestroy(t *testing.T) {
 	pullSock, err := NewPull("inproc://poller_pull")
 	if err != nil {
-		t.Errorf("NewPull failed: %s", err)
+		t.Error(err)
 	}
 	defer pullSock.Destroy()
 
 	poller, err := NewPoller(pullSock)
 	if err != nil {
-		t.Errorf("NewPoller failed: %s", err)
+		t.Error(err)
 	}
 	poller.Wait(0)
 

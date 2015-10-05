@@ -15,14 +15,14 @@ func TestPushPullChanneler(t *testing.T) {
 
 	push.SendChan <- [][]byte{[]byte("hello")}
 	resp := <-pull.RecvChan
-	if string(resp[0]) != "hello" {
-		t.Errorf("failed")
+	if want, got := "hello", string(resp[0]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
 	push.SendChan <- [][]byte{[]byte("world")}
 	resp = <-pull.RecvChan
-	if string(resp[0]) != "world" {
-		t.Errorf("failed")
+	if want, got := "world", string(resp[0]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 }
 
@@ -35,16 +35,16 @@ func TestDealerRouterChanneler(t *testing.T) {
 
 	dealer.SendChan <- [][]byte{[]byte("hello")}
 	resp := <-router.RecvChan
-	if string(resp[1]) != "hello" {
-		t.Errorf("failed")
+	if want, got := "hello", string(resp[1]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
 	resp[1] = []byte("world")
 	router.SendChan <- resp
 
 	resp = <-dealer.RecvChan
-	if string(resp[0]) != "world" {
-		t.Errorf("failed")
+	if want, got := "world", string(resp[0]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 }
 

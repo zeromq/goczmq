@@ -5,22 +5,21 @@ import (
 	"testing"
 )
 
+// TestBeacon tests sending a UDP beacon to a listener
 func TestBeacon(t *testing.T) {
-	// Create a Beacon
 	speaker := NewBeacon()
 
 	var err error
-
 	if testing.Verbose() {
 		err := speaker.Verbose()
 		if err != nil {
-			t.Errorf("VERBOSE error: %s", err)
+			t.Error(err)
 		}
 	}
 
 	_, err = speaker.Configure(9999)
 	if err != nil {
-		t.Errorf("CONFIGURE error: %s", err)
+		t.Error(err)
 	}
 
 	listener := NewBeacon()
@@ -28,18 +27,18 @@ func TestBeacon(t *testing.T) {
 	if testing.Verbose() {
 		err = listener.Verbose()
 		if err != nil {
-			t.Errorf("VERBOSE error: %s", err)
+			t.Error(err)
 		}
 	}
 
 	_, err = listener.Configure(9999)
 	if err != nil {
-		t.Errorf("CONFIGURE error: %s", err)
+		t.Error(err)
 	}
 
 	err = listener.Subscribe("HI")
 	if err != nil {
-		t.Errorf("SubSCRIBE error: %s", err)
+		t.Error(err)
 	}
 
 	speaker.Publish("HI", 100)

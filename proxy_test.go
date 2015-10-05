@@ -15,23 +15,23 @@ func TestProxy(t *testing.T) {
 	if testing.Verbose() {
 		err = proxy.Verbose()
 		if err != nil {
-			t.Errorf("VERBOSE error: %s", err)
+			t.Error(err)
 		}
 	}
 
 	err = proxy.SetFrontend(Pull, "inproc://frontend")
 	if err != nil {
-		t.Errorf("FRONTEND error: %s", err)
+		t.Error(err)
 	}
 
 	err = proxy.SetBackend(Push, "inproc://backend")
 	if err != nil {
-		t.Errorf("BACKEND error: %s", err)
+		t.Error(err)
 	}
 
 	err = proxy.SetCapture("inproc://capture")
 	if err != nil {
-		t.Errorf("CAPTURE error: %s", err)
+		t.Error(err)
 	}
 
 	// connect application sockets to proxy
@@ -66,12 +66,12 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == FlagMore {
-		t.Error("FlagMore set and should not be")
+	if want, got := false, f == FlagMore; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
-	if string(b) != "Hello" {
-		t.Errorf("tap expected %s, received %s", "Hello", string(b))
+	if want, got := "Hello", string(b); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
 	b, f, err = tap.RecvFrame()
@@ -79,15 +79,27 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == FlagMore {
-		t.Error("FlagMore set and should not be")
+	if want, got := false, f == FlagMore; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
-	if string(b) != "World" {
-		t.Errorf("tap expected %s, received %s", "World", string(b))
+	if want, got := "World", string(b); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
-	// check the sink
+	b, f, err = sink.RecvFrame()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if want, got := false, f == FlagMore; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
+	}
+
+	if want, got := "Hello", string(b); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
+	}
+
 	b, f, err = sink.RecvFrame()
 	if err != nil {
 		t.Error(err)
@@ -97,24 +109,10 @@ func TestProxy(t *testing.T) {
 		t.Error("FlagMore set and should not be")
 	}
 
-	if string(b) != "Hello" {
-		t.Errorf("sink expected %s, received %s", "Hello", string(b))
+	if want, got := false, f == FlagMore; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
-	b, f, err = sink.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
-
-	if f == FlagMore {
-		t.Error("FlagMore set and should not be")
-	}
-
-	if string(b) != "World" {
-		t.Errorf("sink expected %s, received %s", "World", string(b))
-	}
-
-	// Test pause/resume functionality
 	err = proxy.Pause()
 	if err != nil {
 		t.Error(err)
@@ -122,12 +120,12 @@ func TestProxy(t *testing.T) {
 
 	faucet.SendFrame([]byte("Belated Hello"), FlagNone)
 
-	if sink.Pollin() {
-		t.Error("Paused proxy should not pass message but did")
+	if want, got := false, sink.Pollin(); want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
-	if tap.Pollin() {
-		t.Error("Paused proxy should not pass message but did")
+	if want, got := false, tap.Pollin(); want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	err = proxy.Resume()
@@ -140,12 +138,12 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == FlagMore {
-		t.Error("FlagMore set and should not be")
+	if want, got := false, f == FlagMore; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
-	if string(b) != "Belated Hello" {
-		t.Errorf("sink expected %s, received %s", "Belated Hello", string(b))
+	if want, got := "Belated Hello", string(b); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
 	b, f, err = tap.RecvFrame()
@@ -153,12 +151,12 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if f == FlagMore {
-		t.Error("FlagMore set and should not be")
+	if want, got := false, f == FlagMore; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
-	if string(b) != "Belated Hello" {
-		t.Errorf("tap expected %s, received %s", "Belated Hello", string(b))
+	if want, got := "Belated Hello", string(b); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
 	proxy.Destroy()

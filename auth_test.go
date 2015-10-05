@@ -8,12 +8,7 @@ import (
 	"testing"
 )
 
-// Here we start an auth actor, and set it to allow
-// connections from localhost.  We then connect from
-// a local client and verify we can send a message.
-
 func TestAuthIPAllow(t *testing.T) {
-	// start an auth actor and set it to VERBOSE mode
 	auth := NewAuth()
 	defer auth.Destroy()
 
@@ -22,76 +17,66 @@ func TestAuthIPAllow(t *testing.T) {
 	if testing.Verbose() {
 		err = auth.Verbose()
 		if err != nil {
-			t.Errorf("VERBOSE error: %s", err)
+			t.Error(err)
 		}
 	}
 
-	// set the auth actor to allow connections from localhost
 	err = auth.Allow("127.0.0.1")
 	if err != nil {
-		t.Errorf("ALLOW error: %s", err)
+		t.Error(err)
 	}
 
-	// create a pull socket server
 	server := NewSock(Pull)
 	server.SetZapDomain("global")
 	defer server.Destroy()
 
-	// bind the socket and get the port it bound to
 	port, err := server.Bind("tcp://127.0.0.1:*")
-	if port <= 0 {
-		t.Errorf("port should be > 0, is %d", port)
+	if err != nil {
+		t.Error(err)
 	}
 
-	// create a push socket client
 	client := NewSock(Push)
 	defer client.Destroy()
 
-	// connect the client to the server socket
 	err = client.Connect(fmt.Sprintf("tcp://127.0.0.1:%d", port))
 	if err != nil {
-		t.Errorf("client connect error: %s", err)
+		t.Error(err)
 	}
 
-	// send a hello world message
 	client.SendFrame([]byte("Hello"), 1)
 	client.SendFrame([]byte("World"), 0)
 
-	// create a poller and add the server socket to it
 	poller, err := NewPoller(server)
 	if err != nil {
-		t.Errorf("NewPoller failed: %s", err)
+		t.Error(err)
 	}
 	defer poller.Destroy()
 
-	// poll the server socket. we should have a message waiting.
 	s := poller.Wait(200)
-	if s == nil {
-		t.Error("should be message waiting and there is none")
+	if want, got := server, s; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
-	// receive the message and check the contents
 	msg, err := s.RecvMessage()
 	if err != nil {
 		t.Error(err)
 	}
 
-	if string(msg[0]) != "Hello" || string(msg[1]) != "World" {
-		t.Error("message not sent properly")
+	if want, got := "Hello", string(msg[0]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
+	}
+
+	if want, got := "World", string(msg[1]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 }
 
-// Here we create an auth actor and tell the server to use
-// "PLAIN" auth (username / password).  We will use a
-// password file, and test that it works.
-
 func TestAuthPlain(t *testing.T) {
-	// Create a password file, and create one account in it
-	// using username "admin" and password "Password".
 	pwfile, err := os.Create("./password_test.txt")
 	if err != nil {
-		t.Fatalf("could not create password test file")
+		t.Error(err)
 	}
+
 	defer func() {
 		os.Remove("./password_test.txt")
 	}()
@@ -101,76 +86,63 @@ func TestAuthPlain(t *testing.T) {
 	w.Flush()
 	pwfile.Close()
 
-	// start an auth actor and set it to VERBOSE mode
 	auth := NewAuth()
 	defer auth.Destroy()
 
 	if testing.Verbose() {
 		err = auth.Verbose()
 		if err != nil {
-			t.Errorf("VERBOSE error: %s", err)
+			t.Error(err)
 		}
 	}
 
-	// set the auth actor to allow connections from localhost
 	err = auth.Allow("127.0.0.1")
 	if err != nil {
-		t.Errorf("ALLOW error: %s", err)
+		t.Error(err)
 	}
 
-	// tell the auth actor to use PLAIN authentication and
-	// use the password file.
 	err = auth.Plain("./password_test.txt")
 	if err != nil {
-		t.Errorf("PLAIN error: %s", err)
+		t.Error(err)
 	}
 
-	// create a pull socket server and set it to plain authentication
 	server := NewSock(Pull)
 	defer server.Destroy()
 	server.SetZapDomain("global")
 	server.SetPlainServer(1)
 
-	// bind the socket and get the port it is bound to
 	port, err := server.Bind("tcp://127.0.0.1:*")
-	if port <= 0 {
-		t.Errorf("port should be > 0, is %d", port)
+	if err != nil {
+		t.Error(err)
 	}
 
-	// create a push client that will use the correct password
 	goodClient := NewSock(Push)
 	defer goodClient.Destroy()
 	goodClient.SetPlainUsername("admin")
 	goodClient.SetPlainPassword("Password")
 
-	// create a push client that will use a bad password
 	badClient := NewSock(Push)
 	defer badClient.Destroy()
 	badClient.SetPlainUsername("admin")
 	badClient.SetPlainPassword("BadPassword")
 
-	// connect to the server
 	err = goodClient.Connect(fmt.Sprintf("tcp://127.0.0.1:%d", port))
 	if err != nil {
-		t.Errorf("goodClient connect error: %s", err)
+		t.Error(err)
 	}
 
-	// connect to the server as the good client, and send a message.
-	// then poll the server to verify the message arrived, and
-	// receive it.
 	goodClient.SendFrame([]byte("Hello"), 1)
 	goodClient.SendFrame([]byte("World"), 0)
 
 	poller, err := NewPoller(server)
 	if err != nil {
-		t.Errorf("NwPoller failed: %s", err)
+		t.Error(err)
 	}
 	defer poller.Destroy()
 
-	// poll for a message.  there should be one.
 	s := poller.Wait(200)
-	if s == nil {
-		t.Error("poller should have waiting message!")
+	if want, got := server, s; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	msg, err := s.RecvMessage()
@@ -178,30 +150,37 @@ func TestAuthPlain(t *testing.T) {
 		t.Error(err)
 	}
 
-	if string(msg[0]) != "Hello" || string(msg[1]) != "World" {
-		t.Error("message not sent properly")
+	if want, got := "Hello", string(msg[0]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
-	// connect to the server as the bad client, and send a message.
-	// then poll the server to verify the message did not arrive.
+	if want, got := "World", string(msg[1]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
+	}
+
 	err = badClient.Connect(fmt.Sprintf("tcp://127.0.0.1:%d", port))
 	if err != nil {
-		t.Errorf("badClient connect error: %s", err)
+		t.Error(err)
 	}
 
-	// try to send a message.  this should succeed.
 	badClient.SendFrame([]byte("Hello"), 1)
 	badClient.SendFrame([]byte("World"), 0)
 
-	// poll for a message.  there should be one.
 	s = poller.Wait(200)
 	if s != nil {
-		t.Error("poller should not have waiting message!")
+		t.Errorf("want '%v', got '%v", nil, s)
+	}
+
+	if want, got := "Hello", string(msg[0]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
+	}
+
+	if want, got := "World", string(msg[1]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 }
 
-func TestAuthCurveAllow(t *testing.T) {
-	// create auth service
+func TestAuthCurveAllowAny(t *testing.T) {
 	auth := NewAuth()
 	defer auth.Destroy()
 
@@ -210,12 +189,10 @@ func TestAuthCurveAllow(t *testing.T) {
 	if testing.Verbose() {
 		err = auth.Verbose()
 		if err != nil {
-			t.Errorf("VERBOSE error: %s", err)
+			t.Error(err)
 		}
 	}
 
-	// create server socket and a server cert pair,
-	// and apply the cert to the server
 	server := NewSock(Pull)
 	defer server.Destroy()
 	server.SetZapDomain("global")
@@ -224,56 +201,44 @@ func TestAuthCurveAllow(t *testing.T) {
 	serverCert.Apply(server)
 	server.SetCurveServer(1)
 
-	// create a client + cert, attach
-	// the cert to the client and set the
-	// clients server key
 	goodClient := NewSock(Push)
 	defer goodClient.Destroy()
 	goodClientCert := NewCert()
 	goodClientCert.Apply(goodClient)
 	goodClient.SetCurveServerkey(serverKey)
 
-	// create a client, and don't assign a
-	// cert or server key. this client should
-	// be rejected.
 	badClient := NewSock(Push)
 	defer badClient.Destroy()
 
-	// allow any cert
 	auth.Curve(CurveAllowAny)
 
-	// bind the server
 	port, err := server.Bind("tcp://127.0.0.1:*")
-	if port <= 0 {
-		t.Errorf("port should be > 0, is %d", port)
+	if err != nil {
+		t.Error(err)
 	}
 
-	// connect the goodClient
 	err = goodClient.Connect(fmt.Sprintf("tcp://127.0.0.1:%d", port))
 	if err != nil {
-		t.Errorf("goodClient connect error: %s", err)
+		t.Error(err)
 	}
 
-	// connect the bad client
 	err = badClient.Connect(fmt.Sprintf("tcp://127.0.0.1:%d", port))
 	if err != nil {
-		t.Errorf("client connect error: %s", err)
+		t.Error(err)
 	}
 
-	// try to send a message from the good client
 	goodClient.SendFrame([]byte("Hello"), 1)
 	goodClient.SendFrame([]byte("World"), 0)
 
-	// see if we got a message
 	poller, err := NewPoller(server)
 	if err != nil {
-		t.Errorf("NwPoller failed: %s", err)
+		t.Error(err)
 	}
 	defer poller.Destroy()
 
 	s := poller.Wait(2000)
-	if s == nil {
-		t.Error("should be message waiting and there is none")
+	if want, got := server, s; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	msg, err := s.RecvMessage()
@@ -281,44 +246,40 @@ func TestAuthCurveAllow(t *testing.T) {
 		t.Error(err)
 	}
 
-	if string(msg[0]) != "Hello" || string(msg[1]) != "World" {
-		t.Error("message not sent properly")
+	if want, got := "Hello", string(msg[0]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
-	// try to send a message from the bad client
+	if want, got := "World", string(msg[1]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
+	}
+
 	badClient.SendFrame([]byte("Hello"), 1)
 	badClient.SendFrame([]byte("Bad World"), 0)
 
-	// poll and verify there is no waiting message from
-	// the bad client.
 	s = poller.Wait(200)
 	if s != nil {
-		t.Error("bad client should not have been able to send message")
+		t.Errorf("want '%v', got '%v", nil, s)
 	}
 }
 
-func TestAuthCurveCertificate(t *testing.T) {
-	// create certificate directory
+func TestAuthCurveAllowCertificate(t *testing.T) {
 	testpath := path.Join("testauth")
 	err := os.Mkdir(testpath, 0777)
 	if err != nil {
-		t.Fatal("TestAuthCurveCertificate could not create test dir")
+		t.Error(err)
 	}
 
-	// create auth service
 	auth := NewAuth()
 	defer auth.Destroy()
 
 	if testing.Verbose() {
 		err = auth.Verbose()
 		if err != nil {
-			t.Errorf("VERBOSE error: %s", err)
+			t.Error(err)
 		}
 	}
 
-	// create a server socket and server cert pair,
-	// get the public key, and apply to the cert
-	// to the server socket.
 	server := NewSock(Pull)
 	defer server.Destroy()
 	server.SetZapDomain("global")
@@ -327,9 +288,6 @@ func TestAuthCurveCertificate(t *testing.T) {
 	serverCert.Apply(server)
 	server.SetCurveServer(1)
 
-	// create a client push socket, create a cert
-	// for it and apply it, and add the server
-	// public key to the client.
 	goodClient := NewSock(Push)
 	defer goodClient.Destroy()
 	goodClientCert := NewCert()
@@ -337,12 +295,9 @@ func TestAuthCurveCertificate(t *testing.T) {
 	goodClientCert.Apply(goodClient)
 	goodClient.SetCurveServerkey(serverKey)
 
-	// save the good client public cert
 	certfile := path.Join("testauth", "goodClient.txt")
 	goodClientCert.SavePublic(certfile)
 
-	// create a client push socket, and a cert for it.
-	// this cert will not be added to the auth list.
 	badClient := NewSock(Push)
 	defer badClient.Destroy()
 	badClientCert := NewCert()
@@ -350,45 +305,37 @@ func TestAuthCurveCertificate(t *testing.T) {
 	badClientCert.Apply(badClient)
 	badClient.SetCurveServerkey(serverKey)
 
-	// set auth to only allow public keys from the
-	// cert directory
 	err = auth.Curve(testpath)
 	if err != nil {
-		panic(err)
+		t.Error(err)
 	}
 
-	// bind the server
 	port, err := server.Bind("tcp://127.0.0.1:*")
-	if port <= 0 {
-		t.Errorf("port should be > 0, is %d", port)
+	if err != nil {
+		t.Error(err)
 	}
 
-	// connect the good client
 	err = goodClient.Connect(fmt.Sprintf("tcp://127.0.0.1:%d", port))
 	if err != nil {
-		t.Errorf("client connect error: %s", err)
+		t.Error(err)
 	}
 
-	// connect the bad client
 	err = badClient.Connect(fmt.Sprintf("tcp://127.0.0.1:%d", port))
 	if err != nil {
-		t.Errorf("client connect error: %s", err)
+		t.Error(err)
 	}
 
-	// try to send a message from the good client
 	goodClient.SendFrame([]byte("Hello, Good World!"), 0)
 
-	// create a poller to poll the server, and verify
-	// the message from the good client was received.
 	poller, err := NewPoller(server)
 	if err != nil {
-		t.Errorf("NewPoller failed: %s", err)
+		t.Error(err)
 	}
 	defer poller.Destroy()
 
 	s := poller.Wait(200)
-	if s == nil {
-		t.Error("should be message waiting and there is none")
+	if want, got := server, s; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	msg, err := s.RecvMessage()
@@ -396,25 +343,22 @@ func TestAuthCurveCertificate(t *testing.T) {
 		t.Error(err)
 	}
 
-	if string(msg[0]) != "Hello, Good World!" {
-		t.Error("message not sent properly")
+	if want, got := "Hello, Good World!", string(msg[0]); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
-	// try to send a message from the bad client
 	badClient.SendFrame([]byte("Hello, Bad World"), 0)
 
-	// poll and verify there is no waiting message from
-	// the bad client.
 	s = poller.Wait(200)
 	if s != nil {
-		t.Error("bad client should not have been able to send message")
+		t.Errorf("want '%v', got '%v", nil, s)
 	}
 
 	os.RemoveAll(testpath)
 }
 
 func ExampleAuth() {
-	// create a new server certificate
+	// create a server certificate
 	serverCert := NewCert()
 	defer serverCert.Destroy()
 
@@ -422,35 +366,43 @@ func ExampleAuth() {
 	clientCert := NewCert()
 	defer clientCert.Destroy()
 	clientCert.SavePublic("client_cert")
+	defer func() { os.Remove("client_cert") }()
 
-	// create a new auth actor
+	// create an auth service
 	auth := NewAuth()
 	defer auth.Destroy()
 
-	// set the client certificate as an allowed client
+	// tell the auth service the client cert is allowed
 	auth.Curve("client_cert")
-	defer func() { os.Remove("client_cert") }()
 
-	// create a server, set its auth domain to global
+	// create a server socket and set it to
+	// use the "global" auth domain
 	server := NewSock(Push)
 	defer server.Destroy()
 	server.SetZapDomain("global")
 
-	// assign the server cert to the server,
-	// make it use CURVE auth and bind it
+	// set the server cert as the server cert
+	// for the socket we created and set it
+	// to be a curve server
 	serverCert.Apply(server)
 	server.SetCurveServer(1)
 
+	// bind our server to an endpoint
 	server.Bind("inproc://auth_example")
 
-	// create a client socket, apply the client
-	// certificate to it, and set the server's
-	// public key so it can connect
+	// create a client socket
 	client := NewSock(Pull)
 	defer client.Destroy()
 
+	// assign the client cert we made to the client
 	clientCert.Apply(client)
+
+	// set the server cert as the server cert
+	// for the client. for the client to be
+	// allowed to connect, it needs to know
+	// the servers public cert.
 	client.SetCurveServerkey(serverCert.PublicText())
 
+	// connect
 	client.Connect("inproc://auth_example")
 }
