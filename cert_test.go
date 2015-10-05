@@ -10,43 +10,36 @@ func TestCert(t *testing.T) {
 	defer cert.Destroy()
 
 	cert.SetMeta("email", "taotetek@gmail.com")
-	email := cert.Meta("email")
-	if email != "taotetek@gmail.com" {
-		t.Errorf("meta expected 'taotetek@gmail.com' got '%s'", email)
+	if want, got := "taotetek@gmail.com", cert.Meta("email"); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
 	cert.SetMeta("name", "Brian Knox")
-	name := cert.Meta("name")
-	if name != "Brian Knox" {
-		t.Errorf("Meta expected 'Brian Knox' got '%s'", name)
+	if want, got := "Brian Knox", cert.Meta("name"); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
 	cert.SetMeta("organization", "ZeroMQ")
-	organization := cert.Meta("organization")
-	if organization != "ZeroMQ" {
-		t.Errorf("Meta expected 'ZeroMQ' got '%s;", organization)
+	if want, got := "ZeroMQ", cert.Meta("organization"); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
 	cert.SetMeta("version", "1")
-	version := cert.Meta("version")
-	if version != "1" {
-		t.Errorf("Meta expected '1' got '%s'", version)
+	if want, got := "1", cert.Meta("version"); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
 	_ = cert.PublicText()
 
-	// copy the cert
 	dup := cert.Dup()
 	defer dup.Destroy()
 
-	name = dup.Meta("name")
-	if name != "Brian Knox" {
-		t.Errorf("Meta expected 'Brian Knox' got '%s'", name)
+	if want, got := "Brian Knox", dup.Meta("name"); want != got {
+		t.Errorf("want '%s', got '%s'", want, got)
 	}
 
-	// test equality
-	if !cert.Equal(dup) {
-		t.Error("Duplicated cert should be equal, is not.")
+	if want, got := true, cert.Equal(dup); want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	if testing.Verbose() {
@@ -56,12 +49,12 @@ func TestCert(t *testing.T) {
 	cert.Save("./test_cert")
 	loaded, err := NewCertFromFile("./test_cert")
 	if err != nil {
-		t.Error("NewCertFromFile failed")
+		t.Error(err)
 	}
 	defer loaded.Destroy()
 
-	if !loaded.Equal(cert) {
-		t.Error("Loaded cert is not equal to saved cert")
+	if want, got := true, loaded.Equal(cert); want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	if testing.Verbose() {
