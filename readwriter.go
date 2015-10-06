@@ -1,12 +1,12 @@
 package goczmq
 
-import "C"
-import
+import (
+	"C"
+	"io"
+)
 
 // ReadWriter provides an io.ReadWriter compatible
 // interface for goczmq.Sock
-"io"
-
 type ReadWriter struct {
 	sock          *Sock
 	poller        *Poller
@@ -49,6 +49,7 @@ func (r *ReadWriter) Read(p []byte) (int, error) {
 		if s == nil {
 			return totalRead, io.EOF
 		}
+
 		r.frame, flag, err = s.RecvFrame()
 
 		if s.GetType() == Router && r.currentIndex == 0 {
@@ -56,7 +57,7 @@ func (r *ReadWriter) Read(p []byte) (int, error) {
 			r.frame, flag, err = s.RecvFrame()
 		}
 
-		if flag == FlagMore && s.GetType() != Router {
+		if flag == FlagMore {
 			return totalRead, ErrMultiPartUnsupported
 		}
 
