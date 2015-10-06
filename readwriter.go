@@ -1,12 +1,12 @@
 package goczmq
 
-import "C"
-import
+import (
+	"C"
+	"io"
+)
 
 // ReadWriter provides an io.ReadWriter compatible
 // interface for goczmq.Sock
-"io"
-
 type ReadWriter struct {
 	sock          *Sock
 	poller        *Poller
