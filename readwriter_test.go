@@ -206,7 +206,7 @@ func ExampleReadWriter_output() {
 		panic(err)
 	}
 
-	defer pushReader.Destroy()
+	defer pullReader.Destroy()
 
 	n, err := pushWriter.Write([]byte("Hello World"))
 	if err != nil {
