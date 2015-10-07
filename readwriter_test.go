@@ -181,7 +181,51 @@ func TestReadWriterDoesNotSupportMultiPart(t *testing.T) {
 	if want, got := 0, n; want != got {
 		t.Errorf("want '%d', got '%d'", want, got)
 	}
+}
 
+func ExampleReadWriter_output() {
+	push, err := NewPush("inproc://exampleReadWriter")
+	if err != nil {
+		panic(err)
+	}
+
+	pushWriter, err := NewReadWriter(push)
+	if err != nil {
+		panic(err)
+	}
+
+	defer pushWriter.Destroy()
+
+	pull, err := NewPull("inproc://exampleReadWriter")
+	if err != nil {
+		panic(err)
+	}
+
+	pullReader, err := NewReadWriter(pull)
+	if err != nil {
+		panic(err)
+	}
+
+	defer pushReader.Destroy()
+
+	n, err := pushWriter.Write([]byte("Hello World"))
+	if err != nil {
+		panic(err)
+	}
+
+	if n != 11 {
+		panic("should have sent 11 bytes")
+	}
+
+	p := make([]byte, 255)
+
+	n, err = pullReader.Read(p)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("%s", p[:n])
+	// Output: Hello World
 }
 
 func benchmarkReadWriter(size int, b *testing.B) {
