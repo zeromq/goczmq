@@ -21,7 +21,8 @@ type ReadWriter struct {
 // Sock.
 func NewReadWriter(sock *Sock) (*ReadWriter, error) {
 	rw := &ReadWriter{
-		sock: sock,
+		sock:          sock,
+		timeoutMillis: -1,
 	}
 
 	var err error
@@ -31,7 +32,7 @@ func NewReadWriter(sock *Sock) (*ReadWriter, error) {
 
 // SetTimeout sets the timeout on Read in millisecond. If no new
 // data is received within the timeout period, Read will return
-// an io.EOF
+// an ErrTimeout
 func (r *ReadWriter) SetTimeout(ms int) {
 	r.timeoutMillis = ms
 }
@@ -47,7 +48,7 @@ func (r *ReadWriter) Read(p []byte) (int, error) {
 	if r.currentIndex == 0 {
 		s := r.poller.Wait(r.timeoutMillis)
 		if s == nil {
-			return totalRead, io.EOF
+			return totalRead, ErrTimeout
 		}
 
 		r.frame, flag, err = s.RecvFrame()
@@ -73,6 +74,7 @@ func (r *ReadWriter) Read(p []byte) (int, error) {
 		r.currentIndex = totalRead
 	} else {
 		r.currentIndex = 0
+		err = io.EOF
 	}
 
 	return totalRead, err
