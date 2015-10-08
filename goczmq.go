@@ -136,6 +136,9 @@ var (
 	// ErrMultiPartUnsupported is returned when a function that does
 	// not support multi-part messages encounters a multi-part message
 	ErrMultiPartUnsupported = errors.New("function does not support multi part messages")
+
+	// ErrTimeout is returned when a function that supports timeouts times out
+	ErrTimeout = errors.New("function timed out")
 )
 
 func getStringType(k int) string {

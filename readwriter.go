@@ -21,7 +21,8 @@ type ReadWriter struct {
 // Sock.
 func NewReadWriter(sock *Sock) (*ReadWriter, error) {
 	rw := &ReadWriter{
-		sock: sock,
+		sock:          sock,
+		timeoutMillis: -1,
 	}
 
 	var err error
