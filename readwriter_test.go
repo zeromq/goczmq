@@ -34,8 +34,8 @@ func TestReadWriter(t *testing.T) {
 	b := make([]byte, 5)
 
 	n, err := pullReadWriter.Read(b)
-	if err != nil {
-		t.Error(err)
+	if want, got := io.EOF, err; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	if want, got := 5, n; want != got {
@@ -62,8 +62,8 @@ func TestReadWriter(t *testing.T) {
 	}
 
 	n, err = pullReadWriter.Read(b)
-	if err != nil {
-		t.Error(err)
+	if want, got := io.EOF, err; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	if want, got := 3, n; want != got {
@@ -76,8 +76,9 @@ func TestReadWriter(t *testing.T) {
 
 	pullReadWriter.SetTimeout(1)
 	n, err = pullReadWriter.Read(b)
-	if want, got := io.EOF, err; want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+
+	if want, got := ErrTimeout, err; want != got {
+		t.Errorf("want '%v', got '%v'", want, got)
 	}
 
 	if want, got := 0, n; want != got {
@@ -127,7 +128,7 @@ func TestReadWriterWithBufferSmallerThanFrame(t *testing.T) {
 	}
 
 	n, err = pullReadWriter.Read(b)
-	if err != nil {
+	if err != io.EOF {
 		t.Error(err)
 	}
 
