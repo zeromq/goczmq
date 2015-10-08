@@ -185,7 +185,7 @@ func TestReadWriterDoesNotSupportMultiPart(t *testing.T) {
 }
 
 func benchmarkReadWriter(size int, b *testing.B) {
-	endpoint := fmt.Sprintf("inproc://benchSockReadWriter%d", size)
+	endpoint := fmt.Sprintf("inproc://benchReadWriter%d", size)
 
 	pullSock, err := NewPull(endpoint)
 	if err != nil {
@@ -219,17 +219,14 @@ func benchmarkReadWriter(size int, b *testing.B) {
 
 	payload := make([]byte, size)
 	for i := 0; i < b.N; i++ {
-		n, err := pullReader.Read(payload)
+		_, err := pullReader.Read(payload)
 		if err != nil && err != io.EOF {
 			panic(err)
-		}
-		if n != size {
-			panic("msg too small")
 		}
 		b.SetBytes(int64(size))
 	}
 }
 
-func BenchmarkReadWriter1k(b *testing.B)  { benchmarkSockReadWriter(1024, b) }
-func BenchmarkReadWriter4k(b *testing.B)  { benchmarkSockReadWriter(4096, b) }
-func BenchmarkReadWriter16k(b *testing.B) { benchmarkSockReadWriter(16384, b) }
+func BenchmarkReadWriter1k(b *testing.B)  { benchmarkReadWriter(1024, b) }
+func BenchmarkReadWriter4k(b *testing.B)  { benchmarkReadWriter(4096, b) }
+func BenchmarkReadWriter16k(b *testing.B) { benchmarkReadWriter(16384, b) }

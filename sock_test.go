@@ -3,7 +3,6 @@ package goczmq
 import (
 	"encoding/gob"
 	"fmt"
-	"io"
 	"testing"
 )
 
@@ -918,49 +917,6 @@ func benchmarkSockSendFrame(size int, b *testing.B) {
 func BenchmarkSockSendFrame1k(b *testing.B)  { benchmarkSockSendFrame(1024, b) }
 func BenchmarkSockSendFrame4k(b *testing.B)  { benchmarkSockSendFrame(4096, b) }
 func BenchmarkSockSendFrame16k(b *testing.B) { benchmarkSockSendFrame(16384, b) }
-
-func benchmarkSockReadWriter(size int, b *testing.B) {
-	pullSock := NewSock(Pull)
-	defer pullSock.Destroy()
-
-	_, err := pullSock.Bind(fmt.Sprintf("inproc://benchSockReadWriter%d", size))
-	if err != nil {
-		panic(err)
-	}
-
-	go func() {
-		pushSock := NewSock(Push)
-		defer pushSock.Destroy()
-		err := pushSock.Connect(fmt.Sprintf("inproc://benchSockReadWriter%d", size))
-		if err != nil {
-			panic(err)
-		}
-
-		payload := make([]byte, size)
-		for i := 0; i < b.N; i++ {
-			_, err = pushSock.Write(payload)
-			if err != nil {
-				panic(err)
-			}
-		}
-	}()
-
-	payload := make([]byte, size)
-	for i := 0; i < b.N; i++ {
-		n, err := pullSock.Read(payload)
-		if err != nil && err != io.EOF {
-			panic(err)
-		}
-		if n != size {
-			panic("msg too small")
-		}
-		b.SetBytes(int64(size))
-	}
-}
-
-func BenchmarkSockReadWriter1k(b *testing.B)  { benchmarkSockReadWriter(1024, b) }
-func BenchmarkSockReadWriter4k(b *testing.B)  { benchmarkSockReadWriter(4096, b) }
-func BenchmarkSockReadWriter16k(b *testing.B) { benchmarkSockReadWriter(16384, b) }
 
 func BenchmarkEncodeDecode(b *testing.B) {
 	pullSock := NewSock(Pull)
