@@ -53,8 +53,8 @@ func TestAuthIPAllow(t *testing.T) {
 	defer poller.Destroy()
 
 	s := poller.Wait(200)
-	if want, got := server, s; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := server, s; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	msg, err := s.RecvMessage()
@@ -62,12 +62,12 @@ func TestAuthIPAllow(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "Hello", string(msg[0]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(msg[0]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "World", string(msg[1]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "World", string(msg[1]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -141,8 +141,8 @@ func TestAuthPlain(t *testing.T) {
 	defer poller.Destroy()
 
 	s := poller.Wait(200)
-	if want, got := server, s; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := server, s; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	msg, err := s.RecvMessage()
@@ -150,12 +150,12 @@ func TestAuthPlain(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "Hello", string(msg[0]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(msg[0]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "World", string(msg[1]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "World", string(msg[1]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = badClient.Connect(fmt.Sprintf("tcp://127.0.0.1:%d", port))
@@ -168,15 +168,15 @@ func TestAuthPlain(t *testing.T) {
 
 	s = poller.Wait(200)
 	if s != nil {
-		t.Errorf("want '%v', got '%v", nil, s)
+		t.Errorf("want %#v, have %#v", nil, s)
 	}
 
-	if want, got := "Hello", string(msg[0]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(msg[0]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "World", string(msg[1]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "World", string(msg[1]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -237,8 +237,8 @@ func TestAuthCurveAllowAny(t *testing.T) {
 	defer poller.Destroy()
 
 	s := poller.Wait(2000)
-	if want, got := server, s; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := server, s; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	msg, err := s.RecvMessage()
@@ -246,12 +246,12 @@ func TestAuthCurveAllowAny(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "Hello", string(msg[0]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(msg[0]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "World", string(msg[1]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "World", string(msg[1]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	badClient.SendFrame([]byte("Hello"), 1)
@@ -259,7 +259,7 @@ func TestAuthCurveAllowAny(t *testing.T) {
 
 	s = poller.Wait(200)
 	if s != nil {
-		t.Errorf("want '%v', got '%v", nil, s)
+		t.Errorf("want %#v, have %#v", nil, s)
 	}
 }
 
@@ -334,8 +334,8 @@ func TestAuthCurveAllowCertificate(t *testing.T) {
 	defer poller.Destroy()
 
 	s := poller.Wait(200)
-	if want, got := server, s; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := server, s; want != have {
+		t.Errorf("want '%#v', have '%#v'", want, have)
 	}
 
 	msg, err := s.RecvMessage()
@@ -343,15 +343,15 @@ func TestAuthCurveAllowCertificate(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "Hello, Good World!", string(msg[0]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello, Good World!", string(msg[0]); want != have {
+		t.Errorf("want '%#v', have '%#v'", want, have)
 	}
 
 	badClient.SendFrame([]byte("Hello, Bad World"), 0)
 
 	s = poller.Wait(200)
 	if s != nil {
-		t.Errorf("want '%v', got '%v", nil, s)
+		t.Errorf("want '%#v', have '%#v", nil, s)
 	}
 
 	os.RemoveAll(testpath)

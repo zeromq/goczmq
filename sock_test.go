@@ -33,8 +33,8 @@ func TestSendFrame(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "Hello", string(frame); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(frame); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	frame, flag, err = pullSock.RecvFrameNoWait()
@@ -42,8 +42,8 @@ func TestSendFrame(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := true, flag == 0; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := true, flag == 0; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = pushSock.SendFrame([]byte("World"), FlagNone)
@@ -56,8 +56,8 @@ func TestSendFrame(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := true, flag == 0; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := true, flag == 0; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = pushSock.SendFrame([]byte("World"), FlagNone)
@@ -94,8 +94,8 @@ func TestSendEmptyFrame(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := 0, len(frame); want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 0, len(frame); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -122,8 +122,8 @@ func TestSendMessage(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "Hello", string(msg[0]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(msg[0]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	msg, err = pullSock.RecvMessageNoWait()
@@ -137,8 +137,8 @@ func TestSendMessage(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "World", string(msg[0]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "World", string(msg[0]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -177,8 +177,8 @@ func TestPubSub(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "test pub sub", string(frame); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "test pub sub", string(frame); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -217,8 +217,8 @@ func TestReqRep(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "Hello", string(reqframe); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(reqframe); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = rep.SendFrame([]byte("World"), FlagNone)
@@ -231,8 +231,8 @@ func TestReqRep(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "World", string(repframe); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "World", string(repframe); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -276,12 +276,12 @@ func TestPushPull(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "Hello", string(msg[0]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(msg[0]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "World", string(msg[1]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "World", string(msg[1]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -320,12 +320,12 @@ func TestRouterDealer(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := 2, len(msg); want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 2, len(msg); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "Hello", string(msg[1]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(msg[1]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	msg[1] = []byte("World")
@@ -340,12 +340,12 @@ func TestRouterDealer(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := 1, len(msg); want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 1, len(msg); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "World", string(msg[0]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "World", string(msg[0]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -429,8 +429,8 @@ func TestPollin(t *testing.T) {
 	}
 	defer pull.Destroy()
 
-	if want, got := false, pull.Pollin(); want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := false, pull.Pollin(); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = push.SendFrame([]byte("Hello World"), FlagNone)
@@ -438,8 +438,8 @@ func TestPollin(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := true, pull.Pollin(); want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := true, pull.Pollin(); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -451,8 +451,8 @@ func TestPollout(t *testing.T) {
 	}
 	defer push.Destroy()
 
-	if want, got := false, push.Pollout(); want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := false, push.Pollout(); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	pull := NewSock(Pull)
@@ -463,8 +463,8 @@ func TestPollout(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := true, push.Pollout(); want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := true, push.Pollout(); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -494,16 +494,16 @@ func TestReader(t *testing.T) {
 
 	n, err := pullSock.Read(b)
 
-	if want, got := 5, n; want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 5, n; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	if err != nil {
 		t.Error(err)
 	}
 
-	if want, got := "Hello", string(b); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(b); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = pushSock.SendFrame([]byte("Hello"), FlagMore)
@@ -518,12 +518,12 @@ func TestReader(t *testing.T) {
 
 	b = make([]byte, 8)
 	n, err = pullSock.Read(b)
-	if want, got := ErrSliceFull, err; want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := ErrSliceFull, err; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "Hello Wo", string(b); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello Wo", string(b); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -553,12 +553,12 @@ func TestReaderWithRouterDealer(t *testing.T) {
 
 	n, err := routerSock.Read(b)
 
-	if want, got := 5, n; want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 5, n; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "Hello", string(b); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(b); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = dealerSock.SendFrame([]byte("Hello"), FlagMore)
@@ -574,12 +574,12 @@ func TestReaderWithRouterDealer(t *testing.T) {
 	b = make([]byte, 8)
 	n, err = routerSock.Read(b)
 
-	if want, got := ErrSliceFull, err; want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := ErrSliceFull, err; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "Hello Wo", string(b); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello Wo", string(b); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	n, err = routerSock.Write([]byte("World"))
@@ -587,8 +587,8 @@ func TestReaderWithRouterDealer(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := 5, n; want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 5, n; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	frame, _, err := dealerSock.RecvFrame()
@@ -596,8 +596,8 @@ func TestReaderWithRouterDealer(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "World", string(frame); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "World", string(frame); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -639,29 +639,29 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 	msg := make([]byte, 255)
 
 	n, err := routerSock.Read(msg)
-	if want, got := 20, n; want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 20, n; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	client1ID := routerSock.GetLastClientID()
 
-	if want, got := 20, n; want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 20, n; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "Hello From Client 1!", string(msg[:n]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello From Client 1!", string(msg[:n]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	n, err = routerSock.Read(msg)
-	if want, got := 20, n; want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 20, n; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	client2ID := routerSock.GetLastClientID()
 
-	if want, got := "Hello From Client 2!", string(msg[:n]); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello From Client 2!", string(msg[:n]); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	routerSock.SetLastClientID(client1ID)
@@ -676,8 +676,8 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "Hello Client 1!", string(frame); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello Client 1!", string(frame); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	routerSock.SetLastClientID(client2ID)
@@ -692,8 +692,8 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "Hello Client 2!", string(frame); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello Client 2!", string(frame); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -736,20 +736,20 @@ func TestPushPullEncodeDecode(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := received.Foo, sent.Foo; want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := received.Foo, sent.Foo; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := string(received.Bar), string(sent.Bar); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := string(received.Bar), string(sent.Bar); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := received.Bat, sent.Bat; want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := received.Bat, sent.Bat; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	if received.Bat != sent.Bat {
-		t.Errorf("expected '%d', got '%d'", sent.Bat, received.Bat)
+		t.Errorf("expected %#v, have %#v", sent.Bat, received.Bat)
 	}
 }
 
@@ -789,16 +789,16 @@ func TestDealerRouterEncodeDecode(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := received.Foo, question.Foo; want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := received.Foo, question.Foo; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := string(received.Bar), string(question.Bar); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := string(received.Bar), string(question.Bar); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := received.Bat, question.Bat; want != got {
-		t.Errorf("expected '%d', got '%d'", want, got)
+	if want, have := received.Bat, question.Bat; want != have {
+		t.Errorf("expected %#v, have %#v", want, have)
 	}
 
 	sent := encodeMessage{
@@ -818,16 +818,16 @@ func TestDealerRouterEncodeDecode(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := answer.Foo, sent.Foo; want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := answer.Foo, sent.Foo; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := string(answer.Bar), string(sent.Bar); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := string(answer.Bar), string(sent.Bar); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := answer.Bat, sent.Bat; want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := answer.Bat, sent.Bat; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -879,7 +879,7 @@ func benchmarkSockSendFrame(size int, b *testing.B) {
 	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
-	_, err := pullSock.Bind(fmt.Sprintf("inproc://benchSockSendFrame%d", size))
+	_, err := pullSock.Bind(fmt.Sprintf("inproc://benchSockSendFrame%#v", size))
 	if err != nil {
 		panic(err)
 	}
@@ -887,7 +887,7 @@ func benchmarkSockSendFrame(size int, b *testing.B) {
 	go func() {
 		pushSock := NewSock(Push)
 		defer pushSock.Destroy()
-		err := pushSock.Connect(fmt.Sprintf("inproc://benchSockSendFrame%d", size))
+		err := pushSock.Connect(fmt.Sprintf("inproc://benchSockSendFrame%#v", size))
 		if err != nil {
 			panic(err)
 		}

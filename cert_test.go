@@ -10,23 +10,23 @@ func TestCert(t *testing.T) {
 	defer cert.Destroy()
 
 	cert.SetMeta("email", "taotetek@gmail.com")
-	if want, got := "taotetek@gmail.com", cert.Meta("email"); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "taotetek@gmail.com", cert.Meta("email"); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	cert.SetMeta("name", "Brian Knox")
-	if want, got := "Brian Knox", cert.Meta("name"); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Brian Knox", cert.Meta("name"); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	cert.SetMeta("organization", "ZeroMQ")
-	if want, got := "ZeroMQ", cert.Meta("organization"); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "ZeroMQ", cert.Meta("organization"); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	cert.SetMeta("version", "1")
-	if want, got := "1", cert.Meta("version"); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "1", cert.Meta("version"); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	_ = cert.PublicText()
@@ -34,12 +34,12 @@ func TestCert(t *testing.T) {
 	dup := cert.Dup()
 	defer dup.Destroy()
 
-	if want, got := "Brian Knox", dup.Meta("name"); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Brian Knox", dup.Meta("name"); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := true, cert.Equal(dup); want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := true, cert.Equal(dup); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	if testing.Verbose() {
@@ -53,8 +53,8 @@ func TestCert(t *testing.T) {
 	}
 	defer loaded.Destroy()
 
-	if want, got := true, loaded.Equal(cert); want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := true, loaded.Equal(cert); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	if testing.Verbose() {

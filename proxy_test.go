@@ -66,12 +66,12 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := false, f == FlagMore; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := false, f == FlagMore; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "Hello", string(b); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(b); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	b, f, err = tap.RecvFrame()
@@ -79,12 +79,12 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := false, f == FlagMore; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := false, f == FlagMore; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "World", string(b); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "World", string(b); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	b, f, err = sink.RecvFrame()
@@ -92,12 +92,12 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := false, f == FlagMore; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := false, f == FlagMore; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "Hello", string(b); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(b); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	b, f, err = sink.RecvFrame()
@@ -109,8 +109,8 @@ func TestProxy(t *testing.T) {
 		t.Error("FlagMore set and should not be")
 	}
 
-	if want, got := false, f == FlagMore; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := false, f == FlagMore; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = proxy.Pause()
@@ -120,12 +120,12 @@ func TestProxy(t *testing.T) {
 
 	faucet.SendFrame([]byte("Belated Hello"), FlagNone)
 
-	if want, got := false, sink.Pollin(); want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := false, sink.Pollin(); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := false, tap.Pollin(); want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := false, tap.Pollin(); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = proxy.Resume()
@@ -138,12 +138,12 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := false, f == FlagMore; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := false, f == FlagMore; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "Belated Hello", string(b); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Belated Hello", string(b); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	b, f, err = tap.RecvFrame()
@@ -151,12 +151,12 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := false, f == FlagMore; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := false, f == FlagMore; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := "Belated Hello", string(b); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Belated Hello", string(b); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	proxy.Destroy()
