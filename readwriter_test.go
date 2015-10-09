@@ -39,7 +39,7 @@ func TestReadWriter(t *testing.T) {
 	}
 
 	if want, got := 5, n; want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+		t.Errorf("want %#v, got %#v", want, got)
 	}
 
 	if want, got := "Hello", string(b); want != got {

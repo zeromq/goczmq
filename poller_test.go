@@ -35,8 +35,8 @@ func TestPollerNewNoSocks(t *testing.T) {
 	}
 
 	s := poller.Wait(0)
-	if want, got := pullSock1, s; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := pullSock1, s; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	frame, _, err := s.RecvFrame()
@@ -44,8 +44,8 @@ func TestPollerNewNoSocks(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "Hello", string(frame); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(frame); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -62,8 +62,8 @@ func TestPoller(t *testing.T) {
 	}
 	defer poller.Destroy()
 
-	if want, got := 1, len(poller.socks); want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 1, len(poller.socks); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	pullSock2, err := NewPull("inproc://poller_pull2")
@@ -77,8 +77,8 @@ func TestPoller(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := 2, len(poller.socks); want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 2, len(poller.socks); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	poller.Destroy()
@@ -88,16 +88,16 @@ func TestPoller(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := 2, len(poller.socks); want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 2, len(poller.socks); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := pullSock1.zsockT, poller.socks[0].zsockT; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := pullSock1.zsockT, poller.socks[0].zsockT; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if want, got := pullSock2.zsockT, poller.socks[1].zsockT; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := pullSock2.zsockT, poller.socks[1].zsockT; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	pushSock, err := NewPush("inproc://poller_pull1")
@@ -112,8 +112,8 @@ func TestPoller(t *testing.T) {
 	}
 
 	s := poller.Wait(0)
-	if want, got := pullSock1, s; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := pullSock1, s; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	frame, _, err := s.RecvFrame()
@@ -121,8 +121,8 @@ func TestPoller(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "Hello", string(frame); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "Hello", string(frame); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	pushSock2, err := NewPush("inproc://poller_pull2")
@@ -137,8 +137,8 @@ func TestPoller(t *testing.T) {
 	}
 
 	s = poller.Wait(0)
-	if want, got := pullSock2, s; want != got {
-		t.Errorf("want '%v', got '%v'", want, got)
+	if want, have := pullSock2, s; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	frame, _, err = s.RecvFrame()
@@ -146,13 +146,13 @@ func TestPoller(t *testing.T) {
 		t.Error(err)
 	}
 
-	if want, got := "World", string(frame); want != got {
-		t.Errorf("want '%s', got '%s'", want, got)
+	if want, have := "World", string(frame); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	poller.Remove(pullSock2)
-	if want, got := 1, len(poller.socks); want != got {
-		t.Errorf("want '%d', got '%d'", want, got)
+	if want, have := 1, len(poller.socks); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
 	}
 }
 
@@ -175,7 +175,7 @@ func TestPollerAfterDestroy(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
 			if r != ErrWaitAfterDestroy {
-				t.Errorf("Expected a specific panic, `%s`,\n  but got `%s`", ErrWaitAfterDestroy.Error(), r)
+				t.Errorf("Expected a specific panic, `%s`,\n  but have `%s`", ErrWaitAfterDestroy.Error(), r)
 			}
 		} else {
 			t.Errorf("Expected panic, but did not panic.")
