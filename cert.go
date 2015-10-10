@@ -9,6 +9,7 @@ import "C"
 
 import (
 	"fmt"
+	"os"
 	"unsafe"
 )
 
@@ -47,6 +48,11 @@ func NewCertFromKeys(public []byte, secret []byte) (*Cert, error) {
 
 // NewCertFromFile Load loads a Cert from files
 func NewCertFromFile(filename string) (*Cert, error) {
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return nil, ErrCertNotFound
+	}
+
 	cert := C.zcert_load(C.CString(filename))
 	return &Cert{
 		zcertT: cert,

@@ -139,6 +139,10 @@ var (
 
 	// ErrTimeout is returned when a function that supports timeouts times out
 	ErrTimeout = errors.New("function timed out")
+
+	// ErrCertNotFound is returned when NewCertFromFile tries to
+	// load a file that does not exist.
+	ErrCertNotFound = errors.New("file not found")
 )
 
 func getStringType(k int) string {
