@@ -65,6 +65,13 @@ func TestCert(t *testing.T) {
 	os.Remove("./test_cert_secret")
 }
 
+func TestNewCertFromFile(t *testing.T) {
+	want, have := NewCertFromFile("./test_file_that_does_not_exist")
+	if have != ErrCertNotFound {
+		t.Errorf("want %#v, have %#v", want, have)
+	}
+}
+
 func ExampleCert() {
 	cert := NewCert()
 	defer cert.Destroy()
