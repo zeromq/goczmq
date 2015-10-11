@@ -126,6 +126,10 @@ var (
 	// ErrRecvFrame is returned if RecvFrame on a socket fails
 	ErrRecvFrame = errors.New("recv frame error")
 
+	// ErrRecvFrameAfterDestroy is returned if RecvFrame is called
+	// on a socket after it has been destroyed.
+	ErrRecvFrameAfterDestroy = errors.New("RecvFrame() is invalid on socket after Detroy() has been called.")
+
 	// ErrRecvMessage is returned if RecvMessage on a socket fails
 	ErrRecvMessage = errors.New("recv message error")
 
