@@ -260,6 +260,10 @@ func (s *Sock) SendFrame(data []byte, flags int) error {
 // as a byte array, along with a more flag and and error
 // (if there is an error)
 func (s *Sock) RecvFrame() ([]byte, int, error) {
+	if s.zsockT == nil {
+		return nil, -1, ErrRecvFrameAfterDestroy
+	}
+
 	frame := C.zframe_recv(unsafe.Pointer(s.zsockT))
 	if frame == nil {
 		return []byte{0}, 0, ErrRecvFrame

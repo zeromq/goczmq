@@ -831,6 +831,42 @@ func TestDealerRouterEncodeDecode(t *testing.T) {
 	}
 }
 
+func TestRecvFrameCalledAfterDestroy(t *testing.T) {
+	rep, err := NewRep("inproc://rep1")
+	if err != nil {
+		t.Error(err)
+	}
+
+	req, err := NewReq("inproc://rep1")
+	if err != nil {
+		t.Error(err)
+	}
+
+	defer req.Destroy()
+
+	err = req.SendFrame([]byte("Hello"), FlagNone)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// Just verify that the connection actually works.
+	reqframe, _, err := rep.RecvFrame()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if want, have := "Hello", string(reqframe); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
+	}
+
+	rep.Destroy()
+	reqframe, _, err = rep.RecvFrame()
+	if err != ErrRecvFrameAfterDestroy {
+		t.Errorf("want %#v, have %#v", ErrRecvFrameAfterDestroy, err)
+	}
+
+}
+
 func ExampleSock_output() {
 	// create dealer socket
 	dealer, err := NewDealer("inproc://example")
