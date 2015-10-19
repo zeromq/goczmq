@@ -30,7 +30,10 @@ func NewBeacon() *Beacon {
 
 // Verbose sets the beacon to log information to stdout.
 func (b *Beacon) Verbose() error {
-	rc := C.zstr_send(unsafe.Pointer(b.zactorT), C.CString("VERBOSE"))
+	cmd := C.CString("VERBOSE")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_send(unsafe.Pointer(b.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -41,7 +44,10 @@ func (b *Beacon) Verbose() error {
 // Configure accepts a port number and configures
 // the beacon, returning an address
 func (b *Beacon) Configure(port int) (string, error) {
-	rc := C.zstr_sendm(unsafe.Pointer(b.zactorT), C.CString("CONFIGURE"))
+	cmd := C.CString("CONFIGURE")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(b.zactorT), cmd)
 	if rc == -1 {
 		return "", ErrActorCmd
 	}
@@ -53,12 +59,16 @@ func (b *Beacon) Configure(port int) (string, error) {
 
 	Chostname := C.zstr_recv(unsafe.Pointer(b.zactorT))
 	hostname := C.GoString(Chostname)
+
 	return hostname, nil
 }
 
 // Publish publishes an announcement at an interval
 func (b *Beacon) Publish(announcement string, interval int) error {
-	rc := C.zstr_sendm(unsafe.Pointer(b.zactorT), C.CString("PUBLISH"))
+	cmd := C.CString("PUBLISH")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(b.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -79,7 +89,10 @@ func (b *Beacon) Publish(announcement string, interval int) error {
 
 // Subscribe subscribes to beacons matching the filter
 func (b *Beacon) Subscribe(filter string) error {
-	rc := C.zstr_sendm(unsafe.Pointer(b.zactorT), C.CString("SUBSCRIBE"))
+	cmd := C.CString("SUBSCRIBE")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(b.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}

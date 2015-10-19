@@ -30,7 +30,10 @@ func NewAuth() *Auth {
 
 // Verbose sets the auth actor to log information to stdout.
 func (a *Auth) Verbose() error {
-	rc := C.zstr_send(unsafe.Pointer(a.zactorT), C.CString("VERBOSE"))
+	cmd := C.CString("VERBOSE")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_send(unsafe.Pointer(a.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -41,7 +44,10 @@ func (a *Auth) Verbose() error {
 
 // Deny adds an address to a socket's deny list
 func (a *Auth) Deny(address string) error {
-	rc := C.zstr_sendm(unsafe.Pointer(a.zactorT), C.CString("DENY"))
+	cmd := C.CString("DENY")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(a.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -58,7 +64,10 @@ func (a *Auth) Deny(address string) error {
 
 // Allow removes a previous Deny
 func (a *Auth) Allow(address string) error {
-	rc := C.zstr_sendm(unsafe.Pointer(a.zactorT), C.CString("ALLOW"))
+	cmd := C.CString("ALLOW")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(a.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -75,7 +84,10 @@ func (a *Auth) Allow(address string) error {
 
 // Curve sets auth method to curve
 func (a *Auth) Curve(allowed string) error {
-	rc := C.zstr_sendm(unsafe.Pointer(a.zactorT), C.CString("CURVE"))
+	cmd := C.CString("CURVE")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(a.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -92,7 +104,10 @@ func (a *Auth) Curve(allowed string) error {
 
 // Plain sets auth method to plain
 func (a *Auth) Plain(directory string) error {
-	rc := C.zstr_sendm(unsafe.Pointer(a.zactorT), C.CString("PLAIN"))
+	cmd := C.CString("PLAIN")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(a.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
