@@ -34,7 +34,10 @@ func NewProxy() *Proxy {
 func (p *Proxy) SetFrontend(sockType int, endpoint string) error {
 	typeString := getStringType(sockType)
 
-	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), C.CString("FRONTEND"))
+	cmd := C.CString("FRONTEND")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -62,7 +65,10 @@ func (p *Proxy) SetFrontend(sockType int, endpoint string) error {
 func (p *Proxy) SetBackend(sockType int, endpoint string) error {
 	typeString := getStringType(sockType)
 
-	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), C.CString("BACKEND"))
+	cmd := C.CString("BACKEND")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -89,7 +95,10 @@ func (p *Proxy) SetBackend(sockType int, endpoint string) error {
 // to that endpoint, that sends a copy of all messages passing through
 // the proxy.
 func (p *Proxy) SetCapture(endpoint string) error {
-	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), C.CString("CAPTURE"))
+	cmd := C.CString("CAPTURE")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -104,7 +113,10 @@ func (p *Proxy) SetCapture(endpoint string) error {
 
 // Pause sends a message to the zproxy actor telling it to pause.
 func (p *Proxy) Pause() error {
-	rc := C.zstr_send(unsafe.Pointer(p.zactorT), C.CString("PAUSE"))
+	cmd := C.CString("PAUSE")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_send(unsafe.Pointer(p.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -114,7 +126,10 @@ func (p *Proxy) Pause() error {
 
 // Resume sends a message to the zproxy actor telling it to resume.
 func (p *Proxy) Resume() error {
-	rc := C.zstr_send(unsafe.Pointer(p.zactorT), C.CString("RESUME"))
+	cmd := C.CString("RESUME")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_send(unsafe.Pointer(p.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -124,7 +139,10 @@ func (p *Proxy) Resume() error {
 
 // Verbose sets the proxy to log information to stdout.
 func (p *Proxy) Verbose() error {
-	rc := C.zstr_send(unsafe.Pointer(p.zactorT), C.CString("VERBOSE"))
+	cmd := C.CString("VERBOSE")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_send(unsafe.Pointer(p.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}

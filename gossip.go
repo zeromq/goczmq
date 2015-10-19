@@ -29,7 +29,10 @@ func NewGossip(name string) *Gossip {
 
 // Bind binds the gossip service to a specified endpoint
 func (g *Gossip) Bind(endpoint string) error {
-	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), C.CString("BIND"))
+	cmd := C.CString("BIND")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -44,7 +47,10 @@ func (g *Gossip) Bind(endpoint string) error {
 
 // Connect connects the gossip service to a specified endpoint
 func (g *Gossip) Connect(endpoint string) error {
-	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), C.CString("CONNECT"))
+	cmd := C.CString("CONNECT")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -59,7 +65,10 @@ func (g *Gossip) Connect(endpoint string) error {
 
 // Publish announces a key / value pair
 func (g *Gossip) Publish(key, value string) error {
-	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), C.CString("PUBLISH"))
+	cmd := C.CString("PUBLISH")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -79,7 +88,10 @@ func (g *Gossip) Publish(key, value string) error {
 
 // Verbose sets the gossip actor to log information to stdout.
 func (g *Gossip) Verbose() error {
-	rc := C.zstr_send(unsafe.Pointer(g.zactorT), C.CString("VERBOSE"))
+	cmd := C.CString("VERBOSE")
+	defer C.free(unsafe.Pointer(cmd))
+
+	rc := C.zstr_send(unsafe.Pointer(g.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
