@@ -47,7 +47,10 @@ func NewCertFromKeys(public []byte, secret []byte) (*Cert, error) {
 
 // NewCertFromFile Load loads a Cert from files
 func NewCertFromFile(filename string) (*Cert, error) {
-	cert := C.zcert_load(C.CString(filename))
+	cFilename := C.CString(filename)
+	defer C.free(unsafe.Pointer(cFilename))
+
+	cert := C.zcert_load(cFilename)
 	return &Cert{
 		zcertT: cert,
 	}, nil
@@ -55,12 +58,21 @@ func NewCertFromFile(filename string) (*Cert, error) {
 
 // SetMeta sets meta data for a Cert
 func (c *Cert) SetMeta(key string, value string) {
-	C.Set_meta(c.zcertT, C.CString(key), C.CString(value))
+	cKey := C.CString(key)
+	defer C.free(unsafe.Pointer(cKey))
+
+	cValue := C.CString(value)
+	defer C.free(unsafe.Pointer(cValue))
+
+	C.Set_meta(c.zcertT, cKey, cValue)
 }
 
 // Meta returns a meta data item from a Cert given a key
 func (c *Cert) Meta(key string) string {
-	val := C.zcert_meta(c.zcertT, C.CString(key))
+	cKey := C.CString(key)
+	defer C.free(unsafe.Pointer(cKey))
+
+	val := C.zcert_meta(c.zcertT, cKey)
 	return C.GoString(val)
 }
 
@@ -100,7 +112,10 @@ func (c *Cert) Print() {
 
 // SavePublic saves the public key to a file
 func (c *Cert) SavePublic(filename string) error {
-	rc := C.zcert_save_public(c.zcertT, C.CString(filename))
+	cFilename := C.CString(filename)
+	defer C.free(unsafe.Pointer(cFilename))
+
+	rc := C.zcert_save_public(c.zcertT, cFilename)
 	if rc == C.int(-1) {
 		return fmt.Errorf("SavePublic error")
 	}
@@ -109,7 +124,10 @@ func (c *Cert) SavePublic(filename string) error {
 
 // SaveSecret saves the secret key to a file
 func (c *Cert) SaveSecret(filename string) error {
-	rc := C.zcert_save_secret(c.zcertT, C.CString(filename))
+	cFilename := C.CString(filename)
+	defer C.free(unsafe.Pointer(cFilename))
+
+	rc := C.zcert_save_secret(c.zcertT, cFilename)
 	if rc == C.int(-1) {
 		return fmt.Errorf("SaveSecret error")
 	}
@@ -118,7 +136,10 @@ func (c *Cert) SaveSecret(filename string) error {
 
 // Save saves the public and secret key to filename and filename_secret
 func (c *Cert) Save(filename string) error {
-	rc := C.zcert_save(c.zcertT, C.CString(filename))
+	cFilename := C.CString(filename)
+	defer C.free(unsafe.Pointer(cFilename))
+
+	rc := C.zcert_save(c.zcertT, cFilename)
 	if rc == C.int(-1) {
 		return fmt.Errorf("SavePublic: error")
 	}

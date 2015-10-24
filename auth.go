@@ -47,12 +47,15 @@ func (a *Auth) Deny(address string) error {
 	cmd := C.CString("DENY")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cAddress := C.CString(address)
+	defer C.free(unsafe.Pointer(cAddress))
+
 	rc := C.zstr_sendm(unsafe.Pointer(a.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(a.zactorT), C.CString(address))
+	rc = C.zstr_send(unsafe.Pointer(a.zactorT), cAddress)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -67,12 +70,15 @@ func (a *Auth) Allow(address string) error {
 	cmd := C.CString("ALLOW")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cAddress := C.CString(address)
+	defer C.free(unsafe.Pointer(cAddress))
+
 	rc := C.zstr_sendm(unsafe.Pointer(a.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(a.zactorT), C.CString(address))
+	rc = C.zstr_send(unsafe.Pointer(a.zactorT), cAddress)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -87,12 +93,15 @@ func (a *Auth) Curve(allowed string) error {
 	cmd := C.CString("CURVE")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cAllowed := C.CString(allowed)
+	defer C.free(unsafe.Pointer(cAllowed))
+
 	rc := C.zstr_sendm(unsafe.Pointer(a.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(a.zactorT), C.CString(allowed))
+	rc = C.zstr_send(unsafe.Pointer(a.zactorT), cAllowed)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -107,12 +116,15 @@ func (a *Auth) Plain(directory string) error {
 	cmd := C.CString("PLAIN")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cDirectory := C.CString(directory)
+	defer C.free(unsafe.Pointer(cDirectory))
+
 	rc := C.zstr_sendm(unsafe.Pointer(a.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(a.zactorT), C.CString(directory))
+	rc = C.zstr_send(unsafe.Pointer(a.zactorT), cDirectory)
 	if rc == -1 {
 		return ErrActorCmd
 	}

@@ -47,18 +47,21 @@ func (b *Beacon) Configure(port int) (string, error) {
 	cmd := C.CString("CONFIGURE")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cPort := C.CString(strconv.Itoa(port))
+	defer C.free(unsafe.Pointer(cPort))
+
 	rc := C.zstr_sendm(unsafe.Pointer(b.zactorT), cmd)
 	if rc == -1 {
 		return "", ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(b.zactorT), C.CString(strconv.Itoa(port)))
+	rc = C.zstr_send(unsafe.Pointer(b.zactorT), cPort)
 	if rc == -1 {
 		return "", ErrActorCmd
 	}
 
-	Chostname := C.zstr_recv(unsafe.Pointer(b.zactorT))
-	hostname := C.GoString(Chostname)
+	cHostname := C.zstr_recv(unsafe.Pointer(b.zactorT))
+	hostname := C.GoString(cHostname)
 
 	return hostname, nil
 }
@@ -68,18 +71,23 @@ func (b *Beacon) Publish(announcement string, interval int) error {
 	cmd := C.CString("PUBLISH")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cAnnouncement := C.CString(announcement)
+	defer C.free(unsafe.Pointer(cAnnouncement))
+
+	cInterval := C.CString(strconv.Itoa(interval))
+	defer C.free(unsafe.Pointer(cInterval))
+
 	rc := C.zstr_sendm(unsafe.Pointer(b.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_sendm(unsafe.Pointer(b.zactorT), C.CString(announcement))
+	rc = C.zstr_sendm(unsafe.Pointer(b.zactorT), cAnnouncement)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(b.zactorT),
-		C.CString(strconv.Itoa(interval)))
+	rc = C.zstr_send(unsafe.Pointer(b.zactorT), cInterval)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -92,12 +100,15 @@ func (b *Beacon) Subscribe(filter string) error {
 	cmd := C.CString("SUBSCRIBE")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cFilter := C.CString(filter)
+	defer C.free(unsafe.Pointer(cFilter))
+
 	rc := C.zstr_sendm(unsafe.Pointer(b.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(b.zactorT), C.CString(filter))
+	rc = C.zstr_send(unsafe.Pointer(b.zactorT), cFilter)
 	if rc == -1 {
 		return ErrActorCmd
 	}
