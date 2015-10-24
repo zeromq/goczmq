@@ -74,14 +74,20 @@ func NewSock(t int) *Sock {
 		}
 	}
 
-	s.zsockT = C.zsock_new_checked(C.int(s.zType), C.CString(s.file), C.size_t(s.line))
+	cFile := C.CString(s.file)
+	defer C.free(unsafe.Pointer(cFile))
+
+	s.zsockT = C.zsock_new_checked(C.int(s.zType), cFile, C.size_t(s.line))
 	return s
 }
 
 // Connect connects a socket to an endpoint
 // returns an error if the connect failed.
 func (s *Sock) Connect(endpoint string) error {
-	rc := C.Sock_connect(s.zsockT, C.CString(endpoint))
+	cEndpoint := C.CString(endpoint)
+	defer C.free(unsafe.Pointer(cEndpoint))
+
+	rc := C.Sock_connect(s.zsockT, cEndpoint)
 	if rc != C.int(0) {
 		return ErrConnect
 	}
@@ -91,6 +97,9 @@ func (s *Sock) Connect(endpoint string) error {
 // Disconnect disconnects a socket from an endpoint.  If returns
 // an error if the endpoint was not found
 func (s *Sock) Disconnect(endpoint string) error {
+	cEndpoint := C.CString(endpoint)
+	defer C.free(unsafe.Pointer(cEndpoint))
+
 	rc := C.Sock_disconnect(s.zsockT, C.CString(endpoint))
 	if int(rc) == -1 {
 		return ErrDisconnect
@@ -102,7 +111,10 @@ func (s *Sock) Disconnect(endpoint string) error {
 // the port number used for tcp transports, or 0 for other
 // transports.  On failure returns a -1 for port, and an error.
 func (s *Sock) Bind(endpoint string) (int, error) {
-	port := C.Sock_bind(s.zsockT, C.CString(endpoint))
+	cEndpoint := C.CString(endpoint)
+	defer C.free(unsafe.Pointer(cEndpoint))
+
+	port := C.Sock_bind(s.zsockT, cEndpoint)
 	if port == C.int(-1) {
 		return -1, ErrBind
 	}
@@ -125,7 +137,10 @@ func (s *Sock) Unbind(endpoint string) error {
 // does not start with '@' or '>', the serverish argument determines whether
 // it is used to bind (serverish = true) or connect (serverish = false)
 func (s *Sock) Attach(endpoints string, serverish bool) error {
-	rc := C.zsock_attach(s.zsockT, C.CString(endpoints), C._Bool(serverish))
+	cEndpoints := C.CString(endpoints)
+	defer C.free(unsafe.Pointer(cEndpoints))
+
+	rc := C.zsock_attach(s.zsockT, cEndpoints, C._Bool(serverish))
 	if rc == -1 {
 		return ErrSockAttach
 	}
@@ -410,5 +425,8 @@ func (s *Sock) GetType() int {
 
 // Destroy destroys the underlying zsockT.
 func (s *Sock) Destroy() {
-	C.zsock_destroy_checked(&s.zsockT, C.CString(s.file), C.size_t(s.line))
+	cFile := C.CString(s.file)
+	defer C.free(unsafe.Pointer(cFile))
+
+	C.zsock_destroy_checked(&s.zsockT, cFile, C.size_t(s.line))
 }
