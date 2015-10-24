@@ -32,12 +32,15 @@ func (g *Gossip) Bind(endpoint string) error {
 	cmd := C.CString("BIND")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cEndpoint := C.CString(endpoint)
+	defer C.free(unsafe.Pointer(cEndpoint))
+
 	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(g.zactorT), C.CString(endpoint))
+	rc = C.zstr_send(unsafe.Pointer(g.zactorT), cEndpoint)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -50,12 +53,15 @@ func (g *Gossip) Connect(endpoint string) error {
 	cmd := C.CString("CONNECT")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cEndpoint := C.CString(endpoint)
+	defer C.free(unsafe.Pointer(cEndpoint))
+
 	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(g.zactorT), C.CString(endpoint))
+	rc = C.zstr_send(unsafe.Pointer(g.zactorT), cEndpoint)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -68,17 +74,23 @@ func (g *Gossip) Publish(key, value string) error {
 	cmd := C.CString("PUBLISH")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cKey := C.CString(key)
+	defer C.free(unsafe.Pointer(cKey))
+
+	cValue := C.CString(value)
+	defer C.free(unsafe.Pointer(cValue))
+
 	rc := C.zstr_sendm(unsafe.Pointer(g.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_sendm(unsafe.Pointer(g.zactorT), C.CString(key))
+	rc = C.zstr_sendm(unsafe.Pointer(g.zactorT), cKey)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(g.zactorT), C.CString(value))
+	rc = C.zstr_send(unsafe.Pointer(g.zactorT), cValue)
 	if rc == -1 {
 		return ErrActorCmd
 	}

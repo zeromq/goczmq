@@ -37,17 +37,23 @@ func (p *Proxy) SetFrontend(sockType int, endpoint string) error {
 	cmd := C.CString("FRONTEND")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cTypeString := C.CString(typeString)
+	defer C.free(unsafe.Pointer(cTypeString))
+
+	cEndpoint := C.CString(endpoint)
+	defer C.free(unsafe.Pointer(cEndpoint))
+
 	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_sendm(unsafe.Pointer(p.zactorT), C.CString(typeString))
+	rc = C.zstr_sendm(unsafe.Pointer(p.zactorT), cTypeString)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(p.zactorT), C.CString(endpoint))
+	rc = C.zstr_send(unsafe.Pointer(p.zactorT), cEndpoint)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -68,17 +74,23 @@ func (p *Proxy) SetBackend(sockType int, endpoint string) error {
 	cmd := C.CString("BACKEND")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cTypeString := C.CString(typeString)
+	defer C.free(unsafe.Pointer(cTypeString))
+
+	cEndpoint := C.CString(endpoint)
+	defer C.free(unsafe.Pointer(cEndpoint))
+
 	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_sendm(unsafe.Pointer(p.zactorT), C.CString(typeString))
+	rc = C.zstr_sendm(unsafe.Pointer(p.zactorT), cTypeString)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(p.zactorT), C.CString(endpoint))
+	rc = C.zstr_send(unsafe.Pointer(p.zactorT), cEndpoint)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -98,12 +110,15 @@ func (p *Proxy) SetCapture(endpoint string) error {
 	cmd := C.CString("CAPTURE")
 	defer C.free(unsafe.Pointer(cmd))
 
+	cEndpoint := C.CString(endpoint)
+	defer C.free(unsafe.Pointer(cEndpoint))
+
 	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), cmd)
 	if rc == -1 {
 		return ErrActorCmd
 	}
 
-	rc = C.zstr_send(unsafe.Pointer(p.zactorT), C.CString(endpoint))
+	rc = C.zstr_send(unsafe.Pointer(p.zactorT), cEndpoint)
 	if rc == -1 {
 		return ErrActorCmd
 	}

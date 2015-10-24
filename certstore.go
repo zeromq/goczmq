@@ -4,11 +4,14 @@ package goczmq
 #include "czmq.h"
 */
 import "C"
+import
 
 // CertStore works with directories of CURVE security certificates.
 // It lets you easily load stores from disk and check if a key
 // is present or not. This could be done fairly easily in pure
 // Go, but is included for the sake of compatibility.
+"unsafe"
+
 type CertStore struct {
 	zcertstoreT *C.struct__zcertstore_t
 }
@@ -16,8 +19,11 @@ type CertStore struct {
 // NewCertStore creates a new certificate store from
 // a disk directory, loading and indexing all certificates.
 func NewCertStore(location string) *CertStore {
+	cLocation := C.CString(location)
+	defer C.free(unsafe.Pointer(cLocation))
+
 	return &CertStore{
-		zcertstoreT: C.zcertstore_new(C.CString(location)),
+		zcertstoreT: C.zcertstore_new(cLocation),
 	}
 }
 
@@ -31,7 +37,10 @@ func (c *CertStore) Insert(cert *Cert) {
 // Lookup looks up a certificate in the store by public key and
 // returns it.
 func (c *CertStore) Lookup(key string) *Cert {
-	ptr := C.zcertstore_lookup(c.zcertstoreT, C.CString(key))
+	cKey := C.CString(key)
+	defer C.free(unsafe.Pointer(cKey))
+
+	ptr := C.zcertstore_lookup(c.zcertstoreT, cKey)
 	if ptr == nil {
 		return nil
 	}

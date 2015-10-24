@@ -50,7 +50,10 @@ func (s *Sock) Set$(name:pascal)(val $(gotype)) {
 .if type = "string" | type = "key"
 // Set$(name:pascal) sets the $(name) option for the socket
 func (s *Sock) Set$(name:pascal)(val $(gotype)) {
-	C.zsock_set_$(name)(unsafe.Pointer(s.zsockT), C.CString(val))
+    cVal := C.CString(val)
+    defer C.free(unsafe.Pointer(cVal))
+
+	C.zsock_set_$(name)(unsafe.Pointer(s.zsockT), cVal)
 }
 
 .endif
