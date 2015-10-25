@@ -64,7 +64,13 @@ func NewCertFromFile(filename string) (*Cert, error) {
 
 // SetMeta sets meta data for a Cert
 func (c *Cert) SetMeta(key string, value string) {
-	C.Set_meta(c.zcertT, C.CString(key), C.CString(value))
+	cKey := C.CString(key)
+	defer C.free(unsafe.Pointer(cKey))
+
+	cValue := C.CString(value)
+	defer C.free(unsafe.Pointer(cValue))
+
+	C.Set_meta(c.zcertT, cKey, cValue)
 }
 
 // Meta returns a meta data item from a Cert given a key
