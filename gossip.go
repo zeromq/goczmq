@@ -23,7 +23,11 @@ type Gossip struct {
 // NewGossip creates a new Gossip actor
 func NewGossip(name string) *Gossip {
 	g := &Gossip{}
-	g.zactorT = C.Gossip_new(C.CString(name))
+
+	cName := C.CString(name)
+	defer C.free(unsafe.Pointer(cName))
+
+	g.zactorT = C.Gossip_new(cName)
 	return g
 }
 
