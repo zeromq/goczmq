@@ -53,13 +53,13 @@ func (c *Channeler) actor(recvChan chan<- [][]byte) {
 			panic(err)
 		}
 
-	case Req, Push, Dealer, Pair, Stream:
+	case Req, Push, Dealer, Pair, Stream, XSub:
 		err = sock.Attach(c.endpoints, false)
 		if err != nil {
 			panic(err)
 		}
 
-	case Sub, XSub:
+	case Sub:
 		subscriptions := strings.Split(c.subscribe, ",")
 		for _, topic := range subscriptions {
 			sock.SetSubscribe(topic)
@@ -245,11 +245,9 @@ func NewXPubChanneler(endpoints string) *Channeler {
 }
 
 // NewXSubChanneler creates a new Channeler wrapping
-// a XSub socket. Along with an endpoint list
-// it accepts a comma delimited list of topics.
-// The socket will connect by default.
-func NewXSubChanneler(endpoints, subscribe string) *Channeler {
-	return newChanneler(XSub, endpoints, subscribe)
+// a XSub socket. The socket will connect by default.
+func NewXSubChanneler(endpoints string) *Channeler {
+	return newChanneler(XSub, endpoints, "")
 }
 
 // NewPairChanneler creates a new Channeler wrapping
