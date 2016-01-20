@@ -388,7 +388,7 @@ func ExampleAuth() {
 	server.SetCurveServer(1)
 
 	// bind our server to an endpoint
-	server.Bind("inproc://auth_example")
+	server.Bind("tcp://*:9898")
 
 	// create a client socket
 	client := NewSock(Pull)
@@ -404,5 +404,5 @@ func ExampleAuth() {
 	client.SetCurveServerkey(serverCert.PublicText())
 
 	// connect
-	client.Connect("inproc://auth_example")
+	client.Connect("tcp://127.0.0.1:9898")
 }
