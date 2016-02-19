@@ -6,6 +6,10 @@ package goczmq
 zactor_t *Beacon_new () {
 	zactor_t *beacon = zactor_new(zbeacon, NULL); return beacon;
 }
+
+int Beacon_publish(void *actor, void *data, int size, int interval) {
+	return zsock_send(actor, "sbi", "PUBLISH", (byte*)data, size, interval);
+}
 */
 import "C"
 
@@ -66,7 +70,7 @@ func (b *Beacon) Configure(port int) (string, error) {
 	return hostname, nil
 }
 
-// Publish publishes an announcement at an interval
+// Publish publishes an announcement string at an interval
 func (b *Beacon) Publish(announcement string, interval int) error {
 	cmd := C.CString("PUBLISH")
 	defer C.free(unsafe.Pointer(cmd))
@@ -88,6 +92,21 @@ func (b *Beacon) Publish(announcement string, interval int) error {
 	}
 
 	rc = C.zstr_send(unsafe.Pointer(b.zactorT), cInterval)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	return nil
+}
+
+// PublishBytes publishes an announcement byte slice at an interval
+func (b *Beacon) PublishBytes(announcement []byte, interval int) error {
+	rc := C.Beacon_publish(
+		unsafe.Pointer(b.zactorT),
+		unsafe.Pointer(&announcement[0]),
+		C.int(len(announcement)),
+		C.int(interval),
+	)
 	if rc == -1 {
 		return ErrActorCmd
 	}
@@ -119,9 +138,22 @@ func (b *Beacon) Subscribe(filter string) error {
 // Recv waits for the specific timeout in milliseconds to receive a beacon
 func (b *Beacon) Recv(timeout int) [][]byte {
 	C.zsock_set_rcvtimeo(unsafe.Pointer(b.zactorT), C.int(timeout))
-	addrStr := C.zstr_recv(unsafe.Pointer(b.zactorT))
-	beaconStr := C.zstr_recv(unsafe.Pointer(b.zactorT))
-	return [][]byte{[]byte(C.GoString(addrStr)), []byte(C.GoString(beaconStr))}
+
+	cAddrFrame := C.zframe_recv(unsafe.Pointer(b.zactorT))
+	defer C.zframe_destroy(&cAddrFrame)
+	if cAddrFrame == nil {
+		return nil
+	}
+	addr := C.GoBytes(unsafe.Pointer(C.zframe_data(cAddrFrame)), C.int(C.zframe_size(cAddrFrame)))
+
+	cBeaconFrame := C.zframe_recv(unsafe.Pointer(b.zactorT))
+	defer C.zframe_destroy(&cBeaconFrame)
+	if cBeaconFrame == nil {
+		return nil
+	}
+	beacon := C.GoBytes(unsafe.Pointer(C.zframe_data(cBeaconFrame)), C.int(C.zframe_size(cBeaconFrame)))
+
+	return [][]byte{addr, beacon}
 }
 
 // Destroy destroys the beacon.
