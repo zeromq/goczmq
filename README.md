@@ -49,6 +49,16 @@ sudo ldconfig
 go get github.com/zeromq/goczmq
 ```
 
+### Installing on OSX
+
+```
+brew install zmq czmq libsodium
+```
+
+```
+go get github.com/zeromq/goczmq
+```
+
 ## Usage
 ### Direct CZMQ Sock API
 #### Example
