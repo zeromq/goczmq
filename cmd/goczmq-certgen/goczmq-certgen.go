@@ -3,10 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/zeromq/goczmq"
 	"log"
 	"os"
 	"strings"
+
+	"gopkg.in/zeromq/goczmq.v1"
 )
 
 func main() {

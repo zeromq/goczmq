@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"strings"
 
-	czmq "github.com/zeromq/goczmq"
+	czmq "gopkg.in/zeromq/goczmq.v1"
 )
 
 func main() {
