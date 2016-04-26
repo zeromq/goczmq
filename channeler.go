@@ -37,6 +37,7 @@ func (c *Channeler) actor(recvChan chan<- [][]byte) {
 		panic(err)
 	}
 	defer pipe.Destroy()
+	defer close(recvChan)
 
 	pull, err := NewPull(c.proxyAddr)
 	if err != nil {
@@ -178,7 +179,6 @@ func newChanneler(sockType int, endpoints, subscribe string) *Channeler {
 		SendChan:    sendChan,
 		RecvChan:    recvChan,
 	}
-
 	c.commandAddr = fmt.Sprintf("inproc://actorcontrol%d", c.id)
 	c.proxyAddr = fmt.Sprintf("inproc://proxy%d", c.id)
 
