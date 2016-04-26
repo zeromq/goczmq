@@ -1,5 +1,6 @@
 //go:generate gsl sockopts.xml
 package goczmq
+
 /*  =========================================================================
     zsock_option - get/set 0MQ socket options
 
@@ -20,6 +21,7 @@ package goczmq
 import (
 	"testing"
 )
+
 func TestTos(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := 1
@@ -415,4 +417,3 @@ func TestTcpAcceptFilter(t *testing.T) {
 	}
 	sock.Destroy()
 }
-

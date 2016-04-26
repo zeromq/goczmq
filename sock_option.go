@@ -74,8 +74,8 @@ func (s *Sock) SetConflate(val int) {
 
 // SetZapDomain sets the zap_domain option for the socket
 func (s *Sock) SetZapDomain(val string) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
 
 	C.zsock_set_zap_domain(unsafe.Pointer(s.zsockT), cVal)
 }
@@ -105,8 +105,8 @@ func (s *Sock) PlainServer() int {
 
 // SetPlainUsername sets the plain_username option for the socket
 func (s *Sock) SetPlainUsername(val string) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
 
 	C.zsock_set_plain_username(unsafe.Pointer(s.zsockT), cVal)
 }
@@ -119,8 +119,8 @@ func (s *Sock) PlainUsername() string {
 
 // SetPlainPassword sets the plain_password option for the socket
 func (s *Sock) SetPlainPassword(val string) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
 
 	C.zsock_set_plain_password(unsafe.Pointer(s.zsockT), cVal)
 }
@@ -144,8 +144,8 @@ func (s *Sock) CurveServer() int {
 
 // SetCurvePublickey sets the curve_publickey option for the socket
 func (s *Sock) SetCurvePublickey(val string) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
 
 	C.zsock_set_curve_publickey(unsafe.Pointer(s.zsockT), cVal)
 }
@@ -158,8 +158,8 @@ func (s *Sock) CurvePublickey() string {
 
 // SetCurveSecretkey sets the curve_secretkey option for the socket
 func (s *Sock) SetCurveSecretkey(val string) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
 
 	C.zsock_set_curve_secretkey(unsafe.Pointer(s.zsockT), cVal)
 }
@@ -172,8 +172,8 @@ func (s *Sock) CurveSecretkey() string {
 
 // SetCurveServerkey sets the curve_serverkey option for the socket
 func (s *Sock) SetCurveServerkey(val string) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
 
 	C.zsock_set_curve_serverkey(unsafe.Pointer(s.zsockT), cVal)
 }
@@ -208,8 +208,8 @@ func (s *Sock) GssapiPlaintext() int {
 
 // SetGssapiPrincipal sets the gssapi_principal option for the socket
 func (s *Sock) SetGssapiPrincipal(val string) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
 
 	C.zsock_set_gssapi_principal(unsafe.Pointer(s.zsockT), cVal)
 }
@@ -222,8 +222,8 @@ func (s *Sock) GssapiPrincipal() string {
 
 // SetGssapiServicePrincipal sets the gssapi_service_principal option for the socket
 func (s *Sock) SetGssapiServicePrincipal(val string) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
 
 	C.zsock_set_gssapi_service_principal(unsafe.Pointer(s.zsockT), cVal)
 }
@@ -318,24 +318,24 @@ func (s *Sock) Affinity() int {
 
 // SetSubscribe sets the subscribe option for the socket
 func (s *Sock) SetSubscribe(val string) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
 
 	C.zsock_set_subscribe(unsafe.Pointer(s.zsockT), cVal)
 }
 
 // SetUnsubscribe sets the unsubscribe option for the socket
 func (s *Sock) SetUnsubscribe(val string) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
 
 	C.zsock_set_unsubscribe(unsafe.Pointer(s.zsockT), cVal)
 }
 
 // SetIdentity sets the identity option for the socket
 func (s *Sock) SetIdentity(val string) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
 
 	C.zsock_set_identity(unsafe.Pointer(s.zsockT), cVal)
 }
@@ -529,8 +529,8 @@ func (s *Sock) TcpKeepaliveIntvl() int {
 
 // SetTcpAcceptFilter sets the tcp_accept_filter option for the socket
 func (s *Sock) SetTcpAcceptFilter(val string) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
 
 	C.zsock_set_tcp_accept_filter(unsafe.Pointer(s.zsockT), cVal)
 }
@@ -564,4 +564,3 @@ func (s *Sock) LastEndpoint() string {
 	val := C.zsock_last_endpoint(unsafe.Pointer(s.zsockT))
 	return C.GoString(val)
 }
-
