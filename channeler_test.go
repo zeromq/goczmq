@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"testing"
+	"time"
 )
 
 func TestPushPullChanneler(t *testing.T) {
@@ -46,6 +47,32 @@ func TestDealerRouterChanneler(t *testing.T) {
 	if want, got := "world", string(resp[0]); want != got {
 		t.Errorf("want '%s', got '%s'", want, got)
 	}
+}
+
+func TestDealerChannelerRecvChanIsClosedOnDestroy(t *testing.T) {
+	test_router := NewRouterChanneler("inproc://channelerouter")
+
+	done := make(chan bool, 1)
+	go func(router *Channeler) {
+		resp := <-router.RecvChan
+		if resp != nil {
+			t.Errorf("expected nil response")
+		}
+		done <- true
+	}(test_router)
+
+	go func(router *Channeler) {
+		time.Sleep(100 * time.Millisecond)
+			router.Destroy()
+	}(test_router)
+
+	select {
+	case <-done:
+		break
+	case <-time.After(1 * time.Second):
+		t.Errorf("Router channel is not closed")
+	}
+
 }
 
 func ExampleChanneler_output() {
