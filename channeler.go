@@ -1,5 +1,11 @@
 package goczmq
 
+/*
+#include "czmq.h"
+int Sock_init() {zsys_init();}
+*/
+import "C"
+
 import (
 	"fmt"
 	"math/rand"
@@ -170,6 +176,7 @@ func newChanneler(sockType int, endpoints, subscribe string) *Channeler {
 	sendChan := make(chan [][]byte)
 	recvChan := make(chan [][]byte)
 
+	C.Sock_init()
 	c := &Channeler{
 		id:          rand.Int63(),
 		subscribe:   subscribe,
