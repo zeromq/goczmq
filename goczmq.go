@@ -149,6 +149,18 @@ var (
 	ErrCertNotFound = errors.New("file not found")
 )
 
+// Shutdown shuts down the CZMQ zsys layer.
+// The CZMQ zsys layer normally shuts down on process termination through the
+// use of an atexit cleanup function. Calling this allows the zsys layer to be
+// shutdown manually.
+//
+// This is beneficial when CZMQ will no longer be used but the process will not
+// be terminating. Any potential resources allocated by the zsys layer can be
+// freed as they will no longer be needed.
+func Shutdown() {
+	C.zsys_shutdown()
+}
+
 func getStringType(k int) string {
 	switch k {
 	case Req:
