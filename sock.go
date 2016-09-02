@@ -9,6 +9,11 @@ int Sock_connect(zsock_t *self, const char *format) {return zsock_connect(self, 
 int Sock_disconnect(zsock_t *self, const char *format) {return zsock_disconnect(self, format, NULL);}
 int Sock_bind(zsock_t *self, const char *format) {return zsock_bind(self, format, NULL);}
 int Sock_unbind(zsock_t *self, const char *format) {return zsock_unbind(self, format, NULL);}
+int Sock_sendframe(zsock_t *sock, const void *data, size_t size, int flags) {
+	zframe_t *frame = zframe_new (data, size);
+	int rc = zframe_send (&frame, sock, flags);
+	return rc;
+}
 */
 import "C"
 
@@ -255,19 +260,14 @@ func (s *Sock) Pollout() bool {
 // a multi-part message
 func (s *Sock) SendFrame(data []byte, flags int) error {
 	var rc C.int
-
 	if len(data) == 0 {
-		frame := C.zframe_new(unsafe.Pointer(C.CString("")), C.size_t(len(data)))
-		rc = C.zframe_send(&frame, unsafe.Pointer(s.zsockT), C.int(flags))
+		rc = C.Sock_sendframe(unsafe.Pointer(s.zsockT), unsafe.Pointer(C.CString("")), C.size_t(len(data)), C.int(flags))
 	} else {
-		frame := C.zframe_new(unsafe.Pointer(&data[0]), C.size_t(len(data)))
-		rc = C.zframe_send(&frame, unsafe.Pointer(s.zsockT), C.int(flags))
+		rc = C.Sock_sendframe(unsafe.Pointer(s.zsockT), unsafe.Pointer(&data[0]), C.size_t(len(data)), C.int(flags))
 	}
-
 	if rc == C.int(-1) {
 		return ErrSendFrame
 	}
-
 	return nil
 }
 
