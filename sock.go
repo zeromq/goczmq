@@ -105,7 +105,7 @@ func (s *Sock) Disconnect(endpoint string) error {
 	cEndpoint := C.CString(endpoint)
 	defer C.free(unsafe.Pointer(cEndpoint))
 
-	rc := C.Sock_disconnect(s.zsockT, C.CString(endpoint))
+	rc := C.Sock_disconnect(s.zsockT, cEndpoint)
 	if int(rc) == -1 {
 		return ErrDisconnect
 	}
@@ -129,7 +129,10 @@ func (s *Sock) Bind(endpoint string) (int, error) {
 // Unbind unbinds a socket from an endpoint.  If returns
 // an error if the endpoint was not found
 func (s *Sock) Unbind(endpoint string) error {
-	rc := C.Sock_unbind(s.zsockT, C.CString(endpoint))
+	cEndpoint := C.CString(endpoint)
+	defer C.free(unsafe.Pointer(cEndpoint))
+
+	rc := C.Sock_unbind(s.zsockT, cEndpoint)
 	if int(rc) == -1 {
 		return ErrUnbind
 	}
