@@ -261,7 +261,7 @@ func (s *Sock) Pollout() bool {
 func (s *Sock) SendFrame(data []byte, flags int) error {
 	var rc C.int
 	if len(data) == 0 {
-		rc = C.Sock_sendframe(unsafe.Pointer(s.zsockT), unsafe.Pointer(C.CString("")), C.size_t(len(data)), C.int(flags))
+		rc = C.Sock_sendframe(unsafe.Pointer(s.zsockT), nil, C.size_t(0), C.int(flags))
 	} else {
 		rc = C.Sock_sendframe(unsafe.Pointer(s.zsockT), unsafe.Pointer(&data[0]), C.size_t(len(data)), C.int(flags))
 	}
