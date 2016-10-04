@@ -3,6 +3,14 @@
 // services for authentication, service discovery, and creating proxies.
 // GoCZMQ provides direct bindings to CZMQ along with higher level go
 // abstractions such as channels and io.ReadWriter interface support.
+//
+// "Tell them I was a writer.
+//  A maker of software.
+//  A humanist. A father.
+//  And many things.
+//  But above all, a writer.
+//  Thank You. :)
+//  - Pieter Hintjens
 package goczmq
 
 /*
