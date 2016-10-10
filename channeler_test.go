@@ -27,6 +27,60 @@ func TestPushPullChanneler(t *testing.T) {
 	}
 }
 
+func TestPubSubChanneler(t *testing.T) {
+	pub := NewPubChanneler("inproc://channelerpubsub")
+	defer pub.Destroy()
+
+	sub := NewSubChanneler("inproc://channelerpubsub", "a,b")
+	defer sub.Destroy()
+
+	pub.SendChan <- [][]byte{[]byte("a"), []byte("message")}
+	select {
+	case resp := <-sub.RecvChan:
+		topic, message := string(resp[0]), string(resp[1])
+		if want, got := "a", topic; want != got {
+			t.Errorf("want '%s', got '%s'", want, got)
+		}
+		if want, got := "message", message; want != got {
+			t.Errorf("want '%s', got '%s'", want, got)
+		}
+	case <-time.After(time.Second * 1):
+		t.Errorf("timeout")
+	}
+
+	pub.SendChan <- [][]byte{[]byte("X"), []byte("message")}
+	pub.SendChan <- [][]byte{[]byte("b"), []byte("message")}
+	select {
+	case resp := <-sub.RecvChan:
+		topic, message := string(resp[0]), string(resp[1])
+		if want, got := "b", topic; want != got {
+			t.Errorf("want '%s', got '%s'", want, got)
+		}
+		if want, got := "message", message; want != got {
+			t.Errorf("want '%s', got '%s'", want, got)
+		}
+	case <-time.After(time.Second * 1):
+		t.Errorf("timeout")
+	}
+
+	sub.Subscribe("c")
+	sub.Unsubscribe("a")
+	pub.SendChan <- [][]byte{[]byte("a"), []byte("message")}
+	pub.SendChan <- [][]byte{[]byte("c"), []byte("message")}
+	select {
+	case resp := <-sub.RecvChan:
+		topic, message := string(resp[0]), string(resp[1])
+		if want, got := "c", topic; want != got {
+			t.Errorf("want '%s', got '%s'", want, got)
+		}
+		if want, got := "message", message; want != got {
+			t.Errorf("want '%s', got '%s'", want, got)
+		}
+	case <-time.After(time.Second * 1):
+		t.Errorf("timeout")
+	}
+}
+
 func TestDealerRouterChanneler(t *testing.T) {
 	dealer := NewDealerChanneler("inproc://channelerdealerrouter")
 	defer dealer.Destroy()
@@ -63,7 +117,7 @@ func TestDealerChannelerRecvChanIsClosedOnDestroy(t *testing.T) {
 
 	go func(router *Channeler) {
 		time.Sleep(100 * time.Millisecond)
-			router.Destroy()
+		router.Destroy()
 	}(test_router)
 
 	select {
