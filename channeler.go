@@ -35,6 +35,16 @@ func (c *Channeler) Destroy() {
 	c.commandChan <- "destroy"
 }
 
+// Subscribe to a Topic
+func (c *Channeler) Subscribe(topic string) {
+	c.commandChan <- fmt.Sprintf("subscribe %s", topic)
+}
+
+// Unsubscribe from a Topic
+func (c *Channeler) Unsubscribe(topic string) {
+	c.commandChan <- fmt.Sprintf("unsubscribe %s", topic)
+}
+
 // actor is a routine that handles communication with
 // the zeromq socket.
 func (c *Channeler) actor(recvChan chan<- [][]byte) {
@@ -104,6 +114,14 @@ func (c *Channeler) actor(recvChan chan<- [][]byte) {
 				}
 				pipe.SendMessage([][]byte{[]byte("ok")})
 				goto ExitActor
+			case "subscribe":
+				topic := string(cmd[1])
+				sock.SetSubscribe(topic)
+				pipe.SendMessage([][]byte{[]byte("ok")})
+			case "unsubscribe":
+				topic := string(cmd[1])
+				sock.SetUnsubscribe(topic)
+				pipe.SendMessage([][]byte{[]byte("ok")})
 			}
 
 		case sock:
@@ -157,6 +175,21 @@ func (c *Channeler) channeler(commandChan <-chan string, sendChan <-chan [][]byt
 					panic(err)
 				}
 				goto ExitChanneler
+			default:
+				parts := strings.Split(cmd, " ")
+				numParts := len(parts)
+				message := make([][]byte, numParts, numParts)
+				for i, p := range parts {
+					message[i] = []byte(p)
+				}
+				err := pipe.SendMessage(message)
+				if err != nil {
+					panic(err)
+				}
+				_, err = pipe.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
 			}
 
 		case msg := <-sendChan:
