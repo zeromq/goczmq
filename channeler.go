@@ -2,7 +2,7 @@ package goczmq
 
 /*
 #include "czmq.h"
-int Sock_init() {zsys_init();}
+void Sock_init() {zsys_init();}
 */
 import "C"
 
