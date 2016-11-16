@@ -3,11 +3,20 @@
 ## Introduction
 A golang interface to the [CZMQ v3](http://czmq.zeromq.org) API.
 
-## Dependencies
+## Install
+### Dependencies
 * [libsodium](https://github.com/jedisct1/libsodium)
 * [libzmq](https://github.com/zeromq/libzmq)
 * [czmq](https://github.com/zeromq/czmq)
 
+### For CMZQ >= 4.0
+```
+go get gopkg.in/zeromq/goczmq.v4
+```
+### For CZMQ Before 4.0
+```
+go get gopkg.in/zeromq/goczmq.v1
+```
 ## Usage
 ### Direct CZMQ Sock API
 #### Example
