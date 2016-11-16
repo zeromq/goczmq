@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"math/rand"
 
-	czmq "gopkg.in/zeromq/goczmq.v1"
+	czmq "github.com/zeromq/goczmq"
 )
 
 func main() {
