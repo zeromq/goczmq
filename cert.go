@@ -91,8 +91,8 @@ func (c *Cert) PublicText() string {
 // Apply sets the public and private keys for a socket
 func (c *Cert) Apply(s *Sock) {
 	handle := C.zsock_resolve(unsafe.Pointer(s.zsockT))
-	C.zsocket_set_curve_secretkey_bin(handle, C.zcert_secret_key(c.zcertT))
-	C.zsocket_set_curve_publickey_bin(handle, C.zcert_public_key(c.zcertT))
+	C.zsock_set_curve_secretkey_bin(handle, C.zcert_secret_key(c.zcertT))
+	C.zsock_set_curve_publickey_bin(handle, C.zcert_public_key(c.zcertT))
 }
 
 // Dup duplicates a Cert

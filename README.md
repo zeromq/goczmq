@@ -3,93 +3,10 @@
 ## Introduction
 A golang interface to the [CZMQ v3](http://czmq.zeromq.org) API.
 
-## Update 2016-04-23 - gopkg.in
-Support for new thread safe socket types was recently added to CZMQ:
-
-New Socket Type| Old Socket Type
----------------|----------------
-ZMQ_RADIO      | ZMQ_PUB
-ZMQ_DISH       | ZMQ_SUB
-ZMQ_CLIENT     | ZMQ_DEALER
-ZMQ_SERVER     | ZMQ_ROUTER
-ZMQ_SCATTER    | ZMQ_PUSH
-ZMQ_GATHER     | ZMQ_PULL
-
-Thread safe sockets are of immense value as far as Golang goes. Single frame messages
-also makes supporting io.Reader / io.Writer a much simpler proposition. However, 
-support for these sockets requires building against bleeding edge (as of this date)
-czmq / libzmq. There may be API breaking changes as a result as well. In order to 
-allow people to continue using GoCZMQ with the current stable releases of libzmq
-and czmq, we are moving to support [gopkg.in](http://labix.org/gopkg.in) urls.
-
-### Releases
-
-CZMQ Version | Package Url
--------------|------------
-<= 3.02      | [`gopkg.in/zeromq/cmzq.v1`](https://gopkg.in/zeromq/czmq.v1)
-
-### Development Changes
-
-Work for GoCZMQ v2 will take place on a v2.0 branch. The C4.1 development process
-will still be used, other than the ammendent that PRs for 2.0 work should be
-opened from a fork against branch v2.0 rather than master. I am torn at this additional
-complication, but I believe it is the best way to move forward.
-
-## Update 2015-06-02
-With the releases of zeromq 4.1 and czmq 3, we are declaring a stable release.
-What does "stable release" mean in the world of go getting projects off of git 
-master? It means our exported API is finalized and we will, to the absolute
-best of our ability, make no breaking changes to it. We may make additive
-changes, and we may refactor internals in order to improve performance. 
-
-## Installation
-
-### Building From Source (Linux)
-
-```
-wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.10.tar.gz
-wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.10.tar.gz.sig
-wget https://download.libsodium.org/jedi.gpg.asc
-gpg --import jedi.gpg.asc
-gpg --verify libsodium-1.0.10.tar.gz.sig libsodium-1.0.10.tar.gz
-tar zxvf libsodium-1.0.10.tar.gz
-cd libsodium-1.010.
-./configure; make check
-sudo make install
-sudo ldconfig
-```
-
-```
-wget http://download.zeromq.org/zeromq-4.1.1.tar.gz
-tar zxvf zeromq-4.1.1.tar.gz
-cd zeromq-4.1.1
-./configure --with-libsodium; make; make check
-sudo make install
-sudo ldconfig
-```
-
-```
-wget http://download.zeromq.org/czmq-3.0.1.tar.gz
-tar zxvf czmq-3.0.1.tar.gz
-cd czmq-3.0.1
-./configure; make check
-sudo make install
-sudo ldconfig
-```
-
-```
-go get github.com/zeromq/goczmq
-```
-
-### Installing on OSX
-
-```
-brew install zmq czmq libsodium
-```
-
-```
-go get github.com/zeromq/goczmq
-```
+## Dependencies
+* [libsodium](https://github.com/jedisct1/libsodium)
+* [libzmq](https://github.com/zeromq/libzmq)
+* [czmq](https://github.com/zeromq/czmq)
 
 ## Usage
 ### Direct CZMQ Sock API
