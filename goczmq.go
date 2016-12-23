@@ -65,6 +65,12 @@ const (
 	// Stream is a ZMQ_STREAM socket type
 	Stream = int(C.ZMQ_STREAM)
 
+	// Scatter is a ZMQ_SCATTER socket type
+	Scatter = int(C.ZMQ_SCATTER)
+
+	// Gather is a ZMQ_GATHER socket type
+	Gather = int(C.ZMQ_GATHER)
+
 	// Pollin is the ZMQ_POLLIN constant
 	Pollin = int(C.ZMQ_POLLIN)
 
