@@ -22,6 +22,122 @@ import (
 	"testing"
 )
 
+func TestHeartbeatIvl(t *testing.T) {
+	sock := NewSock(Dealer)
+	testval := 2000
+	sock.SetHeartbeatIvl(testval)
+	val := sock.HeartbeatIvl()
+	if val != testval && val != 0 {
+		t.Errorf("HeartbeatIvl returned %d, should be %d", val, testval)
+	}
+	sock.Destroy()
+}
+
+func TestHeartbeatTtl(t *testing.T) {
+	sock := NewSock(Dealer)
+	testval := 4000
+	sock.SetHeartbeatTtl(testval)
+	val := sock.HeartbeatTtl()
+	if val != testval && val != 0 {
+		t.Errorf("HeartbeatTtl returned %d, should be %d", val, testval)
+	}
+	sock.Destroy()
+}
+
+func TestHeartbeatTimeout(t *testing.T) {
+	sock := NewSock(Dealer)
+	testval := 6000
+	sock.SetHeartbeatTimeout(testval)
+	val := sock.HeartbeatTimeout()
+	if val != testval && val != 0 {
+		t.Errorf("HeartbeatTimeout returned %d, should be %d", val, testval)
+	}
+	sock.Destroy()
+}
+
+func TestUseFd(t *testing.T) {
+	sock := NewSock(Req)
+	testval := 3
+	sock.SetUseFd(testval)
+	val := sock.UseFd()
+	if val != testval && val != 0 {
+		t.Errorf("UseFd returned %d, should be %d", val, testval)
+	}
+	sock.Destroy()
+}
+
+func TestXPubManual(t *testing.T) {
+	sock := NewSock(XPub)
+	testval := 1
+	sock.SetXPubManual(testval)
+	sock.Destroy()
+}
+
+func TestXPubWelcomeMsg(t *testing.T) {
+	sock := NewSock(XPub)
+	testval := "welcome"
+	sock.SetXPubWelcomeMsg(testval)
+	sock.Destroy()
+}
+
+func TestStreamNotify(t *testing.T) {
+	sock := NewSock(Stream)
+	testval := 1
+	sock.SetStreamNotify(testval)
+	sock.Destroy()
+}
+
+func TestInvertMatching(t *testing.T) {
+	sock := NewSock(XPub)
+	testval := 1
+	sock.SetInvertMatching(testval)
+	val := sock.InvertMatching()
+	if val != testval && val != 0 {
+		t.Errorf("InvertMatching returned %d, should be %d", val, testval)
+	}
+	sock.Destroy()
+}
+
+func TestXPubVerboser(t *testing.T) {
+	sock := NewSock(XPub)
+	testval := 1
+	sock.SetXPubVerboser(testval)
+	sock.Destroy()
+}
+
+func TestConnectTimeout(t *testing.T) {
+	sock := NewSock(Dealer)
+	testval := 200
+	sock.SetConnectTimeout(testval)
+	val := sock.ConnectTimeout()
+	if val != testval && val != 0 {
+		t.Errorf("ConnectTimeout returned %d, should be %d", val, testval)
+	}
+	sock.Destroy()
+}
+
+func TestTcpMaxrt(t *testing.T) {
+	sock := NewSock(Dealer)
+	testval := 200
+	sock.SetTcpMaxrt(testval)
+	val := sock.TcpMaxrt()
+	if val != testval && val != 0 {
+		t.Errorf("TcpMaxrt returned %d, should be %d", val, testval)
+	}
+	sock.Destroy()
+}
+
+func TestMulticastMaxtpdu(t *testing.T) {
+	sock := NewSock(Dealer)
+	testval := 1400
+	sock.SetMulticastMaxtpdu(testval)
+	val := sock.MulticastMaxtpdu()
+	if val != testval && val != 0 {
+		t.Errorf("MulticastMaxtpdu returned %d, should be %d", val, testval)
+	}
+	sock.Destroy()
+}
+
 func TestTos(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := 1
@@ -37,6 +153,42 @@ func TestRouterHandover(t *testing.T) {
 	sock := NewSock(Router)
 	testval := 1
 	sock.SetRouterHandover(testval)
+	sock.Destroy()
+}
+
+func TestConnectRid(t *testing.T) {
+	sock := NewSock(Router)
+	testval := "ABCD"
+	sock.SetConnectRid(testval)
+	sock.Destroy()
+}
+
+func TestHandshakeIvl(t *testing.T) {
+	sock := NewSock(Dealer)
+	testval := 200
+	sock.SetHandshakeIvl(testval)
+	val := sock.HandshakeIvl()
+	if val != testval && val != 0 {
+		t.Errorf("HandshakeIvl returned %d, should be %d", val, testval)
+	}
+	sock.Destroy()
+}
+
+func TestSocksProxy(t *testing.T) {
+	sock := NewSock(Dealer)
+	testval := "127.0.0.1"
+	sock.SetSocksProxy(testval)
+	val := sock.SocksProxy()
+	if val != testval && val != "" {
+		t.Errorf("SocksProxy returned %s should be %s", val, testval)
+	}
+	sock.Destroy()
+}
+
+func TestXPubNodrop(t *testing.T) {
+	sock := NewSock(XPub)
+	testval := 1
+	sock.SetXPubNodrop(testval)
 	sock.Destroy()
 }
 
@@ -356,10 +508,10 @@ func TestSndtimeo(t *testing.T) {
 	sock.Destroy()
 }
 
-func TestXpubVerbose(t *testing.T) {
+func TestXPubVerbose(t *testing.T) {
 	sock := NewSock(XPub)
 	testval := 1
-	sock.SetXpubVerbose(testval)
+	sock.SetXPubVerbose(testval)
 	sock.Destroy()
 }
 

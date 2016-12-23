@@ -31,6 +31,167 @@ import (
 	"unsafe"
 )
 
+// SetHeartbeatIvl sets the heartbeat_ivl option for the socket
+func (s *Sock) SetHeartbeatIvl(val int) {
+	C.zsock_set_heartbeat_ivl(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// HeartbeatIvl returns the current value of the socket's heartbeat_ivl option
+func (s *Sock) HeartbeatIvl() int {
+	val := C.zsock_heartbeat_ivl(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// SetHeartbeatTtl sets the heartbeat_ttl option for the socket
+func (s *Sock) SetHeartbeatTtl(val int) {
+	C.zsock_set_heartbeat_ttl(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// HeartbeatTtl returns the current value of the socket's heartbeat_ttl option
+func (s *Sock) HeartbeatTtl() int {
+	val := C.zsock_heartbeat_ttl(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// SetHeartbeatTimeout sets the heartbeat_timeout option for the socket
+func (s *Sock) SetHeartbeatTimeout(val int) {
+	C.zsock_set_heartbeat_timeout(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// HeartbeatTimeout returns the current value of the socket's heartbeat_timeout option
+func (s *Sock) HeartbeatTimeout() int {
+	val := C.zsock_heartbeat_timeout(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// SetUseFd sets the use_fd option for the socket
+func (s *Sock) SetUseFd(val int) {
+	C.zsock_set_use_fd(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// UseFd returns the current value of the socket's use_fd option
+func (s *Sock) UseFd() int {
+	val := C.zsock_use_fd(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// SetXPubManual sets the xpub_manual option for the socket
+func (s *Sock) SetXPubManual(val int) {
+	C.zsock_set_xpub_manual(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// SetXPubWelcomeMsg sets the xpub_welcome_msg option for the socket
+func (s *Sock) SetXPubWelcomeMsg(val string) {
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
+
+	C.zsock_set_xpub_welcome_msg(unsafe.Pointer(s.zsockT), cVal)
+}
+
+// SetStreamNotify sets the stream_notify option for the socket
+func (s *Sock) SetStreamNotify(val int) {
+	C.zsock_set_stream_notify(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// SetInvertMatching sets the invert_matching option for the socket
+func (s *Sock) SetInvertMatching(val int) {
+	C.zsock_set_invert_matching(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// InvertMatching returns the current value of the socket's invert_matching option
+func (s *Sock) InvertMatching() int {
+	val := C.zsock_invert_matching(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// SetXPubVerboser sets the xpub_verboser option for the socket
+func (s *Sock) SetXPubVerboser(val int) {
+	C.zsock_set_xpub_verboser(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// SetConnectTimeout sets the connect_timeout option for the socket
+func (s *Sock) SetConnectTimeout(val int) {
+	C.zsock_set_connect_timeout(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// ConnectTimeout returns the current value of the socket's connect_timeout option
+func (s *Sock) ConnectTimeout() int {
+	val := C.zsock_connect_timeout(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// SetTcpMaxrt sets the tcp_maxrt option for the socket
+func (s *Sock) SetTcpMaxrt(val int) {
+	C.zsock_set_tcp_maxrt(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// TcpMaxrt returns the current value of the socket's tcp_maxrt option
+func (s *Sock) TcpMaxrt() int {
+	val := C.zsock_tcp_maxrt(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// ThreadSafe returns the current value of the socket's thread_safe option
+func (s *Sock) ThreadSafe() int {
+	val := C.zsock_thread_safe(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// SetMulticastMaxtpdu sets the multicast_maxtpdu option for the socket
+func (s *Sock) SetMulticastMaxtpdu(val int) {
+	C.zsock_set_multicast_maxtpdu(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// MulticastMaxtpdu returns the current value of the socket's multicast_maxtpdu option
+func (s *Sock) MulticastMaxtpdu() int {
+	val := C.zsock_multicast_maxtpdu(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// SetVmciBufferSize sets the vmci_buffer_size option for the socket
+func (s *Sock) SetVmciBufferSize(val int) {
+	C.zsock_set_vmci_buffer_size(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// VmciBufferSize returns the current value of the socket's vmci_buffer_size option
+func (s *Sock) VmciBufferSize() int {
+	val := C.zsock_vmci_buffer_size(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// SetVmciBufferMinSize sets the vmci_buffer_min_size option for the socket
+func (s *Sock) SetVmciBufferMinSize(val int) {
+	C.zsock_set_vmci_buffer_min_size(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// VmciBufferMinSize returns the current value of the socket's vmci_buffer_min_size option
+func (s *Sock) VmciBufferMinSize() int {
+	val := C.zsock_vmci_buffer_min_size(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// SetVmciBufferMaxSize sets the vmci_buffer_max_size option for the socket
+func (s *Sock) SetVmciBufferMaxSize(val int) {
+	C.zsock_set_vmci_buffer_max_size(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// VmciBufferMaxSize returns the current value of the socket's vmci_buffer_max_size option
+func (s *Sock) VmciBufferMaxSize() int {
+	val := C.zsock_vmci_buffer_max_size(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// SetVmciConnectTimeout sets the vmci_connect_timeout option for the socket
+func (s *Sock) SetVmciConnectTimeout(val int) {
+	C.zsock_set_vmci_connect_timeout(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// VmciConnectTimeout returns the current value of the socket's vmci_connect_timeout option
+func (s *Sock) VmciConnectTimeout() int {
+	val := C.zsock_vmci_connect_timeout(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
 // SetTos sets the tos option for the socket
 func (s *Sock) SetTos(val int) {
 	C.zsock_set_tos(unsafe.Pointer(s.zsockT), C.int(val))
@@ -45,6 +206,44 @@ func (s *Sock) Tos() int {
 // SetRouterHandover sets the router_handover option for the socket
 func (s *Sock) SetRouterHandover(val int) {
 	C.zsock_set_router_handover(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// SetConnectRid sets the connect_rid option for the socket
+func (s *Sock) SetConnectRid(val string) {
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
+
+	C.zsock_set_connect_rid(unsafe.Pointer(s.zsockT), cVal)
+}
+
+// SetHandshakeIvl sets the handshake_ivl option for the socket
+func (s *Sock) SetHandshakeIvl(val int) {
+	C.zsock_set_handshake_ivl(unsafe.Pointer(s.zsockT), C.int(val))
+}
+
+// HandshakeIvl returns the current value of the socket's handshake_ivl option
+func (s *Sock) HandshakeIvl() int {
+	val := C.zsock_handshake_ivl(unsafe.Pointer(s.zsockT))
+	return int(val)
+}
+
+// SetSocksProxy sets the socks_proxy option for the socket
+func (s *Sock) SetSocksProxy(val string) {
+	cVal := C.CString(val)
+	defer C.free(unsafe.Pointer(cVal))
+
+	C.zsock_set_socks_proxy(unsafe.Pointer(s.zsockT), cVal)
+}
+
+// SocksProxy returns the current value of the socket's socks_proxy option
+func (s *Sock) SocksProxy() string {
+	val := C.zsock_socks_proxy(unsafe.Pointer(s.zsockT))
+	return C.GoString(val)
+}
+
+// SetXPubNodrop sets the xpub_nodrop option for the socket
+func (s *Sock) SetXPubNodrop(val int) {
+	C.zsock_set_xpub_nodrop(unsafe.Pointer(s.zsockT), C.int(val))
 }
 
 // SetRouterMandatory sets the router_mandatory option for the socket
@@ -478,8 +677,8 @@ func (s *Sock) Sndtimeo() int {
 	return int(val)
 }
 
-// SetXpubVerbose sets the xpub_verbose option for the socket
-func (s *Sock) SetXpubVerbose(val int) {
+// SetXPubVerbose sets the xpub_verbose option for the socket
+func (s *Sock) SetXPubVerbose(val int) {
 	C.zsock_set_xpub_verbose(unsafe.Pointer(s.zsockT), C.int(val))
 }
 
