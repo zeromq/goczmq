@@ -31,7 +31,7 @@ import (
 .if mode = "rw" | mode = "w"
 .if type = "uint64" | type = "int64" | type = "uint32" | type = "int"
 func Test$(name:pascal)(t *testing.T) {
-	sock := NewSock($(test:pascal))
+	sock := NewSock($(test:neat))
 	testval := $(test_value?'1':)
 	sock.Set$(name:pascal)(testval)
 .if mode = "rw"
@@ -46,7 +46,7 @@ func Test$(name:pascal)(t *testing.T) {
 .endif
 .if type = "string" | type = "key"
 func Test$(name:pascal)(t *testing.T) {
-	sock := NewSock($(test:pascal))
+	sock := NewSock($(test:neat))
 	testval := "$(test_value?'test':)"
 	sock.Set$(name:pascal)(testval)
 .if mode = "rw"
@@ -62,7 +62,7 @@ func Test$(name:pascal)(t *testing.T) {
 .if mode = "r"
 .if type = "uint64" | type = "int64" | type = "uint32" | type = "int"
 func Test$(name:pascal)(t *testing.T) {
-	sock := NewSock($(test:pascal))
+	sock := NewSock($(test:neat))
 	_ = sock.$(name:pascal)()
 	sock.Destroy()
 }
