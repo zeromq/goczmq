@@ -1,7 +1,7 @@
 # goczmq [![Build Status](https://travis-ci.org/zeromq/goczmq.svg?branch=master)](https://travis-ci.org/zeromq/goczmq) [![Doc Status](https://godoc.org/github.com/zeromq/goczmq?status.png)](https://godoc.org/github.com/zeromq/goczmq)
 
 ## Introduction
-A golang interface to the [CZMQ v3](http://czmq.zeromq.org) API.
+A golang interface to the [CZMQ v4.2](http://czmq.zeromq.org) API.
 
 ## Install
 ### Dependencies
@@ -9,7 +9,13 @@ A golang interface to the [CZMQ v3](http://czmq.zeromq.org) API.
 * [libzmq](https://github.com/zeromq/libzmq)
 * [czmq](https://github.com/zeromq/czmq)
 
-### For CMZQ >= 4.0
+### For CZMQ => 4.2
+Note: under heavy development.
+```
+go get github.com/zeromq/goczmq
+```
+
+### For CMZQ = 4.0
 ```
 go get gopkg.in/zeromq/goczmq.v4
 ```
