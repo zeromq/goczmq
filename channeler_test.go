@@ -44,7 +44,7 @@ func TestPubSubChanneler(t *testing.T) {
 		if want, got := "message", message; want != got {
 			t.Errorf("want '%s', got '%s'", want, got)
 		}
-	case <-time.After(time.Second * 1):
+	case <-time.After(time.Second * 2):
 		t.Errorf("timeout")
 	}
 
@@ -77,6 +77,30 @@ func TestPubSubChanneler(t *testing.T) {
 			t.Errorf("want '%s', got '%s'", want, got)
 		}
 	case <-time.After(time.Second * 1):
+		t.Errorf("timeout")
+	}
+}
+
+func TestPubSubChannelerNoInitialSubscription(t *testing.T) {
+	pub := NewPubChanneler("inproc://channelerpubsub2")
+	defer pub.Destroy()
+
+	sub := NewSubChanneler("inproc://channelerpubsub2")
+	defer sub.Destroy()
+
+	sub.Subscribe("a")
+
+	pub.SendChan <- [][]byte{[]byte("a"), []byte("message")}
+	select {
+	case resp := <-sub.RecvChan:
+		topic, message := string(resp[0]), string(resp[1])
+		if want, got := "a", topic; want != got {
+			t.Errorf("want '%s', got '%s'", want, got)
+		}
+		if want, got := "message", message; want != got {
+			t.Errorf("want '%s', got '%s'", want, got)
+		}
+	case <-time.After(time.Second * 2):
 		t.Errorf("timeout")
 	}
 }

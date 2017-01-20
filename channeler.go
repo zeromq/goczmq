@@ -21,7 +21,7 @@ type Channeler struct {
 	id          int64
 	sockType    int
 	endpoints   string
-	subscribe   string
+	subscribe   *string
 	commandAddr string
 	proxyAddr   string
 	commandChan chan<- string
@@ -77,9 +77,11 @@ func (c *Channeler) actor(recvChan chan<- [][]byte) {
 		}
 
 	case Sub:
-		subscriptions := strings.Split(c.subscribe, ",")
-		for _, topic := range subscriptions {
-			sock.SetSubscribe(topic)
+		if c.subscribe != nil {
+			subscriptions := strings.Split(*c.subscribe, ",")
+			for _, topic := range subscriptions {
+				sock.SetSubscribe(topic)
+			}
 		}
 
 		err = sock.Attach(c.endpoints, false)
@@ -204,7 +206,7 @@ ExitChanneler:
 
 // newChanneler accepts arguments from the socket type based
 // constructors and creates a new Channeler instance
-func newChanneler(sockType int, endpoints, subscribe string) *Channeler {
+func newChanneler(sockType int, endpoints string, subscribe ...string) *Channeler {
 	commandChan := make(chan string)
 	sendChan := make(chan [][]byte)
 	recvChan := make(chan [][]byte)
@@ -212,7 +214,6 @@ func newChanneler(sockType int, endpoints, subscribe string) *Channeler {
 	C.Sock_init()
 	c := &Channeler{
 		id:          rand.Int63(),
-		subscribe:   subscribe,
 		endpoints:   endpoints,
 		sockType:    sockType,
 		commandChan: commandChan,
@@ -221,6 +222,11 @@ func newChanneler(sockType int, endpoints, subscribe string) *Channeler {
 	}
 	c.commandAddr = fmt.Sprintf("inproc://actorcontrol%d", c.id)
 	c.proxyAddr = fmt.Sprintf("inproc://proxy%d", c.id)
+
+	if len(subscribe) > 0 {
+		topics := strings.Join(subscribe, ",")
+		c.subscribe = &topics
+	}
 
 	go c.channeler(commandChan, sendChan)
 	go c.actor(recvChan)
@@ -238,8 +244,8 @@ func NewPubChanneler(endpoints string) *Channeler {
 // a Sub socket. Along with an endpoint list
 // it accepts a comma delimited list of topics.
 // The socket will connect by default.
-func NewSubChanneler(endpoints, subscribe string) *Channeler {
-	return newChanneler(Sub, endpoints, subscribe)
+func NewSubChanneler(endpoints string, subscribe ...string) *Channeler {
+	return newChanneler(Sub, endpoints, subscribe...)
 }
 
 // NewRepChanneler creates a new Channeler wrapping
