@@ -246,20 +246,6 @@ func NewStream(endpoints string) (*Sock, error) {
 	return s, s.Attach(endpoints, false)
 }
 
-// NewGather creates a Gather socket and calls Attach.
-// The socket will Bind by default.
-func NewGather(endpoints string) (*Sock, error) {
-	s := NewSock(Gather)
-	return s, s.Attach(endpoints, true)
-}
-
-// NewScatter creates a Scatter socket and calls Attach.
-// The socket will Connect by default.
-func NewScatter(endpoints string) (*Sock, error) {
-	s := NewSock(Scatter)
-	return s, s.Attach(endpoints, false)
-}
-
 // Pollin returns true if there is a Pollin
 // event on the socket
 func (s *Sock) Pollin() bool {
