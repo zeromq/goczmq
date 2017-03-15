@@ -9,11 +9,15 @@ A golang interface to the [CZMQ v4.2](http://czmq.zeromq.org) API.
 * [libzmq](https://github.com/zeromq/libzmq)
 * [czmq](https://github.com/zeromq/czmq)
 
-### For CZMQ => 4.2
-Note: under heavy development.
+### For CZMQ master
 ```
 go get github.com/zeromq/goczmq
 ```
+#### A Note on Build Tags
+The CZMQ library includes experimental classes that are not built by default, but can be built
+by passing `--enable-drafts` to configure. Support for these draft classes are being added
+to goczmq. To build these features against a CZMQ that has been compiled with `--enable-drafts`,
+use `go build -tags draft`.
 
 ### For CMZQ = 4.0
 ```
