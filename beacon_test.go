@@ -53,7 +53,7 @@ func TestBeacon(t *testing.T) {
 	speaker.Destroy()
 }
 
-func ExampleBeacon(t *testing.T) {
+func ExampleBeacon() {
 	beacon := NewBeacon()
 	defer beacon.Destroy()
 
