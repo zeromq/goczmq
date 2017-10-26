@@ -1,6 +1,5 @@
 //go:generate gsl sockopts.xml
 package goczmq
-
 /*  =========================================================================
     zsock_option - get/set 0MQ socket options
 
@@ -21,12 +20,11 @@ package goczmq
 import (
 	"testing"
 )
-
 func TestHeartbeatIvl(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := 2000
-	sock.SetHeartbeatIvl(testval)
-	val := sock.HeartbeatIvl()
+	sock.SetOption(SockSetHeartbeatIvl(testval))
+	val := HeartbeatIvl(sock)
 	if val != testval && val != 0 {
 		t.Errorf("HeartbeatIvl returned %d, should be %d", val, testval)
 	}
@@ -36,8 +34,8 @@ func TestHeartbeatIvl(t *testing.T) {
 func TestHeartbeatTtl(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := 4000
-	sock.SetHeartbeatTtl(testval)
-	val := sock.HeartbeatTtl()
+	sock.SetOption(SockSetHeartbeatTtl(testval))
+	val := HeartbeatTtl(sock)
 	if val != testval && val != 0 {
 		t.Errorf("HeartbeatTtl returned %d, should be %d", val, testval)
 	}
@@ -47,8 +45,8 @@ func TestHeartbeatTtl(t *testing.T) {
 func TestHeartbeatTimeout(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := 6000
-	sock.SetHeartbeatTimeout(testval)
-	val := sock.HeartbeatTimeout()
+	sock.SetOption(SockSetHeartbeatTimeout(testval))
+	val := HeartbeatTimeout(sock)
 	if val != testval && val != 0 {
 		t.Errorf("HeartbeatTimeout returned %d, should be %d", val, testval)
 	}
@@ -58,8 +56,8 @@ func TestHeartbeatTimeout(t *testing.T) {
 func TestUseFd(t *testing.T) {
 	sock := NewSock(Req)
 	testval := 3
-	sock.SetUseFd(testval)
-	val := sock.UseFd()
+	sock.SetOption(SockSetUseFd(testval))
+	val := UseFd(sock)
 	if val != testval && val != 0 {
 		t.Errorf("UseFd returned %d, should be %d", val, testval)
 	}
@@ -69,29 +67,29 @@ func TestUseFd(t *testing.T) {
 func TestXPubManual(t *testing.T) {
 	sock := NewSock(XPub)
 	testval := 1
-	sock.SetXPubManual(testval)
+	sock.SetOption(SockSetXPubManual(testval))
 	sock.Destroy()
 }
 
 func TestXPubWelcomeMsg(t *testing.T) {
 	sock := NewSock(XPub)
 	testval := "welcome"
-	sock.SetXPubWelcomeMsg(testval)
+	sock.SetOption(SockSetXPubWelcomeMsg(testval))
 	sock.Destroy()
 }
 
 func TestStreamNotify(t *testing.T) {
 	sock := NewSock(Stream)
 	testval := 1
-	sock.SetStreamNotify(testval)
+	sock.SetOption(SockSetStreamNotify(testval))
 	sock.Destroy()
 }
 
 func TestInvertMatching(t *testing.T) {
 	sock := NewSock(XPub)
 	testval := 1
-	sock.SetInvertMatching(testval)
-	val := sock.InvertMatching()
+	sock.SetOption(SockSetInvertMatching(testval))
+	val := InvertMatching(sock)
 	if val != testval && val != 0 {
 		t.Errorf("InvertMatching returned %d, should be %d", val, testval)
 	}
@@ -101,15 +99,15 @@ func TestInvertMatching(t *testing.T) {
 func TestXPubVerboser(t *testing.T) {
 	sock := NewSock(XPub)
 	testval := 1
-	sock.SetXPubVerboser(testval)
+	sock.SetOption(SockSetXPubVerboser(testval))
 	sock.Destroy()
 }
 
 func TestConnectTimeout(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := 200
-	sock.SetConnectTimeout(testval)
-	val := sock.ConnectTimeout()
+	sock.SetOption(SockSetConnectTimeout(testval))
+	val := ConnectTimeout(sock)
 	if val != testval && val != 0 {
 		t.Errorf("ConnectTimeout returned %d, should be %d", val, testval)
 	}
@@ -119,8 +117,8 @@ func TestConnectTimeout(t *testing.T) {
 func TestTcpMaxrt(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := 200
-	sock.SetTcpMaxrt(testval)
-	val := sock.TcpMaxrt()
+	sock.SetOption(SockSetTcpMaxrt(testval))
+	val := TcpMaxrt(sock)
 	if val != testval && val != 0 {
 		t.Errorf("TcpMaxrt returned %d, should be %d", val, testval)
 	}
@@ -130,44 +128,26 @@ func TestTcpMaxrt(t *testing.T) {
 func TestMulticastMaxtpdu(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := 1400
-	sock.SetMulticastMaxtpdu(testval)
-	val := sock.MulticastMaxtpdu()
+	sock.SetOption(SockSetMulticastMaxtpdu(testval))
+	val := MulticastMaxtpdu(sock)
 	if val != testval && val != 0 {
 		t.Errorf("MulticastMaxtpdu returned %d, should be %d", val, testval)
 	}
 	sock.Destroy()
 }
 
-func TestTos(t *testing.T) {
-	sock := NewSock(Dealer)
-	testval := 1
-	sock.SetTos(testval)
-	val := sock.Tos()
-	if val != testval && val != 0 {
-		t.Errorf("Tos returned %d, should be %d", val, testval)
-	}
-	sock.Destroy()
-}
-
-func TestRouterHandover(t *testing.T) {
-	sock := NewSock(Router)
-	testval := 1
-	sock.SetRouterHandover(testval)
-	sock.Destroy()
-}
-
 func TestConnectRid(t *testing.T) {
 	sock := NewSock(Router)
 	testval := "ABCD"
-	sock.SetConnectRid(testval)
+	sock.SetOption(SockSetConnectRid(testval))
 	sock.Destroy()
 }
 
 func TestHandshakeIvl(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := 200
-	sock.SetHandshakeIvl(testval)
-	val := sock.HandshakeIvl()
+	sock.SetOption(SockSetHandshakeIvl(testval))
+	val := HandshakeIvl(sock)
 	if val != testval && val != 0 {
 		t.Errorf("HandshakeIvl returned %d, should be %d", val, testval)
 	}
@@ -177,8 +157,8 @@ func TestHandshakeIvl(t *testing.T) {
 func TestSocksProxy(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := "127.0.0.1"
-	sock.SetSocksProxy(testval)
-	val := sock.SocksProxy()
+	sock.SetOption(SockSetSocksProxy(testval))
+	val := SocksProxy(sock)
 	if val != testval && val != "" {
 		t.Errorf("SocksProxy returned %s should be %s", val, testval)
 	}
@@ -188,50 +168,68 @@ func TestSocksProxy(t *testing.T) {
 func TestXPubNodrop(t *testing.T) {
 	sock := NewSock(XPub)
 	testval := 1
-	sock.SetXPubNodrop(testval)
+	sock.SetOption(SockSetXPubNodrop(testval))
+	sock.Destroy()
+}
+
+func TestTos(t *testing.T) {
+	sock := NewSock(Dealer)
+	testval := 1
+	sock.SetOption(SockSetTos(testval))
+	val := Tos(sock)
+	if val != testval && val != 0 {
+		t.Errorf("Tos returned %d, should be %d", val, testval)
+	}
+	sock.Destroy()
+}
+
+func TestRouterHandover(t *testing.T) {
+	sock := NewSock(Router)
+	testval := 1
+	sock.SetOption(SockSetRouterHandover(testval))
 	sock.Destroy()
 }
 
 func TestRouterMandatory(t *testing.T) {
 	sock := NewSock(Router)
 	testval := 1
-	sock.SetRouterMandatory(testval)
+	sock.SetOption(SockSetRouterMandatory(testval))
 	sock.Destroy()
 }
 
 func TestProbeRouter(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := 1
-	sock.SetProbeRouter(testval)
+	sock.SetOption(SockSetProbeRouter(testval))
 	sock.Destroy()
 }
 
 func TestReqRelaxed(t *testing.T) {
 	sock := NewSock(Req)
 	testval := 1
-	sock.SetReqRelaxed(testval)
+	sock.SetOption(SockSetReqRelaxed(testval))
 	sock.Destroy()
 }
 
 func TestReqCorrelate(t *testing.T) {
 	sock := NewSock(Req)
 	testval := 1
-	sock.SetReqCorrelate(testval)
+	sock.SetOption(SockSetReqCorrelate(testval))
 	sock.Destroy()
 }
 
 func TestConflate(t *testing.T) {
 	sock := NewSock(Push)
 	testval := 1
-	sock.SetConflate(testval)
+	sock.SetOption(SockSetConflate(testval))
 	sock.Destroy()
 }
 
 func TestZapDomain(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := "test"
-	sock.SetZapDomain(testval)
-	val := sock.ZapDomain()
+	sock.SetOption(SockSetZapDomain(testval))
+	val := ZapDomain(sock)
 	if val != testval && val != "" {
 		t.Errorf("ZapDomain returned %s should be %s", val, testval)
 	}
@@ -241,8 +239,8 @@ func TestZapDomain(t *testing.T) {
 func TestPlainServer(t *testing.T) {
 	sock := NewSock(Pub)
 	testval := 1
-	sock.SetPlainServer(testval)
-	val := sock.PlainServer()
+	sock.SetOption(SockSetPlainServer(testval))
+	val := PlainServer(sock)
 	if val != testval && val != 0 {
 		t.Errorf("PlainServer returned %d, should be %d", val, testval)
 	}
@@ -252,8 +250,8 @@ func TestPlainServer(t *testing.T) {
 func TestPlainUsername(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := "test"
-	sock.SetPlainUsername(testval)
-	val := sock.PlainUsername()
+	sock.SetOption(SockSetPlainUsername(testval))
+	val := PlainUsername(sock)
 	if val != testval && val != "" {
 		t.Errorf("PlainUsername returned %s should be %s", val, testval)
 	}
@@ -263,8 +261,8 @@ func TestPlainUsername(t *testing.T) {
 func TestPlainPassword(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := "test"
-	sock.SetPlainPassword(testval)
-	val := sock.PlainPassword()
+	sock.SetOption(SockSetPlainPassword(testval))
+	val := PlainPassword(sock)
 	if val != testval && val != "" {
 		t.Errorf("PlainPassword returned %s should be %s", val, testval)
 	}
@@ -274,8 +272,8 @@ func TestPlainPassword(t *testing.T) {
 func TestIpv6(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetIpv6(testval)
-	val := sock.Ipv6()
+	sock.SetOption(SockSetIpv6(testval))
+	val := Ipv6(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Ipv6 returned %d, should be %d", val, testval)
 	}
@@ -285,8 +283,8 @@ func TestIpv6(t *testing.T) {
 func TestImmediate(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := 1
-	sock.SetImmediate(testval)
-	val := sock.Immediate()
+	sock.SetOption(SockSetImmediate(testval))
+	val := Immediate(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Immediate returned %d, should be %d", val, testval)
 	}
@@ -296,15 +294,15 @@ func TestImmediate(t *testing.T) {
 func TestRouterRaw(t *testing.T) {
 	sock := NewSock(Router)
 	testval := 1
-	sock.SetRouterRaw(testval)
+	sock.SetOption(SockSetRouterRaw(testval))
 	sock.Destroy()
 }
 
 func TestIpv4only(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetIpv4only(testval)
-	val := sock.Ipv4only()
+	sock.SetOption(SockSetIpv4only(testval))
+	val := Ipv4only(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Ipv4only returned %d, should be %d", val, testval)
 	}
@@ -314,15 +312,15 @@ func TestIpv4only(t *testing.T) {
 func TestDelayAttachOnConnect(t *testing.T) {
 	sock := NewSock(Pub)
 	testval := 1
-	sock.SetDelayAttachOnConnect(testval)
+	sock.SetOption(SockSetDelayAttachOnConnect(testval))
 	sock.Destroy()
 }
 
 func TestSndhwm(t *testing.T) {
 	sock := NewSock(Pub)
 	testval := 1
-	sock.SetSndhwm(testval)
-	val := sock.Sndhwm()
+	sock.SetOption(SockSetSndhwm(testval))
+	val := Sndhwm(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Sndhwm returned %d, should be %d", val, testval)
 	}
@@ -332,8 +330,8 @@ func TestSndhwm(t *testing.T) {
 func TestRcvhwm(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetRcvhwm(testval)
-	val := sock.Rcvhwm()
+	sock.SetOption(SockSetRcvhwm(testval))
+	val := Rcvhwm(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Rcvhwm returned %d, should be %d", val, testval)
 	}
@@ -343,8 +341,8 @@ func TestRcvhwm(t *testing.T) {
 func TestAffinity(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetAffinity(testval)
-	val := sock.Affinity()
+	sock.SetOption(SockSetAffinity(testval))
+	val := Affinity(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Affinity returned %d, should be %d", val, testval)
 	}
@@ -354,22 +352,22 @@ func TestAffinity(t *testing.T) {
 func TestSubscribe(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := "test"
-	sock.SetSubscribe(testval)
+	sock.SetOption(SockSetSubscribe(testval))
 	sock.Destroy()
 }
 
 func TestUnsubscribe(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := "test"
-	sock.SetUnsubscribe(testval)
+	sock.SetOption(SockSetUnsubscribe(testval))
 	sock.Destroy()
 }
 
 func TestIdentity(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := "test"
-	sock.SetIdentity(testval)
-	val := sock.Identity()
+	sock.SetOption(SockSetIdentity(testval))
+	val := Identity(sock)
 	if val != testval && val != "" {
 		t.Errorf("Identity returned %s should be %s", val, testval)
 	}
@@ -379,8 +377,8 @@ func TestIdentity(t *testing.T) {
 func TestRate(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetRate(testval)
-	val := sock.Rate()
+	sock.SetOption(SockSetRate(testval))
+	val := Rate(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Rate returned %d, should be %d", val, testval)
 	}
@@ -390,8 +388,8 @@ func TestRate(t *testing.T) {
 func TestRecoveryIvl(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetRecoveryIvl(testval)
-	val := sock.RecoveryIvl()
+	sock.SetOption(SockSetRecoveryIvl(testval))
+	val := RecoveryIvl(sock)
 	if val != testval && val != 0 {
 		t.Errorf("RecoveryIvl returned %d, should be %d", val, testval)
 	}
@@ -401,8 +399,8 @@ func TestRecoveryIvl(t *testing.T) {
 func TestSndbuf(t *testing.T) {
 	sock := NewSock(Pub)
 	testval := 1
-	sock.SetSndbuf(testval)
-	val := sock.Sndbuf()
+	sock.SetOption(SockSetSndbuf(testval))
+	val := Sndbuf(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Sndbuf returned %d, should be %d", val, testval)
 	}
@@ -412,8 +410,8 @@ func TestSndbuf(t *testing.T) {
 func TestRcvbuf(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetRcvbuf(testval)
-	val := sock.Rcvbuf()
+	sock.SetOption(SockSetRcvbuf(testval))
+	val := Rcvbuf(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Rcvbuf returned %d, should be %d", val, testval)
 	}
@@ -423,8 +421,8 @@ func TestRcvbuf(t *testing.T) {
 func TestLinger(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetLinger(testval)
-	val := sock.Linger()
+	sock.SetOption(SockSetLinger(testval))
+	val := Linger(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Linger returned %d, should be %d", val, testval)
 	}
@@ -434,8 +432,8 @@ func TestLinger(t *testing.T) {
 func TestReconnectIvl(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetReconnectIvl(testval)
-	val := sock.ReconnectIvl()
+	sock.SetOption(SockSetReconnectIvl(testval))
+	val := ReconnectIvl(sock)
 	if val != testval && val != 0 {
 		t.Errorf("ReconnectIvl returned %d, should be %d", val, testval)
 	}
@@ -445,8 +443,8 @@ func TestReconnectIvl(t *testing.T) {
 func TestReconnectIvlMax(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetReconnectIvlMax(testval)
-	val := sock.ReconnectIvlMax()
+	sock.SetOption(SockSetReconnectIvlMax(testval))
+	val := ReconnectIvlMax(sock)
 	if val != testval && val != 0 {
 		t.Errorf("ReconnectIvlMax returned %d, should be %d", val, testval)
 	}
@@ -456,8 +454,8 @@ func TestReconnectIvlMax(t *testing.T) {
 func TestBacklog(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetBacklog(testval)
-	val := sock.Backlog()
+	sock.SetOption(SockSetBacklog(testval))
+	val := Backlog(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Backlog returned %d, should be %d", val, testval)
 	}
@@ -467,8 +465,8 @@ func TestBacklog(t *testing.T) {
 func TestMaxmsgsize(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetMaxmsgsize(testval)
-	val := sock.Maxmsgsize()
+	sock.SetOption(SockSetMaxmsgsize(testval))
+	val := Maxmsgsize(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Maxmsgsize returned %d, should be %d", val, testval)
 	}
@@ -478,8 +476,8 @@ func TestMaxmsgsize(t *testing.T) {
 func TestMulticastHops(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetMulticastHops(testval)
-	val := sock.MulticastHops()
+	sock.SetOption(SockSetMulticastHops(testval))
+	val := MulticastHops(sock)
 	if val != testval && val != 0 {
 		t.Errorf("MulticastHops returned %d, should be %d", val, testval)
 	}
@@ -489,8 +487,8 @@ func TestMulticastHops(t *testing.T) {
 func TestRcvtimeo(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetRcvtimeo(testval)
-	val := sock.Rcvtimeo()
+	sock.SetOption(SockSetRcvtimeo(testval))
+	val := Rcvtimeo(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Rcvtimeo returned %d, should be %d", val, testval)
 	}
@@ -500,8 +498,8 @@ func TestRcvtimeo(t *testing.T) {
 func TestSndtimeo(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetSndtimeo(testval)
-	val := sock.Sndtimeo()
+	sock.SetOption(SockSetSndtimeo(testval))
+	val := Sndtimeo(sock)
 	if val != testval && val != 0 {
 		t.Errorf("Sndtimeo returned %d, should be %d", val, testval)
 	}
@@ -511,15 +509,15 @@ func TestSndtimeo(t *testing.T) {
 func TestXPubVerbose(t *testing.T) {
 	sock := NewSock(XPub)
 	testval := 1
-	sock.SetXPubVerbose(testval)
+	sock.SetOption(SockSetXPubVerbose(testval))
 	sock.Destroy()
 }
 
 func TestTcpKeepalive(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetTcpKeepalive(testval)
-	val := sock.TcpKeepalive()
+	sock.SetOption(SockSetTcpKeepalive(testval))
+	val := TcpKeepalive(sock)
 	if val != testval && val != 0 {
 		t.Errorf("TcpKeepalive returned %d, should be %d", val, testval)
 	}
@@ -529,8 +527,8 @@ func TestTcpKeepalive(t *testing.T) {
 func TestTcpKeepaliveIdle(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetTcpKeepaliveIdle(testval)
-	val := sock.TcpKeepaliveIdle()
+	sock.SetOption(SockSetTcpKeepaliveIdle(testval))
+	val := TcpKeepaliveIdle(sock)
 	if val != testval && val != 0 {
 		t.Errorf("TcpKeepaliveIdle returned %d, should be %d", val, testval)
 	}
@@ -540,8 +538,8 @@ func TestTcpKeepaliveIdle(t *testing.T) {
 func TestTcpKeepaliveCnt(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetTcpKeepaliveCnt(testval)
-	val := sock.TcpKeepaliveCnt()
+	sock.SetOption(SockSetTcpKeepaliveCnt(testval))
+	val := TcpKeepaliveCnt(sock)
 	if val != testval && val != 0 {
 		t.Errorf("TcpKeepaliveCnt returned %d, should be %d", val, testval)
 	}
@@ -551,8 +549,8 @@ func TestTcpKeepaliveCnt(t *testing.T) {
 func TestTcpKeepaliveIntvl(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := 1
-	sock.SetTcpKeepaliveIntvl(testval)
-	val := sock.TcpKeepaliveIntvl()
+	sock.SetOption(SockSetTcpKeepaliveIntvl(testval))
+	val := TcpKeepaliveIntvl(sock)
 	if val != testval && val != 0 {
 		t.Errorf("TcpKeepaliveIntvl returned %d, should be %d", val, testval)
 	}
@@ -562,10 +560,11 @@ func TestTcpKeepaliveIntvl(t *testing.T) {
 func TestTcpAcceptFilter(t *testing.T) {
 	sock := NewSock(Sub)
 	testval := "127.0.0.1"
-	sock.SetTcpAcceptFilter(testval)
-	val := sock.TcpAcceptFilter()
+	sock.SetOption(SockSetTcpAcceptFilter(testval))
+	val := TcpAcceptFilter(sock)
 	if val != testval && val != "" {
 		t.Errorf("TcpAcceptFilter returned %s should be %s", val, testval)
 	}
 	sock.Destroy()
 }
+

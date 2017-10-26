@@ -41,19 +41,22 @@ import (
 .for option
 .if mode = "rw" | mode = "w"
 .if type = "uint64" | type = "int64" | type = "uint32" | type = "int"
-// Set$(name:pascal) sets the $(name) option for the socket
-func (s *Sock) Set$(name:pascal)(val $(gotype)) {
-	C.zsock_set_$(name)(unsafe.Pointer(s.zsockT), C.int(val))
+// SockSet$(name:pascal) sets the $(name) option for the socket
+func SockSet$(name:pascal)(v $(gotype)) SockOption {
+	return func(s *Sock) {
+		C.zsock_set_$(name)(unsafe.Pointer(s.zsockT), C.int(v))
+	}
 }
 
 .endif
 .if type = "string" | type = "key"
-// Set$(name:pascal) sets the $(name) option for the socket
-func (s *Sock) Set$(name:pascal)(val $(gotype)) {
-    cVal := C.CString(val)
-    defer C.free(unsafe.Pointer(cVal))
-
-	C.zsock_set_$(name)(unsafe.Pointer(s.zsockT), cVal)
+// SockSet$(name:pascal) sets the $(name) option for the socket
+func SockSet$(name:pascal)(v $(gotype)) SockOption {
+	return func(s *Sock) {
+		cV := C.CString(v)
+		defer C.free(unsafe.Pointer(cV))
+		C.zsock_set_$(name)(unsafe.Pointer(s.zsockT), cV)
+	}
 }
 
 .endif
@@ -61,7 +64,7 @@ func (s *Sock) Set$(name:pascal)(val $(gotype)) {
 .if mode = "rw" | mode = "r"
 .if type = "uint64" | type = "int64" | type = "uint32" | type = "int"
 // $(name:pascal) returns the current value of the socket's $(name) option
-func (s *Sock) $(name:pascal)() $(gotype) {
+func $(name:pascal)(s *Sock) $(gotype) {
 	val := C.zsock_$(name)(unsafe.Pointer(s.zsockT))
 	return int(val)
 }
@@ -69,7 +72,7 @@ func (s *Sock) $(name:pascal)() $(gotype) {
 .endif
 .if type = "string" | type = "key"
 // $(name:pascal) returns the current value of the socket's $(name) option
-func (s *Sock) $(name:pascal)() $(gotype) {
+func $(name:pascal)(s *Sock) $(gotype) {
 	val := C.zsock_$(name)(unsafe.Pointer(s.zsockT))
 	return C.GoString(val)
 }

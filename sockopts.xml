@@ -55,10 +55,6 @@
 
     <version major = "4" minor = "1" style = "macro">
         <!-- Options that are new in 4.1 -->
-        <option name = "tos"               type = "int"    mode = "rw" test = "DEALER" />
-        <option name = "router_handover"   type = "int"    mode = "w"  test = "ROUTER">
-            <restrict type = "ROUTER" />
-        </option>
         <option name = "connect_rid"       type = "key"    mode = "w"  test = "ROUTER"
             test_value = "ABCD" >
             <restrict type = "ROUTER" />

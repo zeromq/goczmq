@@ -80,7 +80,7 @@ func (c *Channeler) actor(recvChan chan<- [][]byte) {
 		if c.subscribe != nil {
 			subscriptions := strings.Split(*c.subscribe, ",")
 			for _, topic := range subscriptions {
-				sock.SetSubscribe(topic)
+				sock.SetOption(SockSetSubscribe(topic))
 			}
 		}
 
@@ -118,11 +118,11 @@ func (c *Channeler) actor(recvChan chan<- [][]byte) {
 				goto ExitActor
 			case "subscribe":
 				topic := string(cmd[1])
-				sock.SetSubscribe(topic)
+				sock.SetOption(SockSetSubscribe(topic))
 				pipe.SendMessage([][]byte{[]byte("ok")})
 			case "unsubscribe":
 				topic := string(cmd[1])
-				sock.SetUnsubscribe(topic)
+				sock.SetOption(SockSetUnsubscribe(topic))
 				pipe.SendMessage([][]byte{[]byte("ok")})
 			}
 

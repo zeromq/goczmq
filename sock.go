@@ -59,7 +59,7 @@ func (s *Sock) SetLastClientID(id []byte) {
 // NewSock creates a new socket.  The caller source and
 // line number are passed so CZMQ can report socket leaks
 // intelligently.
-func NewSock(t int) *Sock {
+func NewSock(t int, options ...SockOption) *Sock {
 	var s *Sock
 	_, file, line, ok := runtime.Caller(1)
 
@@ -83,7 +83,20 @@ func NewSock(t int) *Sock {
 	defer C.free(unsafe.Pointer(cFile))
 
 	s.zsockT = C.zsock_new_checked(C.int(s.zType), cFile, C.size_t(s.line))
+	for _, o := range options {
+		o(s)
+	}
+
 	return s
+}
+
+// SockOption is a type for setting options on the underlying ZeroMQ socket
+type SockOption func(*Sock)
+
+// SetOption accepts a SockOption and uses it to set an option on
+// the underlying ZeroMQ socket
+func (s *Sock) SetOption(o SockOption) {
+	o(s)
 }
 
 // Connect connects a socket to an endpoint
@@ -170,7 +183,7 @@ func NewSub(endpoints string, subscribe string) (*Sock, error) {
 	subscriptions := strings.Split(subscribe, ",")
 
 	for _, topic := range subscriptions {
-		s.SetSubscribe(topic)
+		s.SetOption(SockSetSubscribe(topic))
 	}
 
 	return s, s.Attach(endpoints, false)
@@ -249,13 +262,13 @@ func NewStream(endpoints string) (*Sock, error) {
 // Pollin returns true if there is a Pollin
 // event on the socket
 func (s *Sock) Pollin() bool {
-	return s.Events() == Pollin
+	return Events(s) == Pollin
 }
 
 // Pollout returns true if there is a Pollout
 // event on the socket
 func (s *Sock) Pollout() bool {
-	return s.Events() == Pollout
+	return Events(s) == Pollout
 }
 
 // SendFrame sends a byte array via the socket.  For the flags

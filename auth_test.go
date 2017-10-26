@@ -27,7 +27,7 @@ func TestAuthIPAllow(t *testing.T) {
 	}
 
 	server := NewSock(Pull)
-	server.SetZapDomain("global")
+	server.SetOption(SockSetZapDomain("global"))
 	defer server.Destroy()
 
 	port, err := server.Bind("tcp://127.0.0.1:*")
@@ -106,25 +106,19 @@ func TestAuthPlain(t *testing.T) {
 		t.Error(err)
 	}
 
-	server := NewSock(Pull)
+	server := NewSock(Pull, SockSetZapDomain("global"), SockSetPlainServer(1))
 	defer server.Destroy()
-	server.SetZapDomain("global")
-	server.SetPlainServer(1)
 
 	port, err := server.Bind("tcp://127.0.0.1:*")
 	if err != nil {
 		t.Error(err)
 	}
 
-	goodClient := NewSock(Push)
+	goodClient := NewSock(Push, SockSetPlainUsername("admin"), SockSetPlainPassword("Password"))
 	defer goodClient.Destroy()
-	goodClient.SetPlainUsername("admin")
-	goodClient.SetPlainPassword("Password")
 
-	badClient := NewSock(Push)
+	badClient := NewSock(Push, SockSetPlainUsername("admin"), SockSetPlainPassword("BadPassword"))
 	defer badClient.Destroy()
-	badClient.SetPlainUsername("admin")
-	badClient.SetPlainPassword("BadPassword")
 
 	err = goodClient.Connect(fmt.Sprintf("tcp://127.0.0.1:%d", port))
 	if err != nil {
@@ -193,19 +187,18 @@ func TestAuthCurveAllowAny(t *testing.T) {
 		}
 	}
 
-	server := NewSock(Pull)
+	server := NewSock(Pull, SockSetZapDomain("global"))
 	defer server.Destroy()
-	server.SetZapDomain("global")
 	serverCert := NewCert()
 	serverKey := serverCert.PublicText()
 	serverCert.Apply(server)
-	server.SetCurveServer(1)
+	server.SetOption(SockSetCurveServer(1))
 
 	goodClient := NewSock(Push)
 	defer goodClient.Destroy()
 	goodClientCert := NewCert()
 	goodClientCert.Apply(goodClient)
-	goodClient.SetCurveServerkey(serverKey)
+	goodClient.SetOption(SockSetCurveServerkey(serverKey))
 
 	badClient := NewSock(Push)
 	defer badClient.Destroy()
@@ -280,30 +273,27 @@ func TestAuthCurveAllowCertificate(t *testing.T) {
 		}
 	}
 
-	server := NewSock(Pull)
+	server := NewSock(Pull, SockSetZapDomain("global"))
 	defer server.Destroy()
-	server.SetZapDomain("global")
 	serverCert := NewCert()
 	serverKey := serverCert.PublicText()
 	serverCert.Apply(server)
-	server.SetCurveServer(1)
+	server.SetOption(SockSetCurveServer(1))
 
-	goodClient := NewSock(Push)
+	goodClient := NewSock(Push, SockSetCurveServerkey(serverKey))
 	defer goodClient.Destroy()
 	goodClientCert := NewCert()
 	defer goodClientCert.Destroy()
 	goodClientCert.Apply(goodClient)
-	goodClient.SetCurveServerkey(serverKey)
 
 	certfile := path.Join("testauth", "goodClient.txt")
 	goodClientCert.SavePublic(certfile)
 
-	badClient := NewSock(Push)
+	badClient := NewSock(Push, SockSetCurveServerkey(serverKey))
 	defer badClient.Destroy()
 	badClientCert := NewCert()
 	defer badClientCert.Destroy()
 	badClientCert.Apply(badClient)
-	badClient.SetCurveServerkey(serverKey)
 
 	err = auth.Curve(testpath)
 	if err != nil {
@@ -377,15 +367,14 @@ func ExampleAuth() {
 
 	// create a server socket and set it to
 	// use the "global" auth domain
-	server := NewSock(Push)
+	server := NewSock(Push, SockSetZapDomain("global"))
 	defer server.Destroy()
-	server.SetZapDomain("global")
 
 	// set the server cert as the server cert
 	// for the socket we created and set it
 	// to be a curve server
 	serverCert.Apply(server)
-	server.SetCurveServer(1)
+	server.SetOption(SockSetCurveServer(1))
 
 	// bind our server to an endpoint
 	server.Bind("tcp://*:9898")
@@ -401,7 +390,7 @@ func ExampleAuth() {
 	// for the client. for the client to be
 	// allowed to connect, it needs to know
 	// the servers public cert.
-	client.SetCurveServerkey(serverCert.PublicText())
+	client.SetOption(SockSetCurveServerkey(serverCert.PublicText()))
 
 	// connect
 	client.Connect("tcp://127.0.0.1:9898")

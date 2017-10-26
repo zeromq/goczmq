@@ -33,9 +33,9 @@ import (
 func Test$(name:pascal)(t *testing.T) {
 	sock := NewSock($(test:neat))
 	testval := $(test_value?'1':)
-	sock.Set$(name:pascal)(testval)
+	sock.SetOption(SockSet$(name:pascal)(testval))
 .if mode = "rw"
-	val := sock.$(name:pascal)()
+	val := $(name:pascal)(sock)
 	if val != testval && val != 0 {
 		t.Errorf("$(name:pascal) returned %d, should be %d", val, testval)
 	}
@@ -48,9 +48,9 @@ func Test$(name:pascal)(t *testing.T) {
 func Test$(name:pascal)(t *testing.T) {
 	sock := NewSock($(test:neat))
 	testval := "$(test_value?'test':)"
-	sock.Set$(name:pascal)(testval)
+	sock.SetOption(SockSet$(name:pascal)(testval))
 .if mode = "rw"
-	val := sock.$(name:pascal)()
+	val := $(name:pascal)(sock)
 	if val != testval && val != "" {
 		t.Errorf("$(name:pascal) returned %s should be %s", val, testval)
 	}
@@ -63,7 +63,7 @@ func Test$(name:pascal)(t *testing.T) {
 .if type = "uint64" | type = "int64" | type = "uint32" | type = "int"
 func Test$(name:pascal)(t *testing.T) {
 	sock := NewSock($(test:neat))
-	_ = sock.$(name:pascal)()
+	_ = $(name:pascal)(sock)
 	sock.Destroy()
 }
 
