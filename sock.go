@@ -170,15 +170,15 @@ func (s *Sock) Attach(endpoints string, serverish bool) error {
 
 // NewPub creates a Pub socket and calls Attach.
 // The socket will Bind by default.
-func NewPub(endpoints string) (*Sock, error) {
-	s := NewSock(Pub)
+func NewPub(endpoints string, options ...SockOption) (*Sock, error) {
+	s := NewSock(Pub, options...)
 	return s, s.Attach(endpoints, true)
 }
 
 // NewSub creates a Sub socket and calls Attach.
 // 'subscribe' is a comma delimited list of topics to subscribe to.
 // The socket will Connect by default.
-func NewSub(endpoints string, subscribe string) (*Sock, error) {
+func NewSub(endpoints string, subscribe string, options ...SockOption) (*Sock, error) {
 	s := NewSock(Sub)
 	subscriptions := strings.Split(subscribe, ",")
 
@@ -186,75 +186,79 @@ func NewSub(endpoints string, subscribe string) (*Sock, error) {
 		s.SetOption(SockSetSubscribe(topic))
 	}
 
+	for _, option := range options {
+		s.SetOption(option)
+	}
+
 	return s, s.Attach(endpoints, false)
 }
 
 // NewRep creates a Rep socket and calls Attach.
 // The socket will Bind by default.
-func NewRep(endpoints string) (*Sock, error) {
+func NewRep(endpoints string, options ...SockOption) (*Sock, error) {
 	s := NewSock(Rep)
 	return s, s.Attach(endpoints, true)
 }
 
 // NewReq creates a Req socket and calls Attach.
 // The socket will Connect by default.
-func NewReq(endpoints string) (*Sock, error) {
+func NewReq(endpoints string, options ...SockOption) (*Sock, error) {
 	s := NewSock(Req)
 	return s, s.Attach(endpoints, false)
 }
 
 // NewPull creates a Pull socket and calls Attach.
 // The socket will Bind by default.
-func NewPull(endpoints string) (*Sock, error) {
+func NewPull(endpoints string, options ...SockOption) (*Sock, error) {
 	s := NewSock(Pull)
 	return s, s.Attach(endpoints, true)
 }
 
 // NewPush creates a Push socket and calls Attach.
 // The socket will Connect by default.
-func NewPush(endpoints string) (*Sock, error) {
+func NewPush(endpoints string, options ...SockOption) (*Sock, error) {
 	s := NewSock(Push)
 	return s, s.Attach(endpoints, false)
 }
 
 // NewRouter creates a Router socket and calls Attach.
 // The socket will Bind by default.
-func NewRouter(endpoints string) (*Sock, error) {
+func NewRouter(endpoints string, options ...SockOption) (*Sock, error) {
 	s := NewSock(Router)
 	return s, s.Attach(endpoints, true)
 }
 
 // NewDealer creates a Dealer socket and calls Attach.
 // The socket will Connect by default.
-func NewDealer(endpoints string) (*Sock, error) {
+func NewDealer(endpoints string, options ...SockOption) (*Sock, error) {
 	s := NewSock(Dealer)
 	return s, s.Attach(endpoints, false)
 }
 
 // NewXPub creates an XPub socket and calls Attach.
 // The socket will Bind by default.
-func NewXPub(endpoints string) (*Sock, error) {
+func NewXPub(endpoints string, options ...SockOption) (*Sock, error) {
 	s := NewSock(XPub)
 	return s, s.Attach(endpoints, true)
 }
 
 // NewXSub creates an XSub socket and calls Attach.
 // The socket will Connect by default.
-func NewXSub(endpoints string) (*Sock, error) {
+func NewXSub(endpoints string, options ...SockOption) (*Sock, error) {
 	s := NewSock(XSub)
 	return s, s.Attach(endpoints, false)
 }
 
 // NewPair creates a Pair socket and calls Attach.
 // The socket will Connect by default.
-func NewPair(endpoints string) (*Sock, error) {
+func NewPair(endpoints string, options ...SockOption) (*Sock, error) {
 	s := NewSock(Pair)
 	return s, s.Attach(endpoints, false)
 }
 
 // NewStream creates a Stream socket and calls Attach.
 // The socket will Connect by default.
-func NewStream(endpoints string) (*Sock, error) {
+func NewStream(endpoints string, options ...SockOption) (*Sock, error) {
 	s := NewSock(Stream)
 	return s, s.Attach(endpoints, false)
 }
