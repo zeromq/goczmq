@@ -52,7 +52,7 @@ func TestReadWriter(t *testing.T) {
 	}
 
 	b = make([]byte, 8)
-	n, err = pullReadWriter.Read(b)
+	_, err = pullReadWriter.Read(b)
 	if err != nil {
 		t.Error(err)
 	}

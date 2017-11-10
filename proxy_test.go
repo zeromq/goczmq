@@ -100,7 +100,7 @@ func TestProxy(t *testing.T) {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	b, f, err = sink.RecvFrame()
+	_, f, err = sink.RecvFrame()
 	if err != nil {
 		t.Error(err)
 	}

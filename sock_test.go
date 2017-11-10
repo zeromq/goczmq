@@ -28,7 +28,7 @@ func TestSendFrame(t *testing.T) {
 		t.Error(err)
 	}
 
-	frame, flag, err := pullSock.RecvFrame()
+	frame, _, err := pullSock.RecvFrame()
 	if err != nil {
 		t.Error(err)
 	}
@@ -37,7 +37,7 @@ func TestSendFrame(t *testing.T) {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	frame, flag, err = pullSock.RecvFrameNoWait()
+	_, flag, err := pullSock.RecvFrameNoWait()
 	if err == nil {
 		t.Error(err)
 	}
@@ -51,7 +51,7 @@ func TestSendFrame(t *testing.T) {
 		t.Error(err)
 	}
 
-	frame, flag, err = pullSock.RecvFrameNoWait()
+	_, flag, err = pullSock.RecvFrameNoWait()
 	if err != nil {
 		t.Error(err)
 	}
@@ -126,7 +126,7 @@ func TestSendMessage(t *testing.T) {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	msg, err = pullSock.RecvMessageNoWait()
+	_, err = pullSock.RecvMessageNoWait()
 	if err == nil {
 		t.Error(err)
 	}
@@ -517,7 +517,7 @@ func TestReader(t *testing.T) {
 	}
 
 	b = make([]byte, 8)
-	n, err = pullSock.Read(b)
+	_, err = pullSock.Read(b)
 	if want, have := ErrSliceFull, err; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
@@ -552,6 +552,9 @@ func TestReaderWithRouterDealer(t *testing.T) {
 	b := make([]byte, 5)
 
 	n, err := routerSock.Read(b)
+	if err != nil {
+		t.Error(err)
+	}
 
 	if want, have := 5, n; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -572,7 +575,7 @@ func TestReaderWithRouterDealer(t *testing.T) {
 	}
 
 	b = make([]byte, 8)
-	n, err = routerSock.Read(b)
+	_, err = routerSock.Read(b)
 
 	if want, have := ErrSliceFull, err; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -639,6 +642,10 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 	msg := make([]byte, 255)
 
 	n, err := routerSock.Read(msg)
+	if err != nil {
+		t.Error(err)
+	}
+
 	if want, have := 20, n; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
@@ -654,6 +661,10 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 	}
 
 	n, err = routerSock.Read(msg)
+	if err != nil {
+		t.Error(err)
+	}
+
 	if want, have := 20, n; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
@@ -665,7 +676,7 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 	}
 
 	routerSock.SetLastClientID(client1ID)
-	n, err = routerSock.Write([]byte("Hello Client 1!"))
+	_, err = routerSock.Write([]byte("Hello Client 1!"))
 
 	if err != nil {
 		t.Error(err)
@@ -681,7 +692,7 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 	}
 
 	routerSock.SetLastClientID(client2ID)
-	n, err = routerSock.Write([]byte("Hello Client 2!"))
+	_, err = routerSock.Write([]byte("Hello Client 2!"))
 
 	if err != nil {
 		t.Error(err)
@@ -860,7 +871,7 @@ func TestRecvFrameCalledAfterDestroy(t *testing.T) {
 	}
 
 	rep.Destroy()
-	reqframe, _, err = rep.RecvFrame()
+	_, _, err = rep.RecvFrame()
 	if err != ErrRecvFrameAfterDestroy {
 		t.Errorf("want %#v, have %#v", ErrRecvFrameAfterDestroy, err)
 	}
