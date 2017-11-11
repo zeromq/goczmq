@@ -57,8 +57,15 @@ func TestProxy(t *testing.T) {
 	defer tap.Destroy()
 
 	// send some messages and check they arrived
-	faucet.SendFrame([]byte("Hello"), FlagNone)
-	faucet.SendFrame([]byte("World"), FlagNone)
+	err = faucet.SendFrame([]byte("Hello"), FlagNone)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = faucet.SendFrame([]byte("World"), FlagNone)
+	if err != nil {
+		t.Error(err)
+	}
 
 	// check the tap
 	b, f, err := tap.RecvFrame()
@@ -118,7 +125,10 @@ func TestProxy(t *testing.T) {
 		t.Error(err)
 	}
 
-	faucet.SendFrame([]byte("Belated Hello"), FlagNone)
+	err = faucet.SendFrame([]byte("Belated Hello"), FlagNone)
+	if err != nil {
+		t.Error(err)
+	}
 
 	if want, have := false, sink.Pollin(); want != have {
 		t.Errorf("want %#v, have %#v", want, have)

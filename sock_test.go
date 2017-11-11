@@ -116,7 +116,11 @@ func TestSendMessage(t *testing.T) {
 		t.Error(err)
 	}
 
-	pushSock.SendMessage([][]byte{[]byte("Hello")})
+	err = pushSock.SendMessage([][]byte{[]byte("Hello")})
+	if err != nil {
+		t.Error(err)
+	}
+
 	msg, err := pullSock.RecvMessage()
 	if err != nil {
 		t.Error(err)
@@ -131,7 +135,11 @@ func TestSendMessage(t *testing.T) {
 		t.Error(err)
 	}
 
-	pushSock.SendMessage([][]byte{[]byte("World")})
+	err = pushSock.SendMessage([][]byte{[]byte("World")})
+	if err != nil {
+		t.Error(err)
+	}
+
 	msg, err = pullSock.RecvMessageNoWait()
 	if err != nil {
 		t.Error(err)
@@ -894,7 +902,10 @@ func ExampleSock_output() {
 	defer router.Destroy()
 
 	// send hello message
-	dealer.SendFrame([]byte("Hello"), FlagNone)
+	err = dealer.SendFrame([]byte("Hello"), FlagNone)
+	if err != nil {
+		panic(err)
+	}
 
 	// receive hello message
 	request, err := router.RecvMessage()

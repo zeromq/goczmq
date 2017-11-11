@@ -7,7 +7,10 @@ import (
 
 func TestCertStore(t *testing.T) {
 	testDir := ".test_zcertstore"
-	os.Mkdir(testDir, 0777)
+	err := os.Mkdir(testDir, 0777)
+	if err != nil {
+		t.Error(err)
+	}
 
 	certstore := NewCertStore(testDir)
 	defer certstore.Destroy()
@@ -24,7 +27,12 @@ func TestCertStore(t *testing.T) {
 	client1 := NewCert()
 	client1.SetMeta("name", "Brian")
 	client1Key := client1.PublicText()
-	client1.Save(testDir + "/mycert.txt")
+
+	err = client1.Save(testDir + "/mycert.txt")
+	if err != nil {
+		t.Error(err)
+	}
+
 	client1.Destroy()
 
 	client1Loaded := certstore.Lookup(client1Key)
@@ -52,7 +60,7 @@ func TestCertStore(t *testing.T) {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	err := os.RemoveAll(testDir)
+	err = os.RemoveAll(testDir)
 	if err != nil {
 		t.Fatal(err)
 	}
