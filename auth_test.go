@@ -43,8 +43,15 @@ func TestAuthIPAllow(t *testing.T) {
 		t.Error(err)
 	}
 
-	client.SendFrame([]byte("Hello"), 1)
-	client.SendFrame([]byte("World"), 0)
+	err = client.SendFrame([]byte("Hello"), 1)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = client.SendFrame([]byte("World"), 0)
+	if err != nil {
+		t.Error(err)
+	}
 
 	poller, err := NewPoller(server)
 	if err != nil {
@@ -78,13 +85,27 @@ func TestAuthPlain(t *testing.T) {
 	}
 
 	defer func() {
-		os.Remove("./password_test.txt")
+		err = os.Remove("./password_test.txt")
+		if err != nil {
+			t.Error(err)
+		}
 	}()
 
 	w := bufio.NewWriter(pwfile)
-	w.Write([]byte("admin=Password\n"))
-	w.Flush()
-	pwfile.Close()
+	_, err = w.Write([]byte("admin=Password\n"))
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = w.Flush()
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = pwfile.Close()
+	if err != nil {
+		t.Error(err)
+	}
 
 	auth := NewAuth()
 	defer auth.Destroy()
@@ -125,8 +146,15 @@ func TestAuthPlain(t *testing.T) {
 		t.Error(err)
 	}
 
-	goodClient.SendFrame([]byte("Hello"), 1)
-	goodClient.SendFrame([]byte("World"), 0)
+	err = goodClient.SendFrame([]byte("Hello"), 1)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = goodClient.SendFrame([]byte("World"), 0)
+	if err != nil {
+		t.Error(err)
+	}
 
 	poller, err := NewPoller(server)
 	if err != nil {
@@ -157,8 +185,15 @@ func TestAuthPlain(t *testing.T) {
 		t.Error(err)
 	}
 
-	badClient.SendFrame([]byte("Hello"), 1)
-	badClient.SendFrame([]byte("World"), 0)
+	err = badClient.SendFrame([]byte("Hello"), 1)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = badClient.SendFrame([]byte("World"), 0)
+	if err != nil {
+		t.Error(err)
+	}
 
 	s = poller.Wait(200)
 	if s != nil {
@@ -203,7 +238,10 @@ func TestAuthCurveAllowAny(t *testing.T) {
 	badClient := NewSock(Push)
 	defer badClient.Destroy()
 
-	auth.Curve(CurveAllowAny)
+	err = auth.Curve(CurveAllowAny)
+	if err != nil {
+		t.Error(err)
+	}
 
 	port, err := server.Bind("tcp://127.0.0.1:*")
 	if err != nil {
@@ -220,8 +258,15 @@ func TestAuthCurveAllowAny(t *testing.T) {
 		t.Error(err)
 	}
 
-	goodClient.SendFrame([]byte("Hello"), 1)
-	goodClient.SendFrame([]byte("World"), 0)
+	err = goodClient.SendFrame([]byte("Hello"), 1)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = goodClient.SendFrame([]byte("World"), 0)
+	if err != nil {
+		t.Error(err)
+	}
 
 	poller, err := NewPoller(server)
 	if err != nil {
@@ -247,8 +292,15 @@ func TestAuthCurveAllowAny(t *testing.T) {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	badClient.SendFrame([]byte("Hello"), 1)
-	badClient.SendFrame([]byte("Bad World"), 0)
+	err = badClient.SendFrame([]byte("Hello"), 1)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = badClient.SendFrame([]byte("Bad World"), 0)
+	if err != nil {
+		t.Error(err)
+	}
 
 	s = poller.Wait(200)
 	if s != nil {
@@ -287,7 +339,10 @@ func TestAuthCurveAllowCertificate(t *testing.T) {
 	goodClientCert.Apply(goodClient)
 
 	certfile := path.Join("testauth", "goodClient.txt")
-	goodClientCert.SavePublic(certfile)
+	err = goodClientCert.SavePublic(certfile)
+	if err != nil {
+		t.Error(err)
+	}
 
 	badClient := NewSock(Push, SockSetCurveServerkey(serverKey))
 	defer badClient.Destroy()
@@ -315,7 +370,10 @@ func TestAuthCurveAllowCertificate(t *testing.T) {
 		t.Error(err)
 	}
 
-	goodClient.SendFrame([]byte("Hello, Good World!"), 0)
+	err = goodClient.SendFrame([]byte("Hello, Good World!"), 0)
+	if err != nil {
+		t.Error(err)
+	}
 
 	poller, err := NewPoller(server)
 	if err != nil {
@@ -337,14 +395,20 @@ func TestAuthCurveAllowCertificate(t *testing.T) {
 		t.Errorf("want '%#v', have '%#v'", want, have)
 	}
 
-	badClient.SendFrame([]byte("Hello, Bad World"), 0)
+	err = badClient.SendFrame([]byte("Hello, Bad World"), 0)
+	if err != nil {
+		t.Error(err)
+	}
 
 	s = poller.Wait(200)
 	if s != nil {
 		t.Errorf("want '%#v', have '%#v", nil, s)
 	}
 
-	os.RemoveAll(testpath)
+	err = os.RemoveAll(testpath)
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func ExampleAuth() {
@@ -355,15 +419,29 @@ func ExampleAuth() {
 	// create a client certificate and save it
 	clientCert := NewCert()
 	defer clientCert.Destroy()
-	clientCert.SavePublic("client_cert")
-	defer func() { os.Remove("client_cert") }()
+	err := clientCert.SavePublic("client_cert")
+	if err != nil {
+		panic(err)
+	}
+
+	defer func() {
+		err := os.Remove("client_cert")
+		if err != nil {
+			if err != nil {
+				panic(err)
+			}
+		}
+	}()
 
 	// create an auth service
 	auth := NewAuth()
 	defer auth.Destroy()
 
 	// tell the auth service the client cert is allowed
-	auth.Curve("client_cert")
+	err = auth.Curve("client_cert")
+	if err != nil {
+		panic(err)
+	}
 
 	// create a server socket and set it to
 	// use the "global" auth domain
@@ -377,7 +455,10 @@ func ExampleAuth() {
 	server.SetOption(SockSetCurveServer(1))
 
 	// bind our server to an endpoint
-	server.Bind("tcp://*:9898")
+	_, err = server.Bind("tcp://*:9898")
+	if err != nil {
+		panic(err)
+	}
 
 	// create a client socket
 	client := NewSock(Pull)
@@ -393,5 +474,8 @@ func ExampleAuth() {
 	client.SetOption(SockSetCurveServerkey(serverCert.PublicText()))
 
 	// connect
-	client.Connect("tcp://127.0.0.1:9898")
+	err = client.Connect("tcp://127.0.0.1:9898")
+	if err != nil {
+		panic(err)
+	}
 }

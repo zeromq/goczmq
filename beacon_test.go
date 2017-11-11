@@ -41,7 +41,10 @@ func TestBeacon(t *testing.T) {
 		t.Error(err)
 	}
 
-	speaker.Publish("HI", 100)
+	err = speaker.Publish("HI", 100)
+	if err != nil {
+		t.Error(err)
+	}
 
 	msg := listener.Recv(500)
 	if len(msg) == 2 {
@@ -61,6 +64,11 @@ func ExampleBeacon() {
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Printf("started beacon on: %s", address)
-	beacon.Publish("HI", 100)
+
+	err = beacon.Publish("HI", 100)
+	if err != nil {
+		panic(err)
+	}
 }

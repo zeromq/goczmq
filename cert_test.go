@@ -46,7 +46,11 @@ func TestCert(t *testing.T) {
 		cert.Print()
 	}
 
-	cert.Save("./test_cert")
+	err := cert.Save("./test_cert")
+	if err != nil {
+		t.Error(err)
+	}
+
 	loaded, err := NewCertFromFile("./test_cert")
 	if err != nil {
 		t.Error(err)
@@ -61,8 +65,15 @@ func TestCert(t *testing.T) {
 		loaded.Print()
 	}
 
-	os.Remove("./test_cert")
-	os.Remove("./test_cert_secret")
+	err = os.Remove("./test_cert")
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = os.Remove("./test_cert_secret")
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestNewCertFromFile(t *testing.T) {
