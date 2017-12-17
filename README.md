@@ -19,10 +19,12 @@ by passing `--enable-drafts` to configure. Support for these draft classes are b
 to goczmq. To build these features against a CZMQ that has been compiled with `--enable-drafts`,
 use `go build -tags draft`.
 
-### For CMZQ = 4.0
+### For CMZQ = 4.2
 ```
 go get gopkg.in/zeromq/goczmq.v4
 ```
+**Note**: [CZMQ 4.2](https://github.com/zeromq/czmq/releases) is has not been released yet.
+
 ### For CZMQ Before 4.0
 ```
 go get gopkg.in/zeromq/goczmq.v1
