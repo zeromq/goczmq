@@ -206,7 +206,7 @@ ExitChanneler:
 
 // newChanneler accepts arguments from the socket type based
 // constructors and creates a new Channeler instance
-func newChanneler(sockType int, endpoints string, subscribe ...string) *Channeler {
+func newChanneler(sockType int, endpoints string, subscribe []string) *Channeler {
 	commandChan := make(chan string)
 	sendChan := make(chan [][]byte)
 	recvChan := make(chan [][]byte)
@@ -237,7 +237,7 @@ func newChanneler(sockType int, endpoints string, subscribe ...string) *Channele
 // NewPubChanneler creats a new Channeler wrapping
 // a Pub socket.  The socket will bind by default.
 func NewPubChanneler(endpoints string) *Channeler {
-	return newChanneler(Pub, endpoints, "")
+	return newChanneler(Pub, endpoints, nil)
 }
 
 // NewSubChanneler creates a new Channeler wrapping
@@ -245,65 +245,65 @@ func NewPubChanneler(endpoints string) *Channeler {
 // it accepts a comma delimited list of topics.
 // The socket will connect by default.
 func NewSubChanneler(endpoints string, subscribe ...string) *Channeler {
-	return newChanneler(Sub, endpoints, subscribe...)
+	return newChanneler(Sub, endpoints, subscribe)
 }
 
 // NewRepChanneler creates a new Channeler wrapping
 // a Rep socket. The socket will bind by default.
 func NewRepChanneler(endpoints string) *Channeler {
-	return newChanneler(Rep, endpoints, "")
+	return newChanneler(Rep, endpoints, nil)
 }
 
 // NewReqChanneler creates a new Channeler wrapping
 // a Req socket. The socket will connect by default.
 func NewReqChanneler(endpoints string) *Channeler {
-	return newChanneler(Req, endpoints, "")
+	return newChanneler(Req, endpoints, nil)
 }
 
 // NewPullChanneler creates a new Channeler wrapping
 // a Pull socket. The socket will bind by default.
 func NewPullChanneler(endpoints string) *Channeler {
-	return newChanneler(Pull, endpoints, "")
+	return newChanneler(Pull, endpoints, nil)
 }
 
 // NewPushChanneler creates a new Channeler wrapping
 // a Push socket. The socket will connect by default.
 func NewPushChanneler(endpoints string) *Channeler {
-	return newChanneler(Push, endpoints, "")
+	return newChanneler(Push, endpoints, nil)
 }
 
 // NewRouterChanneler creates a new Channeler wrapping
 // a Router socket. The socket will Bind by default.
 func NewRouterChanneler(endpoints string) *Channeler {
-	return newChanneler(Router, endpoints, "")
+	return newChanneler(Router, endpoints, nil)
 }
 
 // NewDealerChanneler creates a new Channeler wrapping
 // a Dealer socket. The socket will connect by default.
 func NewDealerChanneler(endpoints string) *Channeler {
-	return newChanneler(Dealer, endpoints, "")
+	return newChanneler(Dealer, endpoints, nil)
 }
 
 // NewXPubChanneler creates a new Channeler wrapping
 // an XPub socket. The socket will Bind by default.
 func NewXPubChanneler(endpoints string) *Channeler {
-	return newChanneler(XPub, endpoints, "")
+	return newChanneler(XPub, endpoints, nil)
 }
 
 // NewXSubChanneler creates a new Channeler wrapping
 // a XSub socket. The socket will connect by default.
 func NewXSubChanneler(endpoints string) *Channeler {
-	return newChanneler(XSub, endpoints, "")
+	return newChanneler(XSub, endpoints, nil)
 }
 
 // NewPairChanneler creates a new Channeler wrapping
 // a Pair socket. The socket will connect by default.
 func NewPairChanneler(endpoints string) *Channeler {
-	return newChanneler(Pair, endpoints, "")
+	return newChanneler(Pair, endpoints, nil)
 }
 
 // NewStreamChanneler creates a new Channeler wrapping
 // a Pair socket. The socket will connect by default.
 func NewStreamChanneler(endpoints string) *Channeler {
-	return newChanneler(Stream, endpoints, "")
+	return newChanneler(Stream, endpoints, nil)
 }
