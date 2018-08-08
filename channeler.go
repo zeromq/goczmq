@@ -242,10 +242,25 @@ func NewPubChanneler(endpoints string, options ...SockOption) *Channeler {
 
 // NewSubChanneler creates a new Channeler wrapping
 // a Sub socket. Along with an endpoint list
-// it accepts a comma delimited list of topics.
-// The socket will connect by default.
-func NewSubChanneler(endpoints string, subscribe ...string) *Channeler {
-	return newChanneler(Sub, endpoints, subscribe, nil)
+// it accepts a list of topics and/or socket options
+// (discriminated by type). The socket will connect
+// by default.
+func NewSubChanneler(endpoints string, varargs ...interface{}) *Channeler {
+	subscribe := []string{}
+	options := []SockOption{}
+
+	for _, arg := range varargs {
+		switch x := arg.(type) {
+		case string:
+			subscribe = append(subscribe, x)
+		case SockOption:
+			options = append(options, x)
+		default:
+			panic(fmt.Sprintf("Don't know how to handle a %T argument to NewSubChanneler", arg))
+		}
+	}
+
+	return newChanneler(Sub, endpoints, subscribe, options)
 }
 
 // NewRepChanneler creates a new Channeler wrapping
