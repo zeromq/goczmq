@@ -47,7 +47,7 @@ func (c *Channeler) Unsubscribe(topic string) {
 
 // actor is a routine that handles communication with
 // the zeromq socket.
-func (c *Channeler) actor(recvChan chan<- [][]byte) {
+func (c *Channeler) actor(recvChan chan<- [][]byte, options []SockOption) {
 	pipe, err := NewPair(fmt.Sprintf(">%s", c.commandAddr))
 	if err != nil {
 		panic(err)
@@ -61,7 +61,7 @@ func (c *Channeler) actor(recvChan chan<- [][]byte) {
 	}
 	defer pull.Destroy()
 
-	sock := NewSock(c.sockType)
+	sock := NewSock(c.sockType, options...)
 	defer sock.Destroy()
 	switch c.sockType {
 	case Pub, Rep, Pull, Router, XPub:
@@ -206,7 +206,7 @@ ExitChanneler:
 
 // newChanneler accepts arguments from the socket type based
 // constructors and creates a new Channeler instance
-func newChanneler(sockType int, endpoints string, subscribe ...string) *Channeler {
+func newChanneler(sockType int, endpoints string, subscribe []string, options []SockOption) *Channeler {
 	commandChan := make(chan string)
 	sendChan := make(chan [][]byte)
 	recvChan := make(chan [][]byte)
@@ -229,81 +229,96 @@ func newChanneler(sockType int, endpoints string, subscribe ...string) *Channele
 	}
 
 	go c.channeler(commandChan, sendChan)
-	go c.actor(recvChan)
+	go c.actor(recvChan, options)
 
 	return c
 }
 
 // NewPubChanneler creats a new Channeler wrapping
 // a Pub socket.  The socket will bind by default.
-func NewPubChanneler(endpoints string) *Channeler {
-	return newChanneler(Pub, endpoints, "")
+func NewPubChanneler(endpoints string, options ...SockOption) *Channeler {
+	return newChanneler(Pub, endpoints, nil, options)
 }
 
 // NewSubChanneler creates a new Channeler wrapping
 // a Sub socket. Along with an endpoint list
-// it accepts a comma delimited list of topics.
-// The socket will connect by default.
-func NewSubChanneler(endpoints string, subscribe ...string) *Channeler {
-	return newChanneler(Sub, endpoints, subscribe...)
+// it accepts a list of topics and/or socket options
+// (discriminated by type). The socket will connect
+// by default.
+func NewSubChanneler(endpoints string, varargs ...interface{}) *Channeler {
+	subscribe := []string{}
+	options := []SockOption{}
+
+	for _, arg := range varargs {
+		switch x := arg.(type) {
+		case string:
+			subscribe = append(subscribe, x)
+		case SockOption:
+			options = append(options, x)
+		default:
+			panic(fmt.Sprintf("Don't know how to handle a %T argument to NewSubChanneler", arg))
+		}
+	}
+
+	return newChanneler(Sub, endpoints, subscribe, options)
 }
 
 // NewRepChanneler creates a new Channeler wrapping
 // a Rep socket. The socket will bind by default.
-func NewRepChanneler(endpoints string) *Channeler {
-	return newChanneler(Rep, endpoints, "")
+func NewRepChanneler(endpoints string, options ...SockOption) *Channeler {
+	return newChanneler(Rep, endpoints, nil, options)
 }
 
 // NewReqChanneler creates a new Channeler wrapping
 // a Req socket. The socket will connect by default.
-func NewReqChanneler(endpoints string) *Channeler {
-	return newChanneler(Req, endpoints, "")
+func NewReqChanneler(endpoints string, options ...SockOption) *Channeler {
+	return newChanneler(Req, endpoints, nil, options)
 }
 
 // NewPullChanneler creates a new Channeler wrapping
 // a Pull socket. The socket will bind by default.
-func NewPullChanneler(endpoints string) *Channeler {
-	return newChanneler(Pull, endpoints, "")
+func NewPullChanneler(endpoints string, options ...SockOption) *Channeler {
+	return newChanneler(Pull, endpoints, nil, options)
 }
 
 // NewPushChanneler creates a new Channeler wrapping
 // a Push socket. The socket will connect by default.
-func NewPushChanneler(endpoints string) *Channeler {
-	return newChanneler(Push, endpoints, "")
+func NewPushChanneler(endpoints string, options ...SockOption) *Channeler {
+	return newChanneler(Push, endpoints, nil, options)
 }
 
 // NewRouterChanneler creates a new Channeler wrapping
 // a Router socket. The socket will Bind by default.
-func NewRouterChanneler(endpoints string) *Channeler {
-	return newChanneler(Router, endpoints, "")
+func NewRouterChanneler(endpoints string, options ...SockOption) *Channeler {
+	return newChanneler(Router, endpoints, nil, options)
 }
 
 // NewDealerChanneler creates a new Channeler wrapping
 // a Dealer socket. The socket will connect by default.
-func NewDealerChanneler(endpoints string) *Channeler {
-	return newChanneler(Dealer, endpoints, "")
+func NewDealerChanneler(endpoints string, options ...SockOption) *Channeler {
+	return newChanneler(Dealer, endpoints, nil, options)
 }
 
 // NewXPubChanneler creates a new Channeler wrapping
 // an XPub socket. The socket will Bind by default.
-func NewXPubChanneler(endpoints string) *Channeler {
-	return newChanneler(XPub, endpoints, "")
+func NewXPubChanneler(endpoints string, options ...SockOption) *Channeler {
+	return newChanneler(XPub, endpoints, nil, options)
 }
 
 // NewXSubChanneler creates a new Channeler wrapping
 // a XSub socket. The socket will connect by default.
-func NewXSubChanneler(endpoints string) *Channeler {
-	return newChanneler(XSub, endpoints, "")
+func NewXSubChanneler(endpoints string, options ...SockOption) *Channeler {
+	return newChanneler(XSub, endpoints, nil, options)
 }
 
 // NewPairChanneler creates a new Channeler wrapping
 // a Pair socket. The socket will connect by default.
-func NewPairChanneler(endpoints string) *Channeler {
-	return newChanneler(Pair, endpoints, "")
+func NewPairChanneler(endpoints string, options ...SockOption) *Channeler {
+	return newChanneler(Pair, endpoints, nil, options)
 }
 
 // NewStreamChanneler creates a new Channeler wrapping
 // a Pair socket. The socket will connect by default.
-func NewStreamChanneler(endpoints string) *Channeler {
-	return newChanneler(Stream, endpoints, "")
+func NewStreamChanneler(endpoints string, options ...SockOption) *Channeler {
+	return newChanneler(Stream, endpoints, nil, options)
 }
