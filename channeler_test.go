@@ -105,6 +105,14 @@ func TestPubSubChannelerNoInitialSubscription(t *testing.T) {
 	}
 }
 
+func TestPubSubChannelerOptionError(t *testing.T) {
+	sub := NewSubChanneler("inproc://channelerpubsub2", 32)
+	defer sub.Destroy()
+	err := <-sub.ErrChan
+	expected := fmt.Errorf("Don't know how to handle a %T argument to NewSubChanneler", 32)
+	assertEqual(t, expected.Error(), err.Error())
+}
+
 func TestDealerRouterChanneler(t *testing.T) {
 	dealer := NewDealerChanneler("inproc://channelerdealerrouter")
 	defer dealer.Destroy()
@@ -124,6 +132,38 @@ func TestDealerRouterChanneler(t *testing.T) {
 	resp = <-dealer.RecvChan
 	if want, got := "world", string(resp[0]); want != got {
 		t.Errorf("want '%s', got '%s'", want, got)
+	}
+}
+
+func TestDealerRouterChannelerAttachError(t *testing.T) {
+	dealer := NewDealerChanneler("bad endpoint")
+	defer dealer.Destroy()
+
+	dealer.SendChan <- [][]byte{[]byte("hello")}
+
+	select {
+	case resp := <-dealer.RecvChan:
+		if want, got := "world", string(resp[0]); want != got {
+			t.Errorf("want '%s', got '%s'", want, got)
+		}
+	case err := <-dealer.ErrChan:
+		assertEqual(t, ErrSockAttach, err)
+	}
+}
+
+func TestDealerRouterChannelerEmptyEndpointsError(t *testing.T) {
+	dealer := NewDealerChanneler("")
+	defer dealer.Destroy()
+
+	dealer.SendChan <- [][]byte{[]byte("hello")}
+
+	select {
+	case resp := <-dealer.RecvChan:
+		if want, got := "world", string(resp[0]); want != got {
+			t.Errorf("want '%s', got '%s'", want, got)
+		}
+	case err := <-dealer.ErrChan:
+		assertEqual(t, ErrSockAttachEmptyEndpoints, err)
 	}
 }
 

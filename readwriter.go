@@ -46,7 +46,10 @@ func (r *ReadWriter) Read(p []byte) (int, error) {
 	var err error
 
 	if r.currentIndex == 0 {
-		s := r.poller.Wait(r.timeoutMillis)
+		s, err := r.poller.Wait(r.timeoutMillis)
+		if err != nil {
+			return totalRead, err
+		}
 		if s == nil {
 			return totalRead, ErrTimeout
 		}
