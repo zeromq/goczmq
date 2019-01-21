@@ -108,6 +108,9 @@ var (
 	// ErrSockAttach is returned when an attach call to a socket fails
 	ErrSockAttach = errors.New("error attaching zsock")
 
+	// ErrSockAttachEmptyEndpoints is returned when the endpoints value is empty
+	ErrSockAttachEmptyEndpoints = errors.New("Endpoints cannot be empty")
+
 	// ErrInvalidSockType is returned when a function is called
 	// against a socket type that is not applicable for that socket type
 	ErrInvalidSockType = errors.New("invalid socket type")

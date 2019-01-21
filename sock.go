@@ -18,6 +18,7 @@ int Sock_sendframe(zsock_t *sock, const void *data, size_t size, int flags) {
 import "C"
 
 import (
+	"fmt"
 	"os"
 	"runtime"
 	"strings"
@@ -35,7 +36,7 @@ type Sock struct {
 
 func init() {
 	if err := os.Setenv("ZSYS_SIGHANDLER", "false"); err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Failed to set environment variable ZSYS_SIGHANDLER: %s\n", err.Error())
 	}
 }
 
@@ -158,6 +159,10 @@ func (s *Sock) Unbind(endpoint string) error {
 // does not start with '@' or '>', the serverish argument determines whether
 // it is used to bind (serverish = true) or connect (serverish = false)
 func (s *Sock) Attach(endpoints string, serverish bool) error {
+	if endpoints == "" {
+		return ErrSockAttachEmptyEndpoints
+	}
+
 	cEndpoints := C.CString(endpoints)
 	defer C.free(unsafe.Pointer(cEndpoints))
 

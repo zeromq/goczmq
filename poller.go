@@ -79,25 +79,22 @@ func (p *Poller) Remove(reader *Sock) {
 
 // Wait waits for the timeout period in milliseconds for a Pollin
 // event, and returns the first socket that returns one
-func (p *Poller) Wait(millis int) *Sock {
+func (p *Poller) Wait(millis int) (*Sock, error) {
 	if p.zpollerT == nil {
 		// Null pointer. Something is wrong or we've already had `Destroy` invoked on us.
-		panic(ErrWaitAfterDestroy)
+		return nil, ErrWaitAfterDestroy
 	}
 	s := C.zpoller_wait(p.zpollerT, C.int(millis))
 	s = unsafe.Pointer(s)
 	if s == nil {
-		return nil
+		return nil, nil
 	}
 	for _, sock := range p.socks {
 		if unsafe.Pointer(sock.zsockT) == s {
-			return sock
+			return sock, nil
 		}
 	}
-
-	panic(fmt.Sprintf(
-		"Could not match received pointer with %v with any socket (%v)",
-		s, p.socks))
+	return nil, fmt.Errorf("Could not match received pointer with %v with any socket (%v)", s, p.socks)
 }
 
 // Destroy destroys the Poller

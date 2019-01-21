@@ -59,7 +59,10 @@ func TestAuthIPAllow(t *testing.T) {
 	}
 	defer poller.Destroy()
 
-	s := poller.Wait(200)
+	s, err := poller.Wait(200)
+	if err != nil {
+		t.Error(err)
+	}
 	if want, have := server, s; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
@@ -162,7 +165,10 @@ func TestAuthPlain(t *testing.T) {
 	}
 	defer poller.Destroy()
 
-	s := poller.Wait(200)
+	s, err := poller.Wait(200)
+	if err != nil {
+		t.Error(err)
+	}
 	if want, have := server, s; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
@@ -195,7 +201,10 @@ func TestAuthPlain(t *testing.T) {
 		t.Error(err)
 	}
 
-	s = poller.Wait(200)
+	s, err = poller.Wait(200)
+	if err != nil {
+		t.Error(err)
+	}
 	if s != nil {
 		t.Errorf("want %#v, have %#v", nil, s)
 	}
@@ -274,7 +283,10 @@ func TestAuthCurveAllowAny(t *testing.T) {
 	}
 	defer poller.Destroy()
 
-	s := poller.Wait(2000)
+	s, err := poller.Wait(2000)
+	if err != nil {
+		t.Error(err)
+	}
 	if want, have := server, s; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
@@ -302,7 +314,10 @@ func TestAuthCurveAllowAny(t *testing.T) {
 		t.Error(err)
 	}
 
-	s = poller.Wait(200)
+	s, err = poller.Wait(200)
+	if err != nil {
+		t.Error(err)
+	}
 	if s != nil {
 		t.Errorf("want %#v, have %#v", nil, s)
 	}
@@ -381,7 +396,10 @@ func TestAuthCurveAllowCertificate(t *testing.T) {
 	}
 	defer poller.Destroy()
 
-	s := poller.Wait(200)
+	s, err := poller.Wait(200)
+	if err != nil {
+		t.Error(err)
+	}
 	if want, have := server, s; want != have {
 		t.Errorf("want '%#v', have '%#v'", want, have)
 	}
@@ -400,7 +418,10 @@ func TestAuthCurveAllowCertificate(t *testing.T) {
 		t.Error(err)
 	}
 
-	s = poller.Wait(200)
+	s, err = poller.Wait(200)
+	if err != nil {
+		t.Error(err)
+	}
 	if s != nil {
 		t.Errorf("want '%#v', have '%#v", nil, s)
 	}

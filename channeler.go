@@ -27,21 +27,33 @@ type Channeler struct {
 	commandChan chan<- string
 	SendChan    chan<- [][]byte
 	RecvChan    <-chan [][]byte
+	ErrChan     <-chan error
+	errChan     chan<- error
+	destroyed   bool
 }
 
 // Destroy sends a message to the Channeler to shut it down
 // and clean it up.
 func (c *Channeler) Destroy() {
+	if c.destroyed {
+		return
+	}
 	c.commandChan <- "destroy"
 }
 
 // Subscribe to a Topic
 func (c *Channeler) Subscribe(topic string) {
+	if c.destroyed {
+		return
+	}
 	c.commandChan <- fmt.Sprintf("subscribe %s", topic)
 }
 
 // Unsubscribe from a Topic
 func (c *Channeler) Unsubscribe(topic string) {
+	if c.destroyed {
+		return
+	}
 	c.commandChan <- fmt.Sprintf("unsubscribe %s", topic)
 }
 
@@ -49,15 +61,18 @@ func (c *Channeler) Unsubscribe(topic string) {
 // the zeromq socket.
 func (c *Channeler) actor(recvChan chan<- [][]byte, options []SockOption) {
 	pipe, err := NewPair(fmt.Sprintf(">%s", c.commandAddr))
+
 	if err != nil {
-		panic(err)
+		c.errChan <- err
+		return
 	}
 	defer pipe.Destroy()
 	defer close(recvChan)
 
 	pull, err := NewPull(c.proxyAddr)
 	if err != nil {
-		panic(err)
+		c.errChan <- err
+		return
 	}
 	defer pull.Destroy()
 
@@ -67,13 +82,15 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, options []SockOption) {
 	case Pub, Rep, Pull, Router, XPub:
 		err = sock.Attach(c.endpoints, true)
 		if err != nil {
-			panic(err)
+			c.errChan <- err
+			return
 		}
 
 	case Req, Push, Dealer, Pair, Stream, XSub:
 		err = sock.Attach(c.endpoints, false)
 		if err != nil {
-			panic(err)
+			c.errChan <- err
+			return
 		}
 
 	case Sub:
@@ -86,26 +103,34 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, options []SockOption) {
 
 		err = sock.Attach(c.endpoints, false)
 		if err != nil {
-			panic(err)
+			c.errChan <- err
+			return
 		}
 
 	default:
-		panic(ErrInvalidSockType)
+		c.errChan <- ErrInvalidSockType
+		return
 	}
 
 	poller, err := NewPoller(sock, pull, pipe)
 	if err != nil {
-		panic(err)
+		c.errChan <- err
+		goto ExitActor
 	}
 	defer poller.Destroy()
 
 	for {
-		s := poller.Wait(-1)
+		s, err := poller.Wait(-1)
+		if err != nil {
+			c.errChan <- err
+			goto ExitActor
+		}
 		switch s {
 		case pipe:
 			cmd, err := pipe.RecvMessage()
 			if err != nil {
-				panic(err)
+				c.errChan <- err
+				goto ExitActor
 			}
 
 			switch string(cmd[0]) {
@@ -129,19 +154,22 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, options []SockOption) {
 		case sock:
 			msg, err := s.RecvMessage()
 			if err != nil {
-				panic(err)
+				c.errChan <- err
+				goto ExitActor
 			}
 			recvChan <- msg
 
 		case pull:
 			msg, err := pull.RecvMessage()
 			if err != nil {
-				panic(err)
+				c.errChan <- err
+				goto ExitActor
 			}
 
 			err = sock.SendMessage(msg)
 			if err != nil {
-				panic(err)
+				c.errChan <- err
+				goto ExitActor
 			}
 		}
 	}
@@ -153,13 +181,15 @@ ExitActor:
 func (c *Channeler) channeler(commandChan <-chan string, sendChan <-chan [][]byte) {
 	push, err := NewPush(c.proxyAddr)
 	if err != nil {
-		panic(err)
+		c.errChan <- err
+		return
 	}
 	defer push.Destroy()
 
 	pipe, err := NewPair(fmt.Sprintf("@%s", c.commandAddr))
 	if err != nil {
-		panic(err)
+		c.errChan <- err
+		goto ExitChanneler
 	}
 	defer pipe.Destroy()
 
@@ -168,13 +198,15 @@ func (c *Channeler) channeler(commandChan <-chan string, sendChan <-chan [][]byt
 		case cmd := <-commandChan:
 			switch cmd {
 			case "destroy":
+				c.destroyed = true
 				err = pipe.SendFrame([]byte("destroy"), FlagNone)
 				if err != nil {
-					panic(err)
-				}
-				_, err = pipe.RecvMessage()
-				if err != nil {
-					panic(err)
+					c.errChan <- err
+				} else {
+					_, err = pipe.RecvMessage()
+					if err != nil {
+						c.errChan <- err
+					}
 				}
 				goto ExitChanneler
 			default:
@@ -186,18 +218,18 @@ func (c *Channeler) channeler(commandChan <-chan string, sendChan <-chan [][]byt
 				}
 				err := pipe.SendMessage(message)
 				if err != nil {
-					panic(err)
+					c.errChan <- err
 				}
 				_, err = pipe.RecvMessage()
 				if err != nil {
-					panic(err)
+					c.errChan <- err
 				}
 			}
 
 		case msg := <-sendChan:
 			err := push.SendMessage(msg)
 			if err != nil {
-				panic(err)
+				c.errChan <- err
 			}
 		}
 	}
@@ -210,6 +242,7 @@ func newChanneler(sockType int, endpoints string, subscribe []string, options []
 	commandChan := make(chan string)
 	sendChan := make(chan [][]byte)
 	recvChan := make(chan [][]byte)
+	errChan := make(chan error)
 
 	C.Sock_init()
 	c := &Channeler{
@@ -219,6 +252,8 @@ func newChanneler(sockType int, endpoints string, subscribe []string, options []
 		commandChan: commandChan,
 		SendChan:    sendChan,
 		RecvChan:    recvChan,
+		ErrChan:     errChan,
+		errChan:     errChan,
 	}
 	c.commandAddr = fmt.Sprintf("inproc://actorcontrol%d", c.id)
 	c.proxyAddr = fmt.Sprintf("inproc://proxy%d", c.id)
@@ -248,6 +283,7 @@ func NewPubChanneler(endpoints string, options ...SockOption) *Channeler {
 func NewSubChanneler(endpoints string, varargs ...interface{}) *Channeler {
 	subscribe := []string{}
 	options := []SockOption{}
+	var err error
 
 	for _, arg := range varargs {
 		switch x := arg.(type) {
@@ -256,11 +292,17 @@ func NewSubChanneler(endpoints string, varargs ...interface{}) *Channeler {
 		case SockOption:
 			options = append(options, x)
 		default:
-			panic(fmt.Sprintf("Don't know how to handle a %T argument to NewSubChanneler", arg))
+			err = fmt.Errorf("Don't know how to handle a %T argument to NewSubChanneler", arg)
+			break
 		}
 	}
 
-	return newChanneler(Sub, endpoints, subscribe, options)
+	channeler := newChanneler(Sub, endpoints, subscribe, options)
+
+	if err != nil {
+		go func() { channeler.errChan <- err }()
+	}
+	return channeler
 }
 
 // NewRepChanneler creates a new Channeler wrapping

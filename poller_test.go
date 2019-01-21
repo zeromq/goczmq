@@ -34,7 +34,10 @@ func TestPollerNewNoSocks(t *testing.T) {
 		t.Error(err)
 	}
 
-	s := poller.Wait(0)
+	s, err := poller.Wait(0)
+	if err != nil {
+		t.Error(err)
+	}
 	if want, have := pullSock1, s; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
@@ -111,7 +114,10 @@ func TestPoller(t *testing.T) {
 		t.Error(err)
 	}
 
-	s := poller.Wait(0)
+	s, err := poller.Wait(0)
+	if err != nil {
+		t.Error(err)
+	}
 	if want, have := pullSock1, s; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
@@ -136,7 +142,10 @@ func TestPoller(t *testing.T) {
 		t.Error(err)
 	}
 
-	s = poller.Wait(0)
+	s, err = poller.Wait(0)
+	if err != nil {
+		t.Error(err)
+	}
 	if want, have := pullSock2, s; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
@@ -167,21 +176,16 @@ func TestPollerAfterDestroy(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	poller.Wait(0)
+	_, err = poller.Wait(0)
+	if err != nil {
+		t.Error(err)
+	}
 
-	// https://github.com/zeromq/goczmq/issues/145
-	// Verify expected panic behavior if Wait() is invoked after a Destroy()
 	poller.Destroy()
-	defer func() {
-		if r := recover(); r != nil {
-			if r != ErrWaitAfterDestroy {
-				t.Errorf("Expected a specific panic, `%s`,\n  but have `%s`", ErrWaitAfterDestroy.Error(), r)
-			}
-		} else {
-			t.Errorf("Expected panic, but did not panic.")
-		}
-	}()
-	poller.Wait(0)
+	_, err = poller.Wait(0)
+	if err != ErrWaitAfterDestroy {
+		t.Errorf("want %#v, have %#v", ErrWaitAfterDestroy, err)
+	}
 }
 
 func ExamplePoller() {
@@ -208,7 +212,7 @@ func ExamplePoller() {
 	}
 
 	// Poller.Wait(millis) returns first socket that has a waiting message
-	_ = poller.Wait(1)
+	poller.Wait(1)
 }
 
 func benchmarkPollerSendFrame(size int, b *testing.B) {
@@ -244,7 +248,10 @@ func benchmarkPollerSendFrame(size int, b *testing.B) {
 	defer poller.Destroy()
 
 	for i := 0; i < b.N; i++ {
-		s := poller.Wait(-1)
+		s, err := poller.Wait(-1)
+		if err != nil {
+			b.Error(err)
+		}
 		msg, _, err := s.RecvFrame()
 		if err != nil {
 			panic(err)
