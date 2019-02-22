@@ -8,7 +8,6 @@ import "C"
 
 import (
 	"fmt"
-	"math/rand"
 	"strings"
 )
 
@@ -18,7 +17,7 @@ import (
 // channel, and send everything back to the socket thrad for sending
 // using an additional inproc socket.
 type Channeler struct {
-	id          int64
+	id          string
 	sockType    int
 	endpoints   string
 	subscribe   *string
@@ -246,7 +245,7 @@ func newChanneler(sockType int, endpoints string, subscribe []string, options []
 
 	C.Sock_init()
 	c := &Channeler{
-		id:          rand.Int63(),
+		id:          C.GoString(C.zuuid_str(C.zuuid_new())),
 		endpoints:   endpoints,
 		sockType:    sockType,
 		commandChan: commandChan,
@@ -255,8 +254,8 @@ func newChanneler(sockType int, endpoints string, subscribe []string, options []
 		ErrChan:     errChan,
 		errChan:     errChan,
 	}
-	c.commandAddr = fmt.Sprintf("inproc://actorcontrol%d", c.id)
-	c.proxyAddr = fmt.Sprintf("inproc://proxy%d", c.id)
+	c.commandAddr = fmt.Sprintf("inproc://actorcontrol_%s", c.id)
+	c.proxyAddr = fmt.Sprintf("inproc://proxy_%s", c.id)
 
 	if len(subscribe) > 0 {
 		topics := strings.Join(subscribe, ",")
