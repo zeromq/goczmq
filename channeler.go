@@ -12,9 +12,9 @@ import (
 )
 
 // Channeler serializes all access to a socket through a send
-// and receive channel.  It starts two threads, on is used for receiving
+// and receive channel.  It starts two threads, one is used for receiving
 // from the zeromq socket.  The other is used to listen to the receive
-// channel, and send everything back to the socket thrad for sending
+// channel, and send everything back to the socket thread for sending
 // using an additional inproc socket.
 type Channeler struct {
 	id          string
