@@ -281,7 +281,7 @@ func (s *Sock) Pollout() bool {
 }
 
 // SendFrame sends a byte array via the socket.  For the flags
-// value, use 0 for a single message, or SNDFlagMore if it is
+// value, use FlagNone (0) for a single message, or FlagMore if it is
 // a multi-part message
 func (s *Sock) SendFrame(data []byte, flags int) error {
 	var rc C.int
