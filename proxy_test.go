@@ -239,8 +239,8 @@ func TestProxyCurve(t *testing.T) {
 	defer faucet.Destroy()
 
 	sink := NewSock(Pull)
-	faucet.SetOption(SockSetCurveServer(1))
-	serverCert.Apply(faucet)
+	sink.SetOption(SockSetCurveServerkey(serverCert.PublicText()))
+	clientCert.Apply(sink)
 	err = sink.Connect("inproc://backend")
 	if err != nil {
 		t.Error(err)
