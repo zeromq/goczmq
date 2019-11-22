@@ -66,6 +66,84 @@ func (p *Proxy) SetFrontend(sockType int, endpoint string) error {
 	return nil
 }
 
+// SetFrontendDomain accepts a domain, and sends a message
+// to the zactor thread telling it to set up ZAP authentication domain for the socket.
+func (p *Proxy) SetFrontendDomain(domain string) error {
+	cmd := C.CString("DOMAIN")
+	defer C.free(unsafe.Pointer(cmd))
+
+	sock := C.CString("FRONTEND")
+	defer C.free(unsafe.Pointer(sock))
+
+	cDomainString := C.CString(domain)
+	defer C.free(unsafe.Pointer(cDomainString))
+
+	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), cmd)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_sendm(unsafe.Pointer(p.zactorT), sock)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_send(unsafe.Pointer(p.zactorT), cDomainString)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zsock_wait(unsafe.Pointer(p.zactorT))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	return nil
+}
+
+// SetFrontendCurve accepts Z85 encoded public and secret keys and sends a message
+// to the zactor thread telling it to set up CURVE authentication for the socket.
+func (p *Proxy) SetFrontendCurve(publicKey string, secretKey string) error {
+	cmd := C.CString("CURVE")
+	defer C.free(unsafe.Pointer(cmd))
+
+	sock := C.CString("FRONTEND")
+	defer C.free(unsafe.Pointer(sock))
+
+	cPublicKey := C.CString(publicKey)
+	defer C.free(unsafe.Pointer(cPublicKey))
+
+	cSecretKey := C.CString(secretKey)
+	defer C.free(unsafe.Pointer(cSecretKey))
+
+	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), cmd)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_sendm(unsafe.Pointer(p.zactorT), sock)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_sendm(unsafe.Pointer(p.zactorT), cPublicKey)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_send(unsafe.Pointer(p.zactorT), cSecretKey)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zsock_wait(unsafe.Pointer(p.zactorT))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	return nil
+}
+
 // SetBackend accepts a socket type and endpoint, and sends a message
 // to the zactor thread telling it to set up a socket bound to the endpoint.
 func (p *Proxy) SetBackend(sockType int, endpoint string) error {
@@ -91,6 +169,84 @@ func (p *Proxy) SetBackend(sockType int, endpoint string) error {
 	}
 
 	rc = C.zstr_send(unsafe.Pointer(p.zactorT), cEndpoint)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zsock_wait(unsafe.Pointer(p.zactorT))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	return nil
+}
+
+// SetBackendDomain accepts a domain, and sends a message
+// to the zactor thread telling it to set up ZAP authentication domain for the socket.
+func (p *Proxy) SetBackendDomain(domain string) error {
+	cmd := C.CString("DOMAIN")
+	defer C.free(unsafe.Pointer(cmd))
+
+	sock := C.CString("BACKEND")
+	defer C.free(unsafe.Pointer(sock))
+
+	cDomainString := C.CString(domain)
+	defer C.free(unsafe.Pointer(cDomainString))
+
+	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), cmd)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_sendm(unsafe.Pointer(p.zactorT), sock)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_send(unsafe.Pointer(p.zactorT), cDomainString)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zsock_wait(unsafe.Pointer(p.zactorT))
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	return nil
+}
+
+// SetBackendCurve accepts Z85 encoded public and secret keys and sends a message
+// to the zactor thread telling it to set up CURVE authentication for the socket.
+func (p *Proxy) SetBackendCurve(publicKey string, secretKey string) error {
+	cmd := C.CString("CURVE")
+	defer C.free(unsafe.Pointer(cmd))
+
+	sock := C.CString("BACKEND")
+	defer C.free(unsafe.Pointer(sock))
+
+	cPublicKey := C.CString(publicKey)
+	defer C.free(unsafe.Pointer(cPublicKey))
+
+	cSecretKey := C.CString(secretKey)
+	defer C.free(unsafe.Pointer(cSecretKey))
+
+	rc := C.zstr_sendm(unsafe.Pointer(p.zactorT), cmd)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_sendm(unsafe.Pointer(p.zactorT), sock)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_sendm(unsafe.Pointer(p.zactorT), cPublicKey)
+	if rc == -1 {
+		return ErrActorCmd
+	}
+
+	rc = C.zstr_send(unsafe.Pointer(p.zactorT), cSecretKey)
 	if rc == -1 {
 		return ErrActorCmd
 	}

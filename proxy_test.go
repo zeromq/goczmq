@@ -3,6 +3,7 @@ package goczmq
 import (
 	"fmt"
 	"testing"
+	"github.com/tilinna/z85"
 )
 
 func TestProxy(t *testing.T) {
@@ -170,6 +171,100 @@ func TestProxy(t *testing.T) {
 	}
 
 	proxy.Destroy()
+}
+
+func TestProxyCurve(t *testing.T) {
+	serverPubKey := "j+KTl+V-G75#pBWwItQta7<5Rzs:N$1xFwjW2{C2"
+	serverSecretKey := "*i(F-QJdIE04$AtHVoo.AwGjcM}0sN../[j)<)N}"
+	serverPubKeyBinary := make([]byte, z85.DecodedLen(len(serverPubKey)))
+	serverSecretKeyBinary := make([]byte, z85.DecodedLen(len(serverSecretKey)))
+	if _, err := z85.Decode(serverPubKeyBinary, []byte(serverPubKey)); err != nil {
+		t.Error(err)
+	}
+	if _, err := z85.Decode(serverSecretKeyBinary, []byte(serverSecretKey)); err != nil {
+		t.Error(err)
+	}
+
+	serverCert, err := NewCertFromKeys(serverPubKeyBinary, serverSecretKeyBinary)
+	if err != nil {
+		t.Error(err)
+	}
+	clientCert := NewCert()
+
+	// Create and configure our proxy
+	proxy := NewProxy()
+	defer proxy.Destroy()
+
+	if testing.Verbose() {
+		err = proxy.Verbose()
+		if err != nil {
+			t.Error(err)
+		}
+	}
+
+	err = proxy.SetFrontendDomain("global")
+	if err != nil {
+		t.Error(err)
+	}
+	err = proxy.SetFrontendCurve(serverPubKey, serverSecretKey)
+	if err != nil {
+		t.Error(err)
+	}
+	err = proxy.SetFrontend(Pull, "inproc://frontend")
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = proxy.SetBackendDomain("global")
+	if err != nil {
+		t.Error(err)
+	}
+	err = proxy.SetBackendCurve(serverPubKey, serverSecretKey)
+	if err != nil {
+		t.Error(err)
+	}
+	err = proxy.SetBackend(Push, "inproc://backend")
+	if err != nil {
+		t.Error(err)
+	}
+
+	// connect application sockets to proxy
+	faucet := NewSock(Push)
+	faucet.SetOption(SockSetCurveServerkey(serverCert.PublicText()))
+	clientCert.Apply(faucet)
+	err = faucet.Connect("inproc://frontend")
+	if err != nil {
+		t.Error(err)
+	}
+	defer faucet.Destroy()
+
+	sink := NewSock(Pull)
+	sink.SetOption(SockSetCurveServerkey(serverCert.PublicText()))
+	clientCert.Apply(sink)
+	err = sink.Connect("inproc://backend")
+	if err != nil {
+		t.Error(err)
+	}
+	defer sink.Destroy()
+
+	// send some messages and check they arrived
+	err = faucet.SendFrame([]byte("Hello"), FlagNone)
+	if err != nil {
+		t.Error(err)
+	}
+
+	b, f, err := sink.RecvFrame()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if want, have := false, f == FlagMore; want != have {
+		t.Errorf("want %#v, have %#v", want, have)
+	}
+
+	if want, have := "Hello", string(b); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
+	}
 }
 
 func ExampleProxy() {
