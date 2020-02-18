@@ -53,7 +53,8 @@ func main() {
 	}
 
 	duration := time.Since(startTime)
-	latency := float64(duration.Microseconds()) / float64((*roundtripCount * 2))
+	microseconds := duration.Seconds() * 1e6
+	latency := microseconds / float64((*roundtripCount * 2))
 
 	log.Printf("message size: %d [B]\n", *messageSize)
 	log.Printf("roundtrip count: %d\n", *roundtripCount)
