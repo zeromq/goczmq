@@ -73,6 +73,7 @@ func (p *Poller) Remove(reader *Sock) {
 			} else {
 				p.socks = append(p.socks[:i], p.socks[i+1:]...)
 			}
+			return
 		}
 	}
 }
