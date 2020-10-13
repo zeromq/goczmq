@@ -271,13 +271,13 @@ func NewStream(endpoints string, options ...SockOption) (*Sock, error) {
 // Pollin returns true if there is a Pollin
 // event on the socket
 func (s *Sock) Pollin() bool {
-	return Events(s) == Pollin
+	return Events(s)&Pollin == Pollin
 }
 
 // Pollout returns true if there is a Pollout
 // event on the socket
 func (s *Sock) Pollout() bool {
-	return Events(s) == Pollout
+	return Events(s)&Pollout == Pollout
 }
 
 // SendFrame sends a byte array via the socket.  For the flags
