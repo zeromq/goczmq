@@ -27,7 +27,7 @@ type Poller struct {
 // It accepts one or more readers to poll.
 func NewPoller(readers ...*Sock) (*Poller, error) {
 	var p *Poller
-	if len(readers) == 0 {
+	if len(readers) == 0 || readers == nil {
 		p = &Poller{
 			zpollerT: C.Poller_new(nil),
 			socks:    make([]*Sock, 0),
