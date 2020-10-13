@@ -106,8 +106,12 @@ func (s *Sock) Connect(endpoint string) error {
 	cEndpoint := C.CString(endpoint)
 	defer C.free(unsafe.Pointer(cEndpoint))
 
-	rc := C.Sock_connect(s.zsockT, cEndpoint)
+Connect:
+	rc, err := C.Sock_connect(s.zsockT, cEndpoint)
 	if rc != C.int(0) {
+		if isRetryableError(err) {
+			goto Connect
+		}
 		return ErrConnect
 	}
 	return nil
@@ -285,13 +289,19 @@ func (s *Sock) Pollout() bool {
 // a multi-part message
 func (s *Sock) SendFrame(data []byte, flags int) error {
 	var rc C.int
+	var err error
+
+SendFrame:
 	if len(data) == 0 {
-		rc = C.Sock_sendframe(s.zsockT, nil, C.size_t(0), C.int(flags))
+		rc, err = C.Sock_sendframe(s.zsockT, nil, C.size_t(0), C.int(flags))
 	} else {
-		rc = C.Sock_sendframe(s.zsockT, unsafe.Pointer(&data[0]), C.size_t(len(data)), C.int(flags))
+		rc, err = C.Sock_sendframe(s.zsockT, unsafe.Pointer(&data[0]), C.size_t(len(data)), C.int(flags))
 	}
 	if rc == C.int(-1) {
-		return ErrSendFrame
+		if isRetryableError(err) {
+			goto SendFrame
+		}
+		return err
 	}
 	return nil
 }
@@ -304,8 +314,12 @@ func (s *Sock) RecvFrame() ([]byte, int, error) {
 		return nil, -1, ErrRecvFrameAfterDestroy
 	}
 
-	frame := C.zframe_recv(unsafe.Pointer(s.zsockT))
+RecvFrame:
+	frame, err := C.zframe_recv(unsafe.Pointer(s.zsockT))
 	if frame == nil {
+		if isRetryableError(err) {
+			goto RecvFrame
+		}
 		return []byte{0}, 0, ErrRecvFrame
 	}
 	dataSize := C.zframe_size(frame)
