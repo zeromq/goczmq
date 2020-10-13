@@ -451,6 +451,42 @@ func TestPollin(t *testing.T) {
 	}
 }
 
+func TestPollinPolloutRouter(t *testing.T) {
+	router, err := NewRouter("inproc://router")
+	if err != nil {
+		t.Error(err)
+	}
+	defer router.Destroy()
+
+	dealer, err := NewDealer("inproc://router")
+	if err != nil {
+		t.Error(err)
+	}
+	defer dealer.Destroy()
+
+	// for Router pollout is always true
+	if want, have := true, router.Pollout(); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
+	}
+
+	if want, have := false, router.Pollin(); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
+	}
+
+	err = dealer.SendFrame([]byte("Hello World"), FlagNone)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if want, have := true, router.Pollin(); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
+	}
+
+	if want, have := true, router.Pollout(); want != have {
+		t.Errorf("want %#v, have %#v", want, have)
+	}
+}
+
 func TestPollout(t *testing.T) {
 	push := NewSock(Push)
 	_, err := push.Bind("inproc://pollout")
