@@ -28,11 +28,13 @@ func TestPushPullChanneler(t *testing.T) {
 }
 
 func TestPubSubChanneler(t *testing.T) {
-	pub := NewPubChanneler("inproc://channelerpubsub")
+	pub := NewXPubChanneler("inproc://channelerpubsub")
 	defer pub.Destroy()
 
 	sub := NewSubChanneler("inproc://channelerpubsub", "a,b")
 	defer sub.Destroy()
+
+	confirmXPubSubscriptions(t, pub, 2)
 
 	pub.SendChan <- [][]byte{[]byte("a"), []byte("message")}
 	select {
@@ -65,6 +67,9 @@ func TestPubSubChanneler(t *testing.T) {
 
 	sub.Subscribe("c")
 	sub.Unsubscribe("a")
+
+	confirmXPubSubscriptions(t, pub, 2)
+
 	pub.SendChan <- [][]byte{[]byte("a"), []byte("message")}
 	pub.SendChan <- [][]byte{[]byte("c"), []byte("message")}
 	select {
@@ -82,13 +87,15 @@ func TestPubSubChanneler(t *testing.T) {
 }
 
 func TestPubSubChannelerNoInitialSubscription(t *testing.T) {
-	pub := NewPubChanneler("inproc://channelerpubsub2")
+	pub := NewXPubChanneler("inproc://channelerpubsub2")
 	defer pub.Destroy()
 
 	sub := NewSubChanneler("inproc://channelerpubsub2")
 	defer sub.Destroy()
 
 	sub.Subscribe("a")
+
+	confirmXPubSubscriptions(t, pub, 1)
 
 	pub.SendChan <- [][]byte{[]byte("a"), []byte("message")}
 	select {
@@ -244,5 +251,15 @@ func BenchmarkChanneler(b *testing.B) {
 			panic("message is corrupt")
 		}
 		b.SetBytes(1024)
+	}
+}
+
+func confirmXPubSubscriptions(t *testing.T, pub *Channeler, count int) {
+	for i := 0; i < count; i++ {
+		select {
+		case <-pub.RecvChan:
+		case <-time.After(time.Second * 2):
+			t.Errorf("timeout")
+		}
 	}
 }
