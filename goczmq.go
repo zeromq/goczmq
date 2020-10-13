@@ -26,6 +26,7 @@ import "C"
 
 import (
 	"errors"
+	"syscall"
 )
 
 const (
@@ -201,4 +202,12 @@ func getStringType(k int) string {
 	default:
 		return ""
 	}
+}
+
+func isRetryableError(err error) bool {
+	if err == nil {
+		return false
+	}
+	eno, ok := err.(syscall.Errno)
+	return ok && eno == syscall.EINTR
 }
