@@ -122,7 +122,7 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, options []SockOption) {
 		s, err := poller.Wait(-1)
 		if err != nil {
 			c.errChan <- err
-			goto ExitActor
+			continue
 		}
 		switch s {
 		case pipe:
@@ -154,7 +154,7 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, options []SockOption) {
 			msg, err := s.RecvMessage()
 			if err != nil {
 				c.errChan <- err
-				goto ExitActor
+				continue
 			}
 			recvChan <- msg
 
@@ -162,13 +162,13 @@ func (c *Channeler) actor(recvChan chan<- [][]byte, options []SockOption) {
 			msg, err := pull.RecvMessage()
 			if err != nil {
 				c.errChan <- err
-				goto ExitActor
+				continue
 			}
 
 			err = sock.SendMessage(msg)
 			if err != nil {
 				c.errChan <- err
-				goto ExitActor
+				continue
 			}
 		}
 	}
