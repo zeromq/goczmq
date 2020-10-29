@@ -5,6 +5,14 @@
 -->
 
 <options script = "sockopts">
+    <version major = "4" minor = "3" style = "macro">
+        <!-- Options that are new in 4.3 -->
+        <option name = "router_notify"     type = "int"    mode = "w"  test = "ROUTER"
+            test_value = "1" >
+            <restrict type = "ROUTER" />
+        </option>
+    </version>
+
     <version major = "4" minor = "2" style = "macro">
         <!-- Options that are new in 4.2 -->
         <option name = "heartbeat_ivl"     type = "int"    mode = "rw" test = "DEALER"

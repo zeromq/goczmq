@@ -20,6 +20,13 @@ package goczmq
 import (
 	"testing"
 )
+func TestRouterNotify(t *testing.T) {
+	sock := NewSock(Router)
+	testval := 1
+	sock.SetOption(SockSetRouterNotify(testval))
+	sock.Destroy()
+}
+
 func TestHeartbeatIvl(t *testing.T) {
 	sock := NewSock(Dealer)
 	testval := 2000
