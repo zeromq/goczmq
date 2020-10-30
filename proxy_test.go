@@ -210,7 +210,7 @@ func TestProxyCurve(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = proxy.SetFrontend(Pull, "inproc://frontend")
+	err = proxy.SetFrontend(Pull, "inproc://curveFrontend")
 	if err != nil {
 		t.Error(err)
 	}
@@ -223,7 +223,7 @@ func TestProxyCurve(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	err = proxy.SetBackend(Push, "inproc://backend")
+	err = proxy.SetBackend(Push, "inproc://curveBackend")
 	if err != nil {
 		t.Error(err)
 	}
@@ -232,7 +232,7 @@ func TestProxyCurve(t *testing.T) {
 	faucet := NewSock(Push)
 	faucet.SetOption(SockSetCurveServerkey(serverCert.PublicText()))
 	clientCert.Apply(faucet)
-	err = faucet.Connect("inproc://frontend")
+	err = faucet.Connect("inproc://curveFrontend")
 	if err != nil {
 		t.Error(err)
 	}
@@ -241,7 +241,7 @@ func TestProxyCurve(t *testing.T) {
 	sink := NewSock(Pull)
 	sink.SetOption(SockSetCurveServerkey(serverCert.PublicText()))
 	clientCert.Apply(sink)
-	err = sink.Connect("inproc://backend")
+	err = sink.Connect("inproc://curveBackend")
 	if err != nil {
 		t.Error(err)
 	}

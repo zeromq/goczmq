@@ -31,6 +31,13 @@ import (
 	"unsafe"
 )
 
+// SockSetRouterNotify sets the router_notify option for the socket
+func SockSetRouterNotify(v int) SockOption {
+	return func(s *Sock) {
+		C.zsock_set_router_notify(unsafe.Pointer(s.zsockT), C.int(v))
+	}
+}
+
 // SockSetHeartbeatIvl sets the heartbeat_ivl option for the socket
 func SockSetHeartbeatIvl(v int) SockOption {
 	return func(s *Sock) {
