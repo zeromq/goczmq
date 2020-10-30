@@ -46,8 +46,12 @@ func (m *Monitor) Listen(event string) error {
 	eventStr := C.CString(event)
 	defer C.free(unsafe.Pointer(eventStr))
 
-	rc := C.Monitor_listen((*C.struct__zactor_t)(unsafe.Pointer(m.zactorT)), eventStr)
+SendListen:
+	rc, err := C.Monitor_listen((*C.struct__zactor_t)(unsafe.Pointer(m.zactorT)), eventStr)
 	if rc == -1 {
+		if isRetryableError(err) {
+			goto SendListen
+		}
 		return ErrActorCmd
 	}
 
@@ -59,8 +63,12 @@ func (m *Monitor) Start() error {
 	cmd := C.CString("START")
 	defer C.free(unsafe.Pointer(cmd))
 
-	rc := C.zstr_send(unsafe.Pointer(m.zactorT), cmd)
+SendStart:
+	rc, err := C.zstr_send(unsafe.Pointer(m.zactorT), cmd)
 	if rc == -1 {
+		if isRetryableError(err) {
+			goto SendStart
+		}
 		return ErrActorCmd
 	}
 	C.zsock_wait(unsafe.Pointer(m.zactorT))
@@ -70,8 +78,12 @@ func (m *Monitor) Start() error {
 
 // Verbose enables verbose mode, logging activity to stdout
 func (m *Monitor) Verbose() error {
-	rc := C.Monitor_verbose((*C.struct__zactor_t)(unsafe.Pointer(m.zactorT)))
+SendVerbose:
+	rc, err := C.Monitor_verbose((*C.struct__zactor_t)(unsafe.Pointer(m.zactorT)))
 	if rc == -1 {
+		if isRetryableError(err) {
+			goto SendVerbose
+		}
 		return ErrActorCmd
 	}
 
