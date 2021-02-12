@@ -12,7 +12,7 @@ Before you send a pull request, please familiarize yourself with the [C4.1 Colle
 
 "A Problem" should be one single clear problem. Large complex problems should be broken down into a series of smaller problems when ever possible.
 
-**Please be aware** that GoCZMQ is **not versioned**. We merge to master. We deploy from master. Master is epxected to be working, at all times. We strive to do our very best to never break public API in this library. Changes can be additive, but they can not break the existing API. If a case arises where we need to, we will be loud about it on the ZeroMQ mailing list and try to build consensus among current maintainers that it's necessary. We will be very chagrined about it, and you can poke fun at us a bit.
+**Please be aware** that GoCZMQ is **not versioned**. We merge to master. We deploy from master. Master is expected to be working, at all times. We strive to do our very best to never break public API in this library. Changes can be additive, but they can not break the existing API. If a case arises where we need to, we will be loud about it on the ZeroMQ mailing list and try to build consensus among current maintainers that it's necessary. We will be very chagrined about it, and you can poke fun at us a bit.
 
 # Style Guide
 * Your code must be formatted with [Gofmt](https://blog.golang.org/go-fmt-your-code)
