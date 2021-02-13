@@ -27,6 +27,13 @@ func NewCertStore(location string) *CertStore {
 	}
 }
 
+// NewCertStoreInMemory creates a new certificate store in memory.
+func NewCertStoreInMemory() *CertStore {
+	return &CertStore{
+		zcertstoreT: C.zcertstore_new(nil),
+        }
+}
+
 // Insert inserts a certificate into the store in memory.
 // Call Save directly on the cert if you wish to save it
 // to disk.

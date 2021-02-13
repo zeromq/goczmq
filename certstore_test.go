@@ -65,3 +65,18 @@ func TestCertStore(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestCertStoreMem(t *testing.T) {
+	certstore := NewCertStoreInMemory()
+	defer certstore.Destroy()
+
+	client0 := NewCert()
+	client0Key := client0.PublicText()
+	client0.Destroy()
+	client0Loaded := certstore.Lookup(client0Key)
+
+	if client0Loaded != nil {
+		t.Errorf("want %#v, have %#v", nil, client0Loaded)
+
+	}
+}
