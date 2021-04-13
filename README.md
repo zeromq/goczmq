@@ -70,7 +70,7 @@ func main() {
 
 	log.Println("dealer sent 'Hello'")
 
-	// Receve the message. Here we call RecvMessage, which
+	// Receive the message. Here we call RecvMessage, which
 	// will return the message as a slice of frames ([][]byte).
 	// Since this is a router socket that support async
 	// request / reply, the first frame of the message will
