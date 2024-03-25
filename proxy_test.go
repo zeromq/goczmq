@@ -2,8 +2,9 @@ package goczmq
 
 import (
 	"fmt"
+	"github.com/nofeaturesonlybugs/z85"
+	"github.com/stretchr/testify/require"
 	"testing"
-	"github.com/tilinna/z85"
 )
 
 func TestProxy(t *testing.T) {
@@ -122,14 +123,10 @@ func TestProxy(t *testing.T) {
 	}
 
 	err = proxy.Pause()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = faucet.SendFrame([]byte("Belated Hello"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := false, sink.Pollin(); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -140,14 +137,10 @@ func TestProxy(t *testing.T) {
 	}
 
 	err = proxy.Resume()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	b, f, err = sink.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := false, f == FlagMore; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -158,9 +151,7 @@ func TestProxy(t *testing.T) {
 	}
 
 	b, f, err = tap.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := false, f == FlagMore; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -176,19 +167,13 @@ func TestProxy(t *testing.T) {
 func TestProxyCurve(t *testing.T) {
 	serverPubKey := "j+KTl+V-G75#pBWwItQta7<5Rzs:N$1xFwjW2{C2"
 	serverSecretKey := "*i(F-QJdIE04$AtHVoo.AwGjcM}0sN../[j)<)N}"
-	serverPubKeyBinary := make([]byte, z85.DecodedLen(len(serverPubKey)))
-	serverSecretKeyBinary := make([]byte, z85.DecodedLen(len(serverSecretKey)))
-	if _, err := z85.Decode(serverPubKeyBinary, []byte(serverPubKey)); err != nil {
-		t.Error(err)
-	}
-	if _, err := z85.Decode(serverSecretKeyBinary, []byte(serverSecretKey)); err != nil {
-		t.Error(err)
-	}
+	serverPubKeyBinary, err := z85.PaddedDecode(serverPubKey)
+	require.NoError(t, err)
+	serverSecretKeyBinary, err := z85.PaddedDecode(serverSecretKey)
+	require.NoError(t, err)
 
 	serverCert, err := NewCertFromKeys(serverPubKeyBinary, serverSecretKeyBinary)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	clientCert := NewCert()
 
 	// Create and configure our proxy
@@ -197,66 +182,44 @@ func TestProxyCurve(t *testing.T) {
 
 	if testing.Verbose() {
 		err = proxy.Verbose()
-		if err != nil {
-			t.Error(err)
-		}
+		require.NoError(t, err)
 	}
 
 	err = proxy.SetFrontendDomain("global")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	err = proxy.SetFrontendCurve(serverPubKey, serverSecretKey)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	err = proxy.SetFrontend(Pull, "inproc://curveFrontend")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = proxy.SetBackendDomain("global")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	err = proxy.SetBackendCurve(serverPubKey, serverSecretKey)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	err = proxy.SetBackend(Push, "inproc://curveBackend")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	// connect application sockets to proxy
 	faucet := NewSock(Push)
 	faucet.SetOption(SockSetCurveServerkey(serverCert.PublicText()))
 	clientCert.Apply(faucet)
 	err = faucet.Connect("inproc://curveFrontend")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer faucet.Destroy()
 
 	sink := NewSock(Pull)
 	sink.SetOption(SockSetCurveServerkey(serverCert.PublicText()))
 	clientCert.Apply(sink)
 	err = sink.Connect("inproc://curveBackend")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer sink.Destroy()
 
 	// send some messages and check they arrived
 	err = faucet.SendFrame([]byte("Hello"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	b, f, err := sink.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := false, f == FlagMore; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -309,37 +272,27 @@ func benchmarkProxySendFrame(size int, b *testing.B) {
 	defer proxy.Destroy()
 
 	err := proxy.SetFrontend(Pull, fmt.Sprintf("inproc://benchProxyFront%d", size))
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(b, err)
 
 	err = proxy.SetBackend(Push, fmt.Sprintf("inproc://benchProxyBack%d", size))
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(b, err)
 
 	pullSock := NewSock(Pull)
 	defer pullSock.Destroy()
 
 	err = pullSock.Connect(fmt.Sprintf("inproc://benchProxyBack%d", size))
-	if err != nil {
-		panic(err)
-	}
+	require.NoError(b, err)
 
 	go func() {
 		pushSock := NewSock(Push)
 		defer pushSock.Destroy()
 		err := pushSock.Connect(fmt.Sprintf("inproc://benchProxyFront%d", size))
-		if err != nil {
-			panic(err)
-		}
+		require.NoError(b, err)
 
 		payload := make([]byte, size)
 		for i := 0; i < b.N; i++ {
 			err = pushSock.SendFrame(payload, FlagNone)
-			if err != nil {
-				panic(err)
-			}
+			require.NoError(b, err)
 		}
 	}()
 

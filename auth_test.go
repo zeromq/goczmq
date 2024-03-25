@@ -3,6 +3,7 @@ package goczmq
 import (
 	"bufio"
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"os"
 	"path"
 	"testing"
@@ -326,18 +327,14 @@ func TestAuthCurveAllowAny(t *testing.T) {
 func TestAuthCurveAllowCertificate(t *testing.T) {
 	testpath := path.Join("testauth")
 	err := os.Mkdir(testpath, 0777)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	auth := NewAuth()
 	defer auth.Destroy()
 
 	if testing.Verbose() {
 		err = auth.Verbose()
-		if err != nil {
-			t.Error(err)
-		}
+		require.NoError(t, err)
 	}
 
 	server := NewSock(Pull, SockSetZapDomain("global"))
@@ -355,9 +352,7 @@ func TestAuthCurveAllowCertificate(t *testing.T) {
 
 	certfile := path.Join("testauth", "goodClient.txt")
 	err = goodClientCert.SavePublic(certfile)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	badClient := NewSock(Push, SockSetCurveServerkey(serverKey))
 	defer badClient.Destroy()
@@ -366,70 +361,48 @@ func TestAuthCurveAllowCertificate(t *testing.T) {
 	badClientCert.Apply(badClient)
 
 	err = auth.Curve(testpath)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	port, err := server.Bind("tcp://127.0.0.1:*")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = goodClient.Connect(fmt.Sprintf("tcp://127.0.0.1:%d", port))
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = badClient.Connect(fmt.Sprintf("tcp://127.0.0.1:%d", port))
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = goodClient.SendFrame([]byte("Hello, Good World!"), 0)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	poller, err := NewPoller(server)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer poller.Destroy()
 
 	s, err := poller.Wait(200)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	if want, have := server, s; want != have {
 		t.Errorf("want '%#v', have '%#v'", want, have)
 	}
 
 	msg, err := s.RecvMessage()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "Hello, Good World!", string(msg[0]); want != have {
 		t.Errorf("want '%#v', have '%#v'", want, have)
 	}
 
 	err = badClient.SendFrame([]byte("Hello, Bad World"), 0)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	s, err = poller.Wait(200)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	if s != nil {
 		t.Errorf("want '%#v', have '%#v", nil, s)
 	}
 
 	err = os.RemoveAll(testpath)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 }
 
 func ExampleAuth() {

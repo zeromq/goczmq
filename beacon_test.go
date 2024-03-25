@@ -2,6 +2,7 @@ package goczmq
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -18,33 +19,23 @@ func TestBeacon(t *testing.T) {
 	}
 
 	_, err = speaker.Configure(9999)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	listener := NewBeacon()
 
 	if testing.Verbose() {
 		err = listener.Verbose()
-		if err != nil {
-			t.Error(err)
-		}
+		require.NoError(t, err)
 	}
 
 	_, err = listener.Configure(9999)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = listener.Subscribe("HI")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = speaker.Publish("HI", 100)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	msg := listener.Recv(500)
 	if len(msg) == 2 {

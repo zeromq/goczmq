@@ -1,6 +1,6 @@
 module github.com/zeromq/goczmq/v4/cmd/perf
 
-go 1.12
+go 1.21
 
 replace github.com/zeromq/goczmq/v4 => ../../
 

@@ -12,7 +12,7 @@ addons:
     - libczmq-dev
 
 go:
-        - 1.12.6
+        - 1.21.7
 script:
         - go get -t -v ./...
         - go test -v .

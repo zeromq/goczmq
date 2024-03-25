@@ -3,6 +3,7 @@ package goczmq
 import (
 	"encoding/gob"
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -14,56 +15,40 @@ func TestSendFrame(t *testing.T) {
 	defer pullSock.Destroy()
 
 	_, err := pullSock.Bind("inproc://test-send-frame")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = pushSock.Connect("inproc://test-send-frame")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	frame, _, err := pullSock.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "Hello", string(frame); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	_, flag, err := pullSock.RecvFrameNoWait()
-	if err == nil {
-		t.Error(err)
-	}
+	require.Error(t, err)
 
 	if want, have := true, flag == 0; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = pushSock.SendFrame([]byte("World"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	_, flag, err = pullSock.RecvFrameNoWait()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := true, flag == 0; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = pushSock.SendFrame([]byte("World"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 }
 
 func TestSendEmptyFrame(t *testing.T) {
@@ -74,25 +59,17 @@ func TestSendEmptyFrame(t *testing.T) {
 	defer pullSock.Destroy()
 
 	_, err := pullSock.Bind("inproc://test-send-empty")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = pushSock.Connect("inproc://test-send-empty")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	var empty []byte
 	err = pushSock.SendFrame(empty, FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	frame, _, err := pullSock.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := 0, len(frame); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -107,24 +84,16 @@ func TestSendMessage(t *testing.T) {
 	defer pullSock.Destroy()
 
 	_, err := pullSock.Bind("inproc://test-send-msg")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = pushSock.Connect("inproc://test-send-msg")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = pushSock.SendMessage([][]byte{[]byte("Hello")})
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	msg, err := pullSock.RecvMessage()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "Hello", string(msg[0]); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -136,14 +105,10 @@ func TestSendMessage(t *testing.T) {
 	}
 
 	err = pushSock.SendMessage([][]byte{[]byte("World")})
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	msg, err = pullSock.RecvMessageNoWait()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "World", string(msg[0]); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -164,26 +129,18 @@ func TestPubSub(t *testing.T) {
 	defer bogusSub.Destroy()
 
 	pub, err := NewPub("inproc://pub1,inproc://pub2")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pub.Destroy()
 
 	sub, err := NewSub("inproc://pub1,inproc://pub2", "")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer sub.Destroy()
 
 	err = pub.SendFrame([]byte("test pub sub"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	frame, _, err := sub.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "test pub sub", string(frame); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -204,40 +161,28 @@ func TestReqRep(t *testing.T) {
 	defer bogusRep.Destroy()
 
 	rep, err := NewRep("inproc://rep1,inproc://rep2")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer rep.Destroy()
 
 	req, err := NewReq("inproc://rep1,inproc://rep2")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer req.Destroy()
 
 	err = req.SendFrame([]byte("Hello"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	reqframe, _, err := rep.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "Hello", string(reqframe); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = rep.SendFrame([]byte("World"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	repframe, _, err := req.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "World", string(repframe); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -258,31 +203,21 @@ func TestPushPull(t *testing.T) {
 	defer bogusPull.Destroy()
 
 	push, err := NewPush("inproc://push1,inproc://push2")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer push.Destroy()
 
 	pull, err := NewPull("inproc://push1,inproc://push2")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pull.Destroy()
 
 	err = push.SendFrame([]byte("Hello"), FlagMore)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = push.SendFrame([]byte("World"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	msg, err := pull.RecvMessage()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "Hello", string(msg[0]); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -307,26 +242,18 @@ func TestRouterDealer(t *testing.T) {
 	defer bogusRouter.Destroy()
 
 	dealer, err := NewDealer("inproc://router1,inproc://router2")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer dealer.Destroy()
 
 	router, err := NewRouter("inproc://router1,inproc://router2")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer router.Destroy()
 
 	err = dealer.SendFrame([]byte("Hello"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	msg, err := router.RecvMessage()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := 2, len(msg); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -339,14 +266,10 @@ func TestRouterDealer(t *testing.T) {
 	msg[1] = []byte("World")
 
 	err = router.SendMessage(msg)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	msg, err = dealer.RecvMessage()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := 1, len(msg); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -371,15 +294,11 @@ func TestXSubXPub(t *testing.T) {
 	defer bogusXSub.Destroy()
 
 	xpub, err := NewXPub("inproc://xpub1,inproc://xpub2")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer xpub.Destroy()
 
 	xsub, err := NewXSub("inproc://xpub1,inproc://xpub2")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer xsub.Destroy()
 }
 
@@ -391,15 +310,11 @@ func TestPair(t *testing.T) {
 	defer bogusPair.Destroy()
 
 	pair1, err := NewPair(">inproc://pair")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pair1.Destroy()
 
 	pair2, err := NewPair("@inproc://pair")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pair2.Destroy()
 }
 
@@ -411,30 +326,22 @@ func TestStream(t *testing.T) {
 	defer bogusStream.Destroy()
 
 	stream1, err := NewStream(">inproc://stream")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer stream1.Destroy()
 
 	stream2, err := NewStream("@inproc://stream")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer stream2.Destroy()
 
 }
 
 func TestPollin(t *testing.T) {
 	push, err := NewPush("inproc://pollin")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer push.Destroy()
 
 	pull, err := NewPull("inproc://pollin")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pull.Destroy()
 
 	if want, have := false, pull.Pollin(); want != have {
@@ -442,9 +349,7 @@ func TestPollin(t *testing.T) {
 	}
 
 	err = push.SendFrame([]byte("Hello World"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := true, pull.Pollin(); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -453,15 +358,11 @@ func TestPollin(t *testing.T) {
 
 func TestPollinPolloutRouter(t *testing.T) {
 	router, err := NewRouter("inproc://router")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer router.Destroy()
 
 	dealer, err := NewDealer("inproc://router")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer dealer.Destroy()
 
 	// for Router pollout is always true
@@ -474,9 +375,7 @@ func TestPollinPolloutRouter(t *testing.T) {
 	}
 
 	err = dealer.SendFrame([]byte("Hello World"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := true, router.Pollin(); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -490,9 +389,7 @@ func TestPollinPolloutRouter(t *testing.T) {
 func TestPollout(t *testing.T) {
 	push := NewSock(Push)
 	_, err := push.Bind("inproc://pollout")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer push.Destroy()
 
 	if want, have := false, push.Pollout(); want != have {
@@ -503,9 +400,7 @@ func TestPollout(t *testing.T) {
 	defer pull.Destroy()
 
 	err = pull.Connect("inproc://pollout")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := true, push.Pollout(); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -520,19 +415,13 @@ func TestReader(t *testing.T) {
 	defer pullSock.Destroy()
 
 	_, err := pullSock.Bind("inproc://test-read")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = pushSock.Connect("inproc://test-read")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	b := make([]byte, 5)
 
@@ -542,23 +431,17 @@ func TestReader(t *testing.T) {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "Hello", string(b); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	err = pushSock.SendFrame([]byte("Hello"), FlagMore)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = pushSock.SendFrame([]byte(" World"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	b = make([]byte, 8)
 	_, err = pullSock.Read(b)
@@ -579,26 +462,18 @@ func TestReaderWithRouterDealer(t *testing.T) {
 	defer routerSock.Destroy()
 
 	_, err := routerSock.Bind("inproc://test-read-router")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = dealerSock.Connect("inproc://test-read-router")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = dealerSock.SendFrame([]byte("Hello"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	b := make([]byte, 5)
 
 	n, err := routerSock.Read(b)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := 5, n; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -609,14 +484,10 @@ func TestReaderWithRouterDealer(t *testing.T) {
 	}
 
 	err = dealerSock.SendFrame([]byte("Hello"), FlagMore)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = dealerSock.SendFrame([]byte(" World"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	b = make([]byte, 8)
 	_, err = routerSock.Read(b)
@@ -630,18 +501,14 @@ func TestReaderWithRouterDealer(t *testing.T) {
 	}
 
 	n, err = routerSock.Write([]byte("World"))
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := 5, n; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	frame, _, err := dealerSock.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "World", string(frame); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -659,36 +526,24 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 	defer routerSock.Destroy()
 
 	_, err := routerSock.Bind("inproc://test-read-router-async")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = dealerSock1.Connect("inproc://test-read-router-async")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = dealerSock1.SendFrame([]byte("Hello From Client 1!"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = dealerSock2.Connect("inproc://test-read-router-async")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = dealerSock2.SendFrame([]byte("Hello From Client 2!"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	msg := make([]byte, 255)
 
 	n, err := routerSock.Read(msg)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := 20, n; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -705,9 +560,7 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 	}
 
 	n, err = routerSock.Read(msg)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := 20, n; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -722,14 +575,10 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 	routerSock.SetLastClientID(client1ID)
 	_, err = routerSock.Write([]byte("Hello Client 1!"))
 
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	frame, _, err := dealerSock1.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "Hello Client 1!", string(frame); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -738,14 +587,10 @@ func TestReaderWithRouterDealerAsync(t *testing.T) {
 	routerSock.SetLastClientID(client2ID)
 	_, err = routerSock.Write([]byte("Hello Client 2!"))
 
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	frame, _, err = dealerSock2.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "Hello Client 2!", string(frame); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -760,15 +605,11 @@ type encodeMessage struct {
 
 func TestPushPullEncodeDecode(t *testing.T) {
 	push, err := NewPush("inproc://pushpullencode")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer push.Destroy()
 
 	pull, err := NewPull("inproc://pushpullencode")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pull.Destroy()
 
 	encoder := gob.NewEncoder(push)
@@ -781,15 +622,11 @@ func TestPushPullEncodeDecode(t *testing.T) {
 	}
 
 	err = encoder.Encode(sent)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	var received encodeMessage
 	err = decoder.Decode(&received)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := received.Foo, sent.Foo; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -810,15 +647,11 @@ func TestPushPullEncodeDecode(t *testing.T) {
 
 func TestDealerRouterEncodeDecode(t *testing.T) {
 	router, err := NewRouter("inproc://dealerrouterencode")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer router.Destroy()
 
 	dealer, err := NewDealer("inproc://dealerrouterencode")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer dealer.Destroy()
 
 	rencoder := gob.NewEncoder(router)
@@ -834,15 +667,11 @@ func TestDealerRouterEncodeDecode(t *testing.T) {
 	}
 
 	err = dencoder.Encode(question)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	var received encodeMessage
 	err = rdecoder.Decode(&received)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := received.Foo, question.Foo; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -863,15 +692,11 @@ func TestDealerRouterEncodeDecode(t *testing.T) {
 	}
 
 	err = rencoder.Encode(sent)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	var answer encodeMessage
 	err = ddecoder.Decode(&answer)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := answer.Foo, sent.Foo; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -888,27 +713,19 @@ func TestDealerRouterEncodeDecode(t *testing.T) {
 
 func TestRecvFrameCalledAfterDestroy(t *testing.T) {
 	rep, err := NewRep("inproc://rep1")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	req, err := NewReq("inproc://rep1")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	defer req.Destroy()
 
 	err = req.SendFrame([]byte("Hello"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	// Just verify that the connection actually works.
 	reqframe, _, err := rep.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "Hello", string(reqframe); want != have {
 		t.Errorf("want %#v, have %#v", want, have)

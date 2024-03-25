@@ -1,6 +1,7 @@
 package goczmq
 
 import (
+	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
 )
@@ -8,9 +9,7 @@ import (
 func TestCertStore(t *testing.T) {
 	testDir := ".test_zcertstore"
 	err := os.Mkdir(testDir, 0777)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	certstore := NewCertStore(testDir)
 	defer certstore.Destroy()
@@ -29,9 +28,7 @@ func TestCertStore(t *testing.T) {
 	client1Key := client1.PublicText()
 
 	err = client1.Save(testDir + "/mycert.txt")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	client1.Destroy()
 

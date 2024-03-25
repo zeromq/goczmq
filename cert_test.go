@@ -1,6 +1,7 @@
 package goczmq
 
 import (
+	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
 )
@@ -47,14 +48,10 @@ func TestCert(t *testing.T) {
 	}
 
 	err := cert.Save("./test_cert")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	loaded, err := NewCertFromFile("./test_cert")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer loaded.Destroy()
 
 	if want, have := true, loaded.Equal(cert); want != have {
@@ -66,14 +63,10 @@ func TestCert(t *testing.T) {
 	}
 
 	err = os.Remove("./test_cert")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	err = os.Remove("./test_cert_secret")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 }
 
 func TestNewCertFromFile(t *testing.T) {

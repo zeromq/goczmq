@@ -2,50 +2,37 @@ package goczmq
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
 func TestPollerNewNoSocks(t *testing.T) {
 	poller, err := NewPoller()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer poller.Destroy()
 
 	pullSock1, err := NewPull("inproc://poller_new_no_socks")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pullSock1.Destroy()
 
 	err = poller.Add(pullSock1)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	pushSock, err := NewPush("inproc://poller_new_no_socks")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pushSock.Destroy()
 
 	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	s, err := poller.Wait(0)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	if want, have := pullSock1, s; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	frame, _, err := s.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "Hello", string(frame); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -54,15 +41,11 @@ func TestPollerNewNoSocks(t *testing.T) {
 
 func TestPoller(t *testing.T) {
 	pullSock1, err := NewPull("inproc://poller_pull1")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pullSock1.Destroy()
 
 	poller, err := NewPoller(pullSock1)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer poller.Destroy()
 
 	if want, have := 1, len(poller.socks); want != have {
@@ -70,15 +53,11 @@ func TestPoller(t *testing.T) {
 	}
 
 	pullSock2, err := NewPull("inproc://poller_pull2")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pullSock2.Destroy()
 
 	err = poller.Add(pullSock2)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := 2, len(poller.socks); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -87,9 +66,7 @@ func TestPoller(t *testing.T) {
 	poller.Destroy()
 
 	poller, err = NewPoller(pullSock1, pullSock2)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := 2, len(poller.socks); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -104,56 +81,40 @@ func TestPoller(t *testing.T) {
 	}
 
 	pushSock, err := NewPush("inproc://poller_pull1")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pushSock.Destroy()
 
 	err = pushSock.SendFrame([]byte("Hello"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	s, err := poller.Wait(0)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	if want, have := pullSock1, s; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	frame, _, err := s.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "Hello", string(frame); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	pushSock2, err := NewPush("inproc://poller_pull2")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pushSock2.Destroy()
 
 	err = pushSock2.SendFrame([]byte("World"), FlagNone)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	s, err = poller.Wait(0)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	if want, have := pullSock2, s; want != have {
 		t.Errorf("want %#v, have %#v", want, have)
 	}
 
 	frame, _, err = s.RecvFrame()
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	if want, have := "World", string(frame); want != have {
 		t.Errorf("want %#v, have %#v", want, have)
@@ -167,19 +128,13 @@ func TestPoller(t *testing.T) {
 
 func TestPollerAfterDestroy(t *testing.T) {
 	pullSock, err := NewPull("inproc://poller_pull")
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	defer pullSock.Destroy()
 
 	poller, err := NewPoller(pullSock)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 	_, err = poller.Wait(0)
-	if err != nil {
-		t.Error(err)
-	}
+	require.NoError(t, err)
 
 	poller.Destroy()
 	_, err = poller.Wait(0)
@@ -249,9 +204,7 @@ func benchmarkPollerSendFrame(size int, b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		s, err := poller.Wait(-1)
-		if err != nil {
-			b.Error(err)
-		}
+		require.NoError(b, err)
 		msg, _, err := s.RecvFrame()
 		if err != nil {
 			panic(err)
