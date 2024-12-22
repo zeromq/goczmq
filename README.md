@@ -83,7 +83,7 @@ func main() {
 	log.Printf("router received '%s' from '%v'", request[1], request[0])
 
 	// Send a reply. First we send the routing frame, which
-	// lets the dealer know which client to send the message.
+	// lets the router know which client to send the message.
 	// The FlagMore flag tells the router there will be more
 	// frames in this message.
 	err = router.SendFrame(request[0], goczmq.FlagMore)
